@@ -1,6 +1,9 @@
+console.log('UNIQUE_CONNECT_JS_STARTED - This is connect.js running');
 const awsIot = require('aws-iot-device-sdk');
 const path = require('path');
 const Telemetry = require('./models/Telemetry');
+
+console.log('connect is running')
 
 class MqttConnect {
     constructor(){

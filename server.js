@@ -4,7 +4,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const telemetryRoutes = require('./routes/telemetryRoutes');
 const deviceRoutes = require('./routes/deviceRoutes');
-require('./connect');
+
+require('./fleetConnect');
 
 const app = express();
 const PORT = process.env.PORT || 5000;

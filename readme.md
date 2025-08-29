@@ -1,20 +1,5 @@
 # MSM - API & MQTT Documentation
 
-## 🌐 REST API Endpoints
-
-### Device Management
-- `GET    /api/devices` - List all devices
-- `GET    /api/devices/:id` - Get device details
-- `POST   /api/devices` - Create/Update device
-- `DELETE /api/devices/:id` - Delete device
-
-### Telemetry
-- `GET /api/telemetry/latest/:deviceId` - Get latest telemetry
-- `GET /api/telemetry/history/:deviceId` - Get telemetry history
-
-### Commands
-- `POST /api/commands/:deviceId` - Send command to device
-- `GET  /api/commands/status/:commandId` - Get command status
 
 ## 📡 MQTT Topics
 
@@ -61,32 +46,3 @@
        ]
      }
      ```
-
-2. **Status**
-   - Topic: `msm/{deviceId}/status`
-   - Schema:
-     ```json
-     {
-       "status": "online/offline",
-       "version": "1.0.0",
-       "ip": "192.168.1.100",
-       "timestamp": "2025-08-28T11:00:00.000Z"
-     }
-     ```
-
-### Subscribe (Server → Device)
-1. **Commands**
-   - Topic: `msm/{deviceId}/commands`
-   - Schema:
-     ```json
-     {
-       "command": "reboot/update/config",
-       "payload": {},
-       "timestamp": "2025-08-28T11:00:00.000Z",
-       "id": "command-unique-id"
-     }
-     ```
-
-2. **Broadcast**
-   - Topic: `msm/broadcast`
-   - For sending messages to all devices

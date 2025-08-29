@@ -8,33 +8,17 @@
         "iot:Receive",
         "iot:PublishRetain"
       ],
-      "Resource": [
-        "arn:aws:iot:eu-north-1:117371013245:topic/sdk/test/java",
-        "arn:aws:iot:eu-north-1:117371013245:topic/sdk/test/python",
-        "arn:aws:iot:eu-north-1:117371013245:topic/sdk/test/js"
-      ]
+      "Resource": "arn:aws:iot:eu-north-1:117371013245:topic/msm/*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "iot:Subscribe"
-      ],
-      "Resource": [
-        "arn:aws:iot:eu-north-1:117371013245:topicfilter/sdk/test/java",
-        "arn:aws:iot:eu-north-1:117371013245:topicfilter/sdk/test/python",
-        "arn:aws:iot:eu-north-1:117371013245:topicfilter/sdk/test/js"
-      ]
+      "Action": "iot:Subscribe",
+      "Resource": "arn:aws:iot:eu-north-1:117371013245:topicfilter/msm/*"
     },
     {
       "Effect": "Allow",
-      "Action": [
-        "iot:Connect"
-      ],
-      "Resource": [
-        "arn:aws:iot:eu-north-1:117371013245:client/sdk-java",
-        "arn:aws:iot:eu-north-1:117371013245:client/basicPubSub",
-        "arn:aws:iot:eu-north-1:117371013245:client/sdk-nodejs-*"
-      ]
+      "Action": "iot:Connect",
+      "Resource": "arn:aws:iot:eu-north-1:117371013245:client/msm-backend*"
     }
   ]
 }

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const mqttClient = require('../connect');
+const mqttClient = require('../fleetConnect');
 
 /**
  * @route POST /api/devices/:deviceId/reboot
