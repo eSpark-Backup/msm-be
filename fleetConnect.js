@@ -6,7 +6,7 @@ const Device = require('./models/Device');
 class FleetConnect {
     constructor() {
         this.device = null;
-        this.clientId = 'msm-backend-5';
+        this.clientId = 'msm-backend-123';
         
         // ===== MQTT TOPICS CONFIGURATION =====
         this.topics = [

@@ -1,0 +1,813 @@
+{
+	"info": {
+		"_postman_id": "msm-api-collection",
+		"name": "MSM API Collection",
+		"description": "Complete API collection for MSM (Machine Status Monitoring) system",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{auth_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000/api"
+		},
+		{
+			"key": "auth_token",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('auth_token', response.data.token);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "MQTT Configuration",
+			"item": [
+				{
+					"name": "Get All MQTT Configs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/mqtt",
+							"host": ["{{base_url}}"],
+							"path": ["mqtt"]
+						}
+					}
+				},
+				{
+					"name": "Get MQTT Config by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/mqtt/:id",
+							"host": ["{{base_url}}"],
+							"path": ["mqtt", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "mqtt_config_id"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create MQTT Config",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"device_uuid\": \"ESP90000005\",\n  \"broker_ip\": \"thingsboard.cloud\",\n  \"broker_port\": 1883,\n  \"broker_user\": \"OFP-INDKOM\",\n  \"broker_pass\": \"IND10\",\n  \"data_interval\": 900,\n  \"mqtt_topic\": \"v1/devices/me/telemetry\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/mqtt",
+							"host": ["{{base_url}}"],
+							"path": ["mqtt"]
+						}
+					}
+				},
+				{
+					"name": "Update MQTT Config",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"broker_ip\": \"updated.thingsboard.cloud\",\n  \"data_interval\": 1800\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/mqtt/:id",
+							"host": ["{{base_url}}"],
+							"path": ["mqtt", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "mqtt_config_id"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete MQTT Config",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/mqtt/:id",
+							"host": ["{{base_url}}"],
+							"path": ["mqtt", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "mqtt_config_id"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "NTP Configuration",
+			"item": [
+				{
+					"name": "Get All NTP Configs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ntp",
+							"host": ["{{base_url}}"],
+							"path": ["ntp"]
+						}
+					}
+				},
+				{
+					"name": "Get NTP Config by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ntp/:id",
+							"host": ["{{base_url}}"],
+							"path": ["ntp", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "ntp_config_id"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create NTP Config",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"device_uuid\": \"ESP90000005\",\n  \"data\": {\n    \"server_1\": \"my.pool.ntp.org\",\n    \"server_2\": \"0.asia.pool.ntp.org\",\n    \"server_3\": \"1.asia.pool.ntp.org\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ntp",
+							"host": ["{{base_url}}"],
+							"path": ["ntp"]
+						}
+					}
+				},
+				{
+					"name": "Update NTP Config",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"data\": {\n    \"server_1\": \"updated.pool.ntp.org\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/ntp/:id",
+							"host": ["{{base_url}}"],
+							"path": ["ntp", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "ntp_config_id"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete NTP Config",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/ntp/:id",
+							"host": ["{{base_url}}"],
+							"path": ["ntp", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "ntp_config_id"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "SFTP Configuration",
+			"item": [
+				{
+					"name": "Get All SFTP Configs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/sftp",
+							"host": ["{{base_url}}"],
+							"path": ["sftp"]
+						}
+					}
+				},
+				{
+					"name": "Get SFTP Config by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/sftp/:id",
+							"host": ["{{base_url}}"],
+							"path": ["sftp", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "sftp_config_id"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create SFTP Config",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"device_uuid\": \"ESP90000005\",\n  \"server_ip\": \"ap-southeast-1.sftpcloud.io\",\n  \"server_port\": 22,\n  \"username\": \"ofp-msm\",\n  \"password\": \"root123456\",\n  \"data_interval\": 900\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sftp",
+							"host": ["{{base_url}}"],
+							"path": ["sftp"]
+						}
+					}
+				},
+				{
+					"name": "Update SFTP Config",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"server_ip\": \"updated.sftpcloud.io\",\n  \"data_interval\": 1800\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/sftp/:id",
+							"host": ["{{base_url}}"],
+							"path": ["sftp", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "sftp_config_id"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete SFTP Config",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/sftp/:id",
+							"host": ["{{base_url}}"],
+							"path": ["sftp", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "sftp_config_id"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Role Management",
+			"item": [
+				{
+					"name": "Create Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"admin\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/role",
+							"host": ["{{base_url}}"],
+							"path": ["role"]
+						}
+					}
+				},
+				{
+					"name": "Get All Roles",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/role",
+							"host": ["{{base_url}}"],
+							"path": ["role"]
+						}
+					}
+				},
+				{
+					"name": "Get Role by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/role/:id",
+							"host": ["{{base_url}}"],
+							"path": ["role", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "role_id_here"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Update Role",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"updated_role_name\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/role/:id",
+							"host": ["{{base_url}}"],
+							"path": ["role", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "role_id_here"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Role",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/role/:id",
+							"host": ["{{base_url}}"],
+							"path": ["role", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "role_id_here"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": ["{{base_url}}"],
+							"path": ["users"]
+						}
+					}
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/:id",
+							"host": ["{{base_url}}"],
+							"path": ["users", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "user_id"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Jane Smith\",\n  \"label\": \"Employee Label\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"password123\",\n  \"phone_number\": \"+1234567891\",\n  \"description\": \"Manager\",\n  \"method\": \"google\",\n  \"owner\": \"Admin Owner\",\n  \"groups\": [\"group1\", \"group2\"],\n  \"customer_name\": \"ACME Corp\",\n  \"role_id\": \"60f7b3b3b3b3b3b3b3b3b3b3\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": ["{{base_url}}"],
+							"path": ["users"]
+						}
+					}
+				},				
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Jane Smith\",\n  \"label\": \"Employee Label\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"password123\",\n  \"phone_number\": \"+1234567891\",\n  \"description\": \"Manager\",\n  \"method\": \"google\",\n  \"owner\": \"Admin Owner\",\n  \"groups\": [\"group1\", \"group2\"],\n  \"customer_name\": \"ACME Corp\",\n  \"role_id\": \"60f7b3b3b3b3b3b3b3b3b3b3\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/:id",
+							"host": ["{{base_url}}"],
+							"path": ["users", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "user_id"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/:id",
+							"host": ["{{base_url}}"],
+							"path": ["users", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "user_id"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Telemetry Data",
+			"item": [
+				{
+					"name": "Get All Telemetry",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/telemetry",
+							"host": ["{{base_url}}"],
+							"path": ["telemetry"]
+						}
+					}
+				},
+				{
+					"name": "Get Telemetry by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/telemetry/:id",
+							"host": ["{{base_url}}"],
+							"path": ["telemetry", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "telemetry_id"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Telemetry Record",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"device_uuid\": \"ESP90000005\",\n  \"timestamp\": \"2024-01-01T00:00:00.000Z\",\n  \"channel_id\": 1,\n  \"phase\": \"A\",\n  \"channel_status\": true,\n  \"temperature\": 25.5,\n  \"line_voltage\": 230.0,\n  \"rms_voltage\": 230.0,\n  \"frequency\": 50.0,\n  \"current\": 5.2,\n  \"power_factor\": 0.95,\n  \"active_power\": 1150.0,\n  \"reactive_power\": 350.0,\n  \"apparent_power\": 1200.0,\n  \"battery_level\": 85,\n  \"signal_strength\": -65,\n  \"firmware_version\": \"1.0.0\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/telemetry",
+							"host": ["{{base_url}}"],
+							"path": ["telemetry"]
+						}
+					}
+				},
+				{
+					"name": "Update Telemetry Record",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"processed\": true,\n  \"temperature\": 26.0\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/telemetry/:id",
+							"host": ["{{base_url}}"],
+							"path": ["telemetry", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "telemetry_id"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete Telemetry Record",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/telemetry/:id",
+							"host": ["{{base_url}}"],
+							"path": ["telemetry", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "telemetry_id"
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

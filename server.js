@@ -4,6 +4,12 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const telemetryRoutes = require('./routes/telemetryRoutes');
 const deviceRoutes = require('./routes/deviceRoutes');
+const userRoutes = require('./routes/userRoutes');
+const mqttRoutes = require('./routes/mqttRoutes');
+const sftpRoutes = require('./routes/sftpRoutes');
+const ntpRoutes = require('./routes/ntpRoutes');
+const authRoutes = require('./routes/authRoutes');
+const roleRoutes = require('./routes/roleRoutes');
 
 require('./fleetConnect');
 
@@ -25,6 +31,12 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/msm', {
 // Routes
 app.use('/api/telemetry', telemetryRoutes);
 app.use('/api/devices', deviceRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/mqtt', mqttRoutes);
+app.use('/api/sftp', sftpRoutes);
+app.use('/api/ntp', ntpRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/role', roleRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
