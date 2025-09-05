@@ -145,15 +145,7 @@ exports.deleteRole = async (req, res) => {
             });
         }
 
-        // Prevent deletion of default roles
-        if (['admin', 'user'].includes(role.name)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Cannot delete default roles'
-            });
-        }
-
-        await role.remove();
+        await role.deleteOne();
 
         res.status(200).json({
             success: true,
