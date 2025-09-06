@@ -2,6 +2,9 @@ const awsIot = require('aws-iot-device-sdk');
 const path = require('path');
 const Telemetry = require('./models/Telemetry');
 const Device = require('./models/Device');
+const Mqtt = require('./models/Mqtt');
+const Ntp = require('./models/Ntp');
+const Sftp = require('./models/Sftp');
 
 class FleetConnect {
     constructor() {
@@ -15,7 +18,11 @@ class FleetConnect {
             'msm/+/device_info',  // Device → Cloud: Device information
             'msm/+/ntp',          // Cloud ↔ Device: NTP server configuration
             'msm/+/mqtt',         // Cloud ↔ Device: MQTT broker credentials
-            'msm/+/sftp'          // Cloud ↔ Device: SFTP server credentials
+            'msm/+/sftp',         // Cloud ↔ Device: SFTP server credentials
+
+            // Shadow topics
+            '$aws/things/+/shadow/update'
+
         ];
         
         this.connectedDevices = new Map();  // Track connected devices
@@ -84,6 +91,7 @@ class FleetConnect {
                     switch (topicType) {
                         case 'telemetry':
                             await this.handleTelemetryMessage(message, deviceUuid);
+                            this.updateShadow(deviceUuid, message);
                             break;
                         case 'reboot':
                             await this.handleRebootMessage(message, deviceUuid);
@@ -113,6 +121,40 @@ class FleetConnect {
             throw error;
         }
     }
+
+    async updateShadow(deviceUuid, message) {
+        try {
+            console.log(`Updating shadow for ${deviceUuid}:`, message);
+    
+            // Construct shadow topic
+            const shadowTopic = `$aws/things/${deviceUuid}/shadow/update`;
+    
+            // Construct shadow payload
+            const shadowPayload = {
+                state: {
+                    reported: message // you can pick specific fields if needed
+                }
+            };
+    
+            // Publish to shadow
+            this.device.publish(
+                shadowTopic,
+                JSON.stringify(shadowPayload),
+                { qos: 1 },
+                (err) => {
+                    if (err) {
+                        console.error(`❌ Failed to update shadow for ${deviceUuid}:`, err);
+                    } else {
+                        console.log(`✅ Shadow updated for ${deviceUuid}`);
+                    }
+                }
+            );
+    
+        } catch (error) {
+            console.error(`❌ Error updating shadow for ${deviceUuid}:`, error);
+        }
+    }
+    
 
     // ===== UTILITY METHODS =====
     extractDeviceUuid(topic) {
@@ -234,6 +276,8 @@ class FleetConnect {
             
             // This could be a confirmation of NTP configuration
             const ntpData = message.data[0];
+
+            this.updateNtpConfig(deviceUuid, ntpData);
             
             // Store NTP configuration status
             this.updateDeviceConfig(deviceUuid, 'ntp', ntpData);
@@ -250,6 +294,8 @@ class FleetConnect {
             
             // This could be a confirmation of MQTT configuration
             const mqttData = message.data[0];
+
+            this.updateMqttConfig(deviceUuid, mqttData);
             
             // Store MQTT configuration status
             this.updateDeviceConfig(deviceUuid, 'mqtt', mqttData);
@@ -266,7 +312,9 @@ class FleetConnect {
             
             // This could be a confirmation of SFTP configuration
             const sftpData = message.data[0];
-            
+
+            this.updateSftpConfig(deviceUuid, sftpData);
+
             // Store SFTP configuration status
             this.updateDeviceConfig(deviceUuid, 'sftp', sftpData);
             
@@ -334,6 +382,54 @@ class FleetConnect {
             this.device.publish(topic, JSON.stringify(message));
         } else {
             console.error('❌ MQTT device not connected');
+        }
+    }
+
+    async updateNtpConfig(deviceUuid, ntpData) {
+        try {
+            console.log(`🕐 NTP config updated for ${deviceUuid}:`, ntpData);
+            
+            await Ntp.findOneAndUpdate(
+                { device_uuid: deviceUuid },
+                ntpData,
+                { upsert: true, new: true }
+            );
+            
+            console.log(`✅ NTP config saved to database: ${deviceUuid}`);
+        } catch (error) {
+            console.error(`❌ Error saving NTP config for ${deviceUuid}:`, error);
+        }
+    }
+
+    async updateMqttConfig(deviceUuid, mqttData) {
+        try {
+            console.log(`📡 MQTT config updated for ${deviceUuid}:`, mqttData);
+            
+            await Mqtt.findOneAndUpdate(
+                { device_uuid: deviceUuid },
+                mqttData,
+                { upsert: true, new: true }
+            );
+            
+            console.log(`✅ MQTT config saved to database: ${deviceUuid}`);
+        } catch (error) {
+            console.error(`❌ Error saving MQTT config for ${deviceUuid}:`, error);
+        }
+    }
+
+    async updateSftpConfig(deviceUuid, sftpData) {
+        try {
+            console.log(`📁 SFTP config updated for ${deviceUuid}:`, sftpData);
+            
+            await Sftp.findOneAndUpdate(
+                { device_uuid: deviceUuid },
+                sftpData,
+                { upsert: true, new: true }
+            );
+            
+            console.log(`✅ SFTP config saved to database: ${deviceUuid}`);
+        } catch (error) {
+            console.error(`❌ Error saving SFTP config for ${deviceUuid}:`, error);
         }
     }
     
