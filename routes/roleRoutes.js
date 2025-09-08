@@ -5,7 +5,7 @@ const authrize = require('../middleware/authrize');
 const verifyToken = require('../middleware/verifyToken')
 
 router.post('/', roleController.createRole);
-router.get('/', verifyToken, authrize(['admin']), roleController.getRoles);
+router.get('/', verifyToken, authrize(['super_admin']), roleController.getRoles);
 router.get('/:id', roleController.getRoleById);
 router.put('/:id', roleController.updateRole);
 router.delete('/:id', roleController.deleteRole);
