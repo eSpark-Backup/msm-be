@@ -139,6 +139,7 @@
     ]
 }
 ```
+
 ## MQTT Info (Existing but needs to be changed as per MQTTs)
 ### Method
 - Publish
@@ -150,7 +151,7 @@
     "data":[
         {
             "broker_ip": "thingsboard.cloud",
-            "broker_port": 1883
+            "broker_port": 1883,
             "broker_user": "OFP-INDKOM",
             "broker_pass": "IND10",
             "data_interval" : 900,

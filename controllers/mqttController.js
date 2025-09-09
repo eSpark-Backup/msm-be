@@ -40,11 +40,39 @@ const getSingleMqtt = async (req, res) => {
     }
 };
 
-// Create new MQTT configuration
+// Get single MQTT configuration by device_uuid
+const getSingleMqttByDeviceUuid = async (req, res) => {
+    try {
+        const mqttConfig = await Mqtt.find({ device_uuid: req.params.device_uuid });
+        if (!mqttConfig) {
+            return res.status(404).json({
+                success: false,
+                message: 'MQTT configuration not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: mqttConfig
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching MQTT configuration',
+            error: error.message
+        });
+    }
+};
+
+// Corrected createMqtt function
 const createMqtt = async (req, res) => {
     try {
-        const mqttConfig = new Mqtt(req.body);
-        await mqttConfig.save();
+        // Upsert MQTT config by device_uuid
+        const mqttConfig = await Mqtt.findOneAndUpdate(
+            { device_uuid: req.body.device_uuid },  // filter
+            req.body,                                // data to update
+            { upsert: true, new: true }             // create if not exists & return new doc
+        );
+
         res.status(201).json({
             success: true,
             message: 'MQTT configuration created successfully',
@@ -115,5 +143,6 @@ module.exports = {
     getSingleMqtt,
     createMqtt,
     updateMqtt,
-    deleteMqtt
+    deleteMqtt,
+    getSingleMqttByDeviceUuid
 };

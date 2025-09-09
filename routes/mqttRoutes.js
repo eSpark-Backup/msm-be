@@ -6,9 +6,14 @@ router.get('/', (req, res) => {
     mqttController.getAllMqtt(req, res);
 });
 
+router.get('/device/:device_uuid', (req, res) => {
+    mqttController.getSingleMqttByDeviceUuid(req, res);
+});
+
 router.get('/:id', (req, res) => {
     mqttController.getSingleMqtt(req, res);
 });
+
 
 router.post('/', (req, res) => {
     mqttController.createMqtt(req, res);

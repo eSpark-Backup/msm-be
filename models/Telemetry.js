@@ -61,7 +61,7 @@ telemetrySchema.index({ device_uuid: 1, timestamp: -1 });
 telemetrySchema.virtual('device', {
   ref: 'Device',
   localField: 'device_uuid',
-  foreignField: 'deviceId',
+  foreignField: 'device_uuid',
   justOne: true
 });
 

@@ -91,22 +91,27 @@ class FleetConnect {
                     switch (topicType) {
                         case 'telemetry':
                             await this.handleTelemetryMessage(message, deviceUuid);
-                            this.updateShadow(deviceUuid, message);
+                            this.updateShadow(deviceUuid, message, topicType);
                             break;
                         case 'reboot':
                             await this.handleRebootMessage(message, deviceUuid);
+                            this.updateShadow(deviceUuid, message, topicType);
                             break;
                         case 'device_info':
                             await this.handleDeviceInfoMessage(message, deviceUuid);
+                            this.updateShadow(deviceUuid, message, topicType);
                             break;
                         case 'ntp':
                             await this.handleNtpMessage(message, deviceUuid);
+                            this.updateShadow(deviceUuid, message, topicType);
                             break;
                         case 'mqtt':
                             await this.handleMqttMessage(message, deviceUuid);
+                            this.updateShadow(deviceUuid, message, topicType);
                             break;
                         case 'sftp':
                             await this.handleSftpMessage(message, deviceUuid);
+                            this.updateShadow(deviceUuid, message, topicType);
                             break;
                         default:
                             console.warn(`⚠️  Unknown topic type: ${topicType}`);
@@ -122,7 +127,7 @@ class FleetConnect {
         }
     }
 
-    async updateShadow(deviceUuid, message) {
+    async updateShadow(deviceUuid, message, topicType) {
         try {
             console.log(`Updating shadow for ${deviceUuid}:`, message);
     
@@ -132,7 +137,9 @@ class FleetConnect {
             // Construct shadow payload
             const shadowPayload = {
                 state: {
-                    reported: message // you can pick specific fields if needed
+                    reported: {
+                        [topicType]: message // you can pick specific fields if needed
+                    }
                 }
             };
     

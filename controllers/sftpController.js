@@ -43,8 +43,11 @@ const getSingleSftp = async (req, res) => {
 // Create new SFTP configuration
 const createSftp = async (req, res) => {
     try {
-        const sftpConfig = new Sftp(req.body);
-        await sftpConfig.save();
+        const sftpConfig = await Sftp.findOneAndUpdate(
+            { device_uuid: req.body.device_uuid },
+            req.body,
+            { upsert: true, new: true }
+        );
         res.status(201).json({
             success: true,
             message: 'SFTP configuration created successfully',
