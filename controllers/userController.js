@@ -63,6 +63,11 @@ const createUser = async (req, res) => {
 // Update user
 const updateUser = async (req, res) => {
     try {
+
+        if(req.file){
+            req.body.logo = req.file.filename;
+        }
+
         const user = await User.findByIdAndUpdate(
             req.params.id,
             req.body,

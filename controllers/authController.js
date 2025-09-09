@@ -14,6 +14,10 @@ const login = async (req, res) => {
 
         // Check if user exists
         const user = await User.findOne({ email }).populate('role');
+
+        console.log(user)
+        console.log(email , password)
+
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -23,6 +27,9 @@ const login = async (req, res) => {
 
         // Check password
         const isPasswordValid = await bcrypt.compare(password, user.password);
+        
+        console.log(isPasswordValid)
+
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,

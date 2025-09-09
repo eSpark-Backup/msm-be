@@ -3,6 +3,7 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const authrize = require('../middleware/authrize');
 const verifyToken = require('../middleware/verifyToken')
+const handleUserUpload = require('../middleware/hanldeUserUpload');
 
 router.get('/', verifyToken, authrize(['super_admin']), (req, res) => {
     userController.getAllUsers(req, res);
@@ -13,7 +14,7 @@ router.post('/', verifyToken, authrize(['super_admin']), (req, res) => {
 });
 
 
-router.put('/:id', verifyToken, authrize(['super_admin']), (req, res) => {
+router.put('/:id', verifyToken, authrize(['super_admin']), handleUserUpload.single("logo"), (req, res) => {
     userController.updateUser(req, res);
 });
 

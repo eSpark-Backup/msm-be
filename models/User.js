@@ -7,6 +7,9 @@ const UserSchema = new mongoose.Schema(
             type: String,
             required: true
         },
+        username:{
+            type:String
+        },
         label: {
             type: String
         },
@@ -34,9 +37,15 @@ const UserSchema = new mongoose.Schema(
         },
         groups: [
             {
-                type: String
+                type:String,
             }
         ],
+        // groups: [
+        //     {
+        //         type: mongoose.Schema.Types.ObjectId,
+        //         ref: "Group"
+        //     }
+        // ],
         customer_name: {
             type: String
         },
@@ -44,6 +53,18 @@ const UserSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Role",
             required: true
+        },
+        logo: {
+            type:String
+        },
+        company_mail: {
+            type:String
+        },
+        date_of_birth: {
+            type:Date
+        },
+        company_name:{
+            type:String
         }
     },
     {
