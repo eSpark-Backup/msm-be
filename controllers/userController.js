@@ -65,11 +65,15 @@ const updateUser = async (req, res) => {
     try {
 
 
-        if(req.files){
-            req.body.profile_image = req.files.profile_image[0].filename;
-            req.body.logo = req.files.logo[0].filename;
+        if (req.files) {
+            if (req.files.profile_image?.[0]) {
+                req.body.profile_image = req.files.profile_image[0].filename;
+            }
+            if (req.files.logo?.[0]) {
+                req.body.logo = req.files.logo[0].filename;
+            }
         }
-
+        
         const user = await User.findByIdAndUpdate(
             req.params.id,
             req.body,
