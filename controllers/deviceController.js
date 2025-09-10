@@ -1,0 +1,94 @@
+const mqttClient = require('../fleetConnect');
+const Device = require('../models/Device');
+
+// ===== DEVICE REBOOT CONTROLLER =====
+/**
+ * @description Send reboot command to a device
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const rebootDevice = async (req, res) => {
+    try {
+        const { deviceId } = req.params;
+
+        if (!deviceId) {
+            return res.status(400).json({ success: false, message: 'Device ID is required' });
+        }
+
+        // Use the FleetConnect method
+        mqttClient.sendRebootCommand(deviceId);
+
+        res.json({
+            success: true,
+            message: 'Reboot command sent successfully',
+            deviceId,
+            topic: `msm/${deviceId}/reboot`
+        });
+
+    } catch (error) {
+        console.error('Error in reboot endpoint:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+};
+
+
+const getDeviceById = async (req, res) => {
+    try {
+        const device_id = req.params.deviceId;
+
+        const device = await Device.findById(device_id);
+
+        if (!device) {
+            return res.status(404).json({
+                success: false,
+                message: 'Device not found'
+            })
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Device found',
+            data: device
+        })
+
+    } catch (error) {
+        console.error('Error in Device Get By id end point : ', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+            error: error.message
+        })
+    }
+}
+
+
+const getAllDevices = async (req, res) => {
+    try {
+
+        const devices = await Device.find();
+
+        res.status(200).json({
+            success: true,
+            message: 'Devices found',
+            data: devices
+        })
+
+    } catch (error) {
+        console.error('Error in Device Get All end point : ', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+            error: error.message
+        })
+    }
+}
+
+module.exports = {
+    rebootDevice,
+    getDeviceById,
+    getAllDevices
+};

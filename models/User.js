@@ -65,6 +65,10 @@ const UserSchema = new mongoose.Schema(
         },
         company_name:{
             type:String
+        },
+        status: {
+            type:String,
+            default:'active'
         }
     },
     {
@@ -94,9 +98,13 @@ UserSchema.pre("findOneAndUpdate", async function (next) {
     const update = this.getUpdate();
 
     if (update.password) {
-        const salt = await bcrypt.genSalt(10);
-        update.password = await bcrypt.hash(update.password, salt);
-        this.setUpdate(update);
+        try {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(update.password, salt);
+            this.setUpdate({ ...update, password: hashedPassword });
+        } catch (err) {
+            return next(err);
+        }
     }
 
     next();
