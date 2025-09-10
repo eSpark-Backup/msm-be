@@ -65,6 +65,10 @@ const UserSchema = new mongoose.Schema(
             type:String,
             default: null
         },
+        profile_image: {
+            type:String,
+            default:null
+        },
         company_mail: {
             type:String,
             default: null

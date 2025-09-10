@@ -64,8 +64,10 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
     try {
 
-        if(req.file){
-            req.body.logo = req.file.filename;
+
+        if(req.files){
+            req.body.profile_image = req.files.profile_image[0].filename;
+            req.body.logo = req.files.logo[0].filename;
         }
 
         const user = await User.findByIdAndUpdate(

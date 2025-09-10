@@ -1,10 +1,10 @@
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
+const { v4: uuidv4 } = require('uuid');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        const userId = req.user.id;
         const userPath = path.join(__dirname, "../uploads/");
         if (!fs.existsSync(userPath)) {
             fs.mkdirSync(userPath);
@@ -12,7 +12,8 @@ const storage = multer.diskStorage({
         cb(null, userPath);
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + "-" + file.originalname);
+        const ext = path.extname(file.originalname);
+        cb(null, uuidv4() + ext);
     },
 });
 

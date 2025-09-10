@@ -14,7 +14,7 @@ router.post('/', verifyToken, authrize(['super_admin']), (req, res) => {
 });
 
 
-router.put('/:id', verifyToken, authrize(['super_admin']), handleUserUpload.single("logo"), (req, res) => {
+router.put('/:id', verifyToken, authrize(['super_admin']), handleUserUpload.fields([{name: 'logo'},{name : 'profile_image'}]), (req, res) => {
     userController.updateUser(req, res);
 });
 
