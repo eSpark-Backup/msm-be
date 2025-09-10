@@ -8,10 +8,12 @@ const UserSchema = new mongoose.Schema(
             required: true
         },
         username:{
-            type:String
+            type:String,
+            default: null
         },
         label: {
-            type: String
+            type: String,
+            default: null
         },
         email: {
             type: String,
@@ -24,16 +26,20 @@ const UserSchema = new mongoose.Schema(
             minlength: 6
         },
         phone_number: {
-            type: String
+            type: String,
+            default: null
         },
         description: {
-            type: String
+            type: String,
+            default: null
         },
         method: {
-            type: String
+            type: String,
+            default: null
         },
         owner: {
-            type: String
+            type: String,
+            default: null
         },
         groups: [
             {
@@ -47,7 +53,8 @@ const UserSchema = new mongoose.Schema(
         //     }
         // ],
         customer_name: {
-            type: String
+            type: String,
+            default: null
         },
         role_id: {
             type: mongoose.Schema.Types.ObjectId,
@@ -55,16 +62,20 @@ const UserSchema = new mongoose.Schema(
             required: true
         },
         logo: {
-            type:String
+            type:String,
+            default: null
         },
         company_mail: {
-            type:String
+            type:String,
+            default: null
         },
         date_of_birth: {
-            type:Date
+            type:String,
+            default: null
         },
         company_name:{
-            type:String
+            type:String,
+            default: null
         },
         status: {
             type:String,
