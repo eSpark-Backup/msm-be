@@ -21,20 +21,33 @@ const createGroup = async (req, res) => {
 
 const getAllGroups = async (req, res) => {
   try {
-    const groups = await Group.find()
+    const { search, page, limit } = req.query;
+    const query = {};
+
+    if (search) {
+      query.name = { $regex: search, $options: "i" }; 
+    }
+
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 0;
+    const skip = limitNum ? (pageNum - 1) * limitNum : 0;
+
+    const groups = await Group.find(query).skip(skip).limit(limitNum);
+
     res.status(200).json({
       success: true,
-      data: groups
-    })
+      data: groups,
+    });
   } catch (error) {
-    console.log('Error Getting Groups : ', error)
+    console.error("Error Getting Groups:", error);
     res.status(500).json({
       success: false,
-      message: 'Error Getting Groups',
-      error: error.message
-    })
+      message: "Error Getting Groups",
+      error: error.message,
+    });
   }
 };
+
 
 const getGroupById = async (req, res) => {
   try {

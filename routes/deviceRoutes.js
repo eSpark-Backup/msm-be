@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const deviceController = require('../controllers/deviceController');
-
+const verifyToken = require('../middleware/verifyToken');
 // ===== DEVICE REBOOT API =====
 /**
  * @route POST /api/devices/:deviceId/reboot
@@ -14,5 +14,6 @@ router.get('/:deviceId', deviceController.getDeviceById);
 
 router.get('/', deviceController.getAllDevices);
 
+router.post("/user", verifyToken, deviceController.createDevice);
 
 module.exports = router;

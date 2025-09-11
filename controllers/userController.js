@@ -3,19 +3,39 @@ const User = require('../models/User');
 // Get all users
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find().populate('role');
-        res.status(200).json({
-            success: true,
-            data: users
-        });
+      const { search, page, limit } = req.query;
+      const query = {
+        email: { $ne: "superadmin@msm.com" }, 
+        _id: { $ne: req.user._id }           
+      };
+  
+      if (search) {
+        query.name = { $regex: search, $options: "i" }; 
+      }
+  
+      const pageNum = Number(page) || 1;
+      const limitNum = Number(limit) || 0; 
+      const skip = limitNum ? (pageNum - 1) * limitNum : 0;
+  
+      const users = await User.find(query)
+        .populate("role")
+        .skip(skip)
+        .limit(limitNum);
+  
+      res.status(200).json({
+        success: true,
+        data: users,
+      });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error fetching users',
-            error: error.message
-        });
+      console.error("Error fetching users:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error fetching users",
+        error: error.message,
+      });
     }
-};
+  };
+  
 
 // Get single user by ID
 const getUserById = async (req, res) => {

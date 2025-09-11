@@ -2,7 +2,22 @@ const Dashboard = require('../models/Dashboard');
 
 exports.getDashboard = async (req, res) => {
   try {
-    const dashboards = await Dashboard.find().populate('groups');
+    const { search, page, limit } = req.query;
+    const query = {};
+
+    if (search) {
+      query.title = { $regex: search, $options: "i" };
+    }
+
+    const pageNum = Number(page) || 1
+    const limitNum = Number(limit) || 0; 
+    const skip = limitNum ? (pageNum - 1) * limitNum : 0;
+
+    const dashboards = await Dashboard.find(query)
+      .populate("groups")
+      .skip(skip)
+      .limit(limitNum);
+
     res.status(200).json({
       success: true,
       data: dashboards,
@@ -10,11 +25,12 @@ exports.getDashboard = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Error fetching dashboards',
+      message: "Error fetching dashboards",
       error: error.message,
     });
   }
 };
+
 
 exports.getDashboardById = async (req, res) => {
   try {

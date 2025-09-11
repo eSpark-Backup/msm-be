@@ -40,22 +40,24 @@ exports.createRole = async (req, res) => {
 // @access  Private/Admin
 exports.getRoles = async (req, res) => {
     try {
-        const roles = await Role.find({}).sort({ createdAt: -1 });
-        
-        res.status(200).json({
-            success: true,
-            count: roles.length,
-            data: roles
-        });
+      const roles = await Role.find({ name: { $ne: "super_admin" } })
+        .sort({ createdAt: -1 });
+  
+      res.status(200).json({
+        success: true,
+        count: roles.length,
+        data: roles,
+      });
     } catch (error) {
-        console.error('Error fetching roles:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Server error',
-            error: error.message
-        });
+      console.error("Error fetching roles:", error);
+      res.status(500).json({
+        success: false,
+        message: "Server error",
+        error: error.message,
+      });
     }
-};
+  };
+  
 
 // @desc    Get single role by ID
 // @route   GET /api/role/:id

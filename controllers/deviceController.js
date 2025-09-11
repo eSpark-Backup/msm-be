@@ -1,5 +1,6 @@
 const mqttClient = require('../fleetConnect');
 const Device = require('../models/Device');
+const AddDevice = require('../models/AddDevice');
 
 // ===== DEVICE REBOOT CONTROLLER =====
 /**
@@ -68,27 +69,57 @@ const getDeviceById = async (req, res) => {
 
 const getAllDevices = async (req, res) => {
     try {
-
-        const devices = await Device.find();
-
-        res.status(200).json({
-            success: true,
-            message: 'Devices found',
-            data: devices
-        })
-
+      const { search, page, limit } = req.query;
+      const query = {};
+  
+      if (search) {
+        query.name = { $regex: search, $options: "i" };
+      }
+  
+      const pageNum = Number(page) || 1;
+      const limitNum = Number(limit) || 0; 
+      const skip = limitNum ? (pageNum - 1) * limitNum : 0;
+  
+      const devices = await Device.find(query).skip(skip).limit(limitNum);
+  
+      res.status(200).json({
+        success: true,
+        message: "Devices found",
+        data: devices,
+      });
     } catch (error) {
-        console.error('Error in Device Get All end point : ', error);
+      console.error("Error in Device Get All endpoint:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+        error: error.message,
+      });
+    }
+  };
+
+  const createDevice = async (req , res) => {
+    try {
+        const user_id = req.user._id;
+        const device = await AddDevice.create({...req.body, user_id: user_id});
+        res.status(201).json({
+            success: true,
+            message: 'Device created successfully',
+            data: device
+        })
+    } catch (error) {
+        console.error('Error in Device Create endpoint:', error);
         res.status(500).json({
             success: false,
             message: 'Internal Server Error',
-            error: error.message
+            error: error.message,
         })
     }
-}
+  }
+  
 
 module.exports = {
     rebootDevice,
     getDeviceById,
-    getAllDevices
+    getAllDevices,
+    createDevice
 };
