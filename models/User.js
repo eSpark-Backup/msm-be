@@ -132,4 +132,12 @@ UserSchema.virtual("role", {
     justOne: true
 })
 
+// UserSchema.virtual("groupsData", {
+//     ref: "Group",
+//     localField: "groups",
+//     foreignField: "_id",
+//     justOne: false
+// })
+
+
 module.exports = mongoose.model("User", UserSchema);

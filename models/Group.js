@@ -20,6 +20,10 @@ const groupSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  share_entity_group: {
+    type: Boolean,
+    default : false
+  },
   permissions: {
     type: String,
     enum: ['read', 'write', 'others'],

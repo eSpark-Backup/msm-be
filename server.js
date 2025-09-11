@@ -12,6 +12,7 @@ const ntpRoutes = require('./routes/ntpRoutes');
 const authRoutes = require('./routes/authRoutes');
 const roleRoutes = require('./routes/roleRoutes');
 const groupRoutes = require('./routes/groupRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
 
 require('./fleetConnect');
 
@@ -45,6 +46,7 @@ app.use('/api/ntp', ntpRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/role', roleRoutes);
 app.use('/api/groups', groupRoutes);
+app.use('/api/dashboard' , dashboardRoutes)
 
 // Health check
 app.get('/health', (req, res) => {
