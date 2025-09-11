@@ -15,6 +15,11 @@ const DashboardSchema = new mongoose.Schema(
       type: String, 
       required: true,
     },
+    device_id: {
+      type: String,
+      required: false,
+      trim: true,
+    },
     groups: [
       {
         type : 'String'

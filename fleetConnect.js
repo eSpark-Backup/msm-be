@@ -5,6 +5,7 @@ const Device = require('./models/Device');
 const Mqtt = require('./models/Mqtt');
 const Ntp = require('./models/Ntp');
 const Sftp = require('./models/Sftp');
+const Dashboard = require('./models/Dashboard'); // Add this line
 
 class FleetConnect {
     constructor() {
@@ -490,6 +491,26 @@ class FleetConnect {
                 updateData,
                 { upsert: true, new: true }
             );
+            
+            // Check if this is a new device (created via upsert) and create dashboard automatically
+            const existingDashboard = await Dashboard.findOne({ device_id: deviceUuid });
+            
+            if (!existingDashboard) {
+                const dashboardData = {
+                    title: `Dashboard for ${deviceUuid}`,
+                    description: `Auto-generated dashboard for device ${deviceUuid}`,
+                    owner: 'system', // You can modify this to use actual user/owner
+                    device_id: deviceUuid,
+                    groups: [],
+                    mobile_application_setting: false,
+                    dashboard_order_in_mobile_application: 0
+                };
+                
+                const dashboard = new Dashboard(dashboardData);
+                await dashboard.save();
+                
+                console.log(`✅ Dashboard automatically created for device: ${deviceUuid}`);
+            }
             
             console.log(`✅ Device info saved to database: ${deviceUuid}`);
             return device;
