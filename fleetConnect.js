@@ -492,14 +492,13 @@ class FleetConnect {
                 { upsert: true, new: true }
             );
             
-            // Check if this is a new device (created via upsert) and create dashboard automatically
             const existingDashboard = await Dashboard.findOne({ device_id: deviceUuid });
             
             if (!existingDashboard) {
                 const dashboardData = {
                     title: `Dashboard for ${deviceUuid}`,
                     description: `Auto-generated dashboard for device ${deviceUuid}`,
-                    owner: 'system', // You can modify this to use actual user/owner
+                    owner: 'system',
                     device_id: deviceUuid,
                     groups: [],
                     mobile_application_setting: false,
