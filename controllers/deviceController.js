@@ -97,6 +97,60 @@ const getAllDevices = async (req, res) => {
     }
   };
 
+
+const getAllUserDevices = async (req, res) => {
+    try {
+        const { search, page, limit } = req.query;
+        const query = { user_id: req.user._id };
+    
+        if (search) {
+          query.name = { $regex: search, $options: "i" };
+        }
+    
+        const pageNum = Number(page) || 1;
+        const limitNum = Number(limit) || 0; 
+        const skip = limitNum ? (pageNum - 1) * limitNum : 0;
+    
+        const devices = await AddDevice.find(query).skip(skip).limit(limitNum);
+    
+        res.status(200).json({
+          success: true,
+          message: "Devices found",
+          data: devices,
+        });
+      } catch (error) {
+        console.error("Error in Device Get All endpoint:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+          error: error.message,
+        });
+      }
+}
+
+const getSingleUserDevice = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const query = { user_id: req.user._id, _id: id };
+    
+        const device = await AddDevice.findOne(query);
+    
+        res.status(200).json({
+            success: true,
+            message: "Device found",
+            data: device
+        });
+    
+    } catch (error) {
+        console.error("Error in Device Get Single endpoint:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+          error: error.message,
+        });
+    }
+}
+
   const createDevice = async (req , res) => {
     try {
         const user_id = req.user._id;
@@ -121,5 +175,7 @@ module.exports = {
     rebootDevice,
     getDeviceById,
     getAllDevices,
+    getAllUserDevices,
+    getSingleUserDevice,
     createDevice
 };
