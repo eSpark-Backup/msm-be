@@ -110,9 +110,33 @@ const deleteNtp = async (req, res) => {
     }
 };
 
+// Get NTP configuration by device UUID
+const getSingleNtpByDeviceUuid = async (req, res) => {
+    try {
+        const ntpConfig = await Ntp.findOne({ device_uuid: req.params.device_uuid });
+        if (!ntpConfig) {
+            return res.status(404).json({
+                success: false,
+                message: 'NTP configuration not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: ntpConfig
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching NTP configuration',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     getAllNtp,
     getSingleNtp,
+    getSingleNtpByDeviceUuid,
     createNtp,
     updateNtp,
     deleteNtp

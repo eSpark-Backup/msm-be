@@ -113,9 +113,33 @@ const deleteSftp = async (req, res) => {
     }
 };
 
+// Get SFTP configuration by device UUID
+const getSingleSftpByDeviceUuid = async (req, res) => {
+    try {
+        const sftpConfig = await Sftp.findOne({ device_uuid: req.params.device_uuid });
+        if (!sftpConfig) {
+            return res.status(404).json({
+                success: false,
+                message: 'SFTP configuration not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: sftpConfig
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching SFTP configuration',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     getAllSftp,
     getSingleSftp,
+    getSingleSftpByDeviceUuid,
     createSftp,
     updateSftp,
     deleteSftp

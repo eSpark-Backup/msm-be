@@ -6,6 +6,10 @@ router.get('/', (req, res) => {
     sftpController.getAllSftp(req, res);
 });
 
+router.get('/device/:device_uuid', (req, res) => {
+    sftpController.getSingleSftpByDeviceUuid(req, res);
+});
+
 router.get('/:id', (req, res) => {
     sftpController.getSingleSftp(req, res);
 });
