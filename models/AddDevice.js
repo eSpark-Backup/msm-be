@@ -57,7 +57,18 @@ const deviceSchema = new mongoose.Schema(
       trim: true,
     },
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+  }
 );
+
+deviceSchema.virtual("device_data", {
+  ref: "Device",
+  localField: "name",
+  foreignField: "device_uuid",
+  justOne: true
+});
 
 module.exports = mongoose.model("AddDevice", deviceSchema);

@@ -14,9 +14,13 @@ router.get('/', deviceController.getAllDevices);
 
 router.post("/user", verifyToken, deviceController.createDevice);
 
+router.put("/user", verifyToken, deviceController.updateDevice);
+
+router.delete("/user", verifyToken, deviceController.deleteDevice);
+
 router.get("/user", verifyToken, deviceController.getAllUserDevices);
 
-router.get("/user/:id", verifyToken, deviceController.getSingleUserDevice);
+router.get("/user/:device_uuid", verifyToken, deviceController.getSingleUserDevice);
 
 router.post('/:deviceId/reboot', deviceController.rebootDevice);
 

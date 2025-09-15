@@ -111,7 +111,7 @@ const getAllUserDevices = async (req, res) => {
         const limitNum = Number(limit) || 0; 
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
     
-        const devices = await AddDevice.find(query).skip(skip).limit(limitNum);
+        const devices = await AddDevice.find(query).skip(skip).limit(limitNum).populate("device_data");
     
         res.status(200).json({
           success: true,
@@ -130,10 +130,10 @@ const getAllUserDevices = async (req, res) => {
 
 const getSingleUserDevice = async (req, res) => {
     try {
-        const { id } = req.params;
-        const query = { user_id: req.user._id, _id: id };
+        const { device_uuid } = req.params;
+        const query = { user_id: req.user._id, name: device_uuid };
     
-        const device = await AddDevice.findOne(query);
+        const device = await AddDevice.findOne(query).populate("device_data");
     
         res.status(200).json({
             success: true,
@@ -169,6 +169,43 @@ const getSingleUserDevice = async (req, res) => {
         })
     }
   }
+
+  const updateDevice = async (req , res) => {
+    try {
+        const { deviceId } = req.params;
+        const device = await AddDevice.findByIdAndUpdate(deviceId, req.body, { new: true });
+        res.status(200).json({
+            success: true,
+            message: 'Device updated successfully',
+            data: device
+        })
+    } catch (error) {
+        console.error('Error in Device Update endpoint:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+            error: error.message,
+        })
+    }
+  }
+  
+  const deleteDevice = async (req , res) => {
+    try {
+        const { deviceId } = req.params;
+        await AddDevice.findByIdAndDelete(deviceId);
+        res.status(200).json({
+            success: true,
+            message: 'Device deleted successfully',
+        })
+    } catch (error) {
+        console.error('Error in Device Delete endpoint:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+            error: error.message,
+        })
+    }
+  }
   
 
 module.exports = {
@@ -177,5 +214,7 @@ module.exports = {
     getAllDevices,
     getAllUserDevices,
     getSingleUserDevice,
-    createDevice
+    createDevice,
+    updateDevice,
+    deleteDevice
 };
