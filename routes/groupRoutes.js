@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const verifyToken = require('../middleware/verifyToken');
 const {
   createGroup,
   getAllGroups,
@@ -9,14 +10,14 @@ const {
 } = require('../controllers/groupController');
 
 
-router.post('/', createGroup);
+router.post('/', verifyToken, createGroup);
 
-router.get('/', getAllGroups);
+router.get('/', verifyToken, getAllGroups);
 
-router.get('/:id', getGroupById);
+router.get('/:id', verifyToken, getGroupById);
 
-router.put('/:id', updateGroup);
+router.put('/:id', verifyToken, updateGroup);
 
-router.delete('/:id', deleteGroup);
+router.delete('/:id', verifyToken, deleteGroup);
 
 module.exports = router;

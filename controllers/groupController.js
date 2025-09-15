@@ -2,7 +2,11 @@ const Group = require('../models/Group');
 
 const createGroup = async (req, res) => {
   try {
-    const group = new Group(req.body)
+    const user_id = req.user._id;
+    const group = new Group({
+      ...req.body,
+      user_id
+    })
     await group.save()
     res.status(201).json({
       success: true,
@@ -22,6 +26,7 @@ const createGroup = async (req, res) => {
 const getAllGroups = async (req, res) => {
   try {
     const { search, page, limit } = req.query;
+    const user_id = req.user._id;
     const query = {};
 
     if (search) {
@@ -32,7 +37,7 @@ const getAllGroups = async (req, res) => {
     const limitNum = Number(limit) || 0;
     const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
-    const groups = await Group.find(query).skip(skip).limit(limitNum);
+    const groups = await Group.find(query, { user_id: user_id }).skip(skip).limit(limitNum);
 
     res.status(200).json({
       success: true,

@@ -8,19 +8,18 @@ const deviceSchema = new mongoose.Schema(
       trim: true,
     },
     user_id: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
     label: {
       type: String,
       trim: true,
     },
-    groups: [
-      {
+    groups: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Group",
-      },
-    ],
+    },
     device_profile: {
       type: String,
       trim: true,

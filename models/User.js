@@ -41,17 +41,6 @@ const UserSchema = new mongoose.Schema(
             type: String,
             default: null
         },
-        groups: [
-            {
-                type:String,
-            }
-        ],
-        // groups: [
-        //     {
-        //         type: mongoose.Schema.Types.ObjectId,
-        //         ref: "Group"
-        //     }
-        // ],
         customer_name: {
             type: String,
             default: null
@@ -132,12 +121,12 @@ UserSchema.virtual("role", {
     justOne: true
 })
 
-// UserSchema.virtual("groupsData", {
-//     ref: "Group",
-//     localField: "groups",
-//     foreignField: "_id",
-//     justOne: false
-// })
+UserSchema.virtual("groupsData", {
+    ref: "Group",
+    localField: "_id",
+    foreignField: "user_id",
+    justOne: false
+})
 
 
 module.exports = mongoose.model("User", UserSchema);

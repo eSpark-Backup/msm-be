@@ -20,11 +20,6 @@ const DashboardSchema = new mongoose.Schema(
       required: false,
       trim: true,
     },
-    groups: [
-      {
-        type : 'String'
-      },
-    ],
     mobile_application_setting: {
       type: Boolean,
       default: false,

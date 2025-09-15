@@ -11,25 +11,11 @@ const groupSchema = new mongoose.Schema({
     required: false,
     trim: true
   },
-  customer_name: {
-    type: String,
+  user_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
     required: true,
-    trim: true
   },
-  all_user: {
-    type: Boolean,
-    default: false
-  },
-  share_entity_group: {
-    type: Boolean,
-    default : false
-  },
-  permissions: {
-    type: String,
-    enum: ['read', 'write', 'others'],
-    required: true,
-    default: 'read'
-  }
 }, {
   timestamps: true
 });

@@ -19,6 +19,7 @@ const getAllUsers = async (req, res) => {
   
       const users = await User.find(query)
         .populate("role")
+        .populate("groupsData")
         .skip(skip)
         .limit(limitNum);
   
@@ -40,7 +41,7 @@ const getAllUsers = async (req, res) => {
 // Get single user by ID
 const getUserById = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id).populate('role');
+        const user = await User.findById(req.params.id).populate('role').populate('groupsData');
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -65,7 +66,7 @@ const createUser = async (req, res) => {
     try {
         const user = new User(req.body);
         await user.save();
-        const populatedUser = await User.findById(user._id).populate('role');
+        const populatedUser = await User.findById(user._id).populate('role').populate('groupsData');
         res.status(201).json({
             success: true,
             message: 'User created successfully',
@@ -98,7 +99,7 @@ const updateUser = async (req, res) => {
             req.params.id,
             req.body,
             { new: true, runValidators: true }
-        ).populate('role');
+        ).populate('role').populate('groupsData');
         if (!user) {
             return res.status(404).json({
                 success: false,

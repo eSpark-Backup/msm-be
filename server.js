@@ -70,3 +70,6 @@ process.on('SIGINT', () => {
     process.exit(0);
   });
 });
+
+
+require('./sockets/socket')(server);
