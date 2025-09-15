@@ -27,7 +27,7 @@ const getAllGroups = async (req, res) => {
   try {
     const { search, page, limit } = req.query;
     const user_id = req.user._id;
-    const query = {};
+    const query = { user_id: user_id };
 
     if (search) {
       query.name = { $regex: search, $options: "i" }; 
@@ -37,7 +37,7 @@ const getAllGroups = async (req, res) => {
     const limitNum = Number(limit) || 0;
     const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
-    const groups = await Group.find(query, { user_id: user_id }).skip(skip).limit(limitNum);
+    const groups = await Group.find(query).skip(skip).limit(limitNum);
 
     res.status(200).json({
       success: true,
