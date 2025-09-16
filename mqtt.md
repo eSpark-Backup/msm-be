@@ -35,6 +35,22 @@
               "positive": 0,
               "negative": 0
             }
+          },
+          "avg_power": {
+            "factor": 0,
+            "active": 0,
+            "reactive": 0,
+            "apparent": 0
+          },
+          "avg_energy": {
+            "active": {
+              "positive": 0,
+              "negative": 0
+            },
+            "reactive": {
+              "positive": 0,
+              "negative": 0
+            }
           }
         },
         "phase_b": {
@@ -59,6 +75,22 @@
               "positive": 0,
               "negative": 0
             }
+          },
+          "avg_power": {
+            "factor": 0,
+            "active": 0,
+            "reactive": 0,
+            "apparent": 0
+          },
+          "avg_energy": {
+            "active": {
+              "positive": 0,
+              "negative": 0
+            },
+            "reactive": {
+              "positive": 0,
+              "negative": 0
+            }
           }
         },
         "phase_c": {
@@ -75,6 +107,22 @@
             "apparent": 0
           },
           "energy": {
+            "active": {
+              "positive": 0,
+              "negative": 0
+            },
+            "reactive": {
+              "positive": 0,
+              "negative": 0
+            }
+          },
+          "avg_power": {
+            "factor": 0,
+            "active": 0,
+            "reactive": 0,
+            "apparent": 0
+          },
+          "avg_energy": {
             "active": {
               "positive": 0,
               "negative": 0
@@ -114,6 +162,7 @@
     "device_uuid": "ESP90000005",
     "data":[
         {
+            "device_pass": "abc123",
             "device_imei": "865788062388016",
             "device_ip": "10.99.72.185",
             "mqtt_status": true,
@@ -139,7 +188,6 @@
     ]
 }
 ```
-
 ## MQTT Info (Existing but needs to be changed as per MQTTs)
 ### Method
 - Publish
@@ -151,7 +199,7 @@
     "data":[
         {
             "broker_ip": "thingsboard.cloud",
-            "broker_port": 1883,
+            "broker_port": 1883
             "broker_user": "OFP-INDKOM",
             "broker_pass": "IND10",
             "data_interval" : 900,

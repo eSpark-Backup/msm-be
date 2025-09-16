@@ -111,7 +111,7 @@ const getAllUserDevices = async (req, res) => {
         const limitNum = Number(limit) || 0; 
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
     
-        const devices = await AddDevice.find(query).skip(skip).limit(limitNum).populate("device_data");
+        const devices = await AddDevice.find(query).skip(skip).limit(limitNum).populate("device_data").populate("groups_data");
     
         res.status(200).json({
           success: true,
@@ -133,7 +133,7 @@ const getSingleUserDevice = async (req, res) => {
         const { device_uuid } = req.params;
         const query = { user_id: req.user._id, name: device_uuid };
     
-        const device = await AddDevice.findOne(query).populate("device_data");
+        const device = await AddDevice.findOne(query).populate("device_data").populate("groups_data");
     
         res.status(200).json({
             success: true,
@@ -172,13 +172,22 @@ const getSingleUserDevice = async (req, res) => {
 
   const updateDevice = async (req , res) => {
     try {
-        const { deviceId } = req.params;
-        const device = await AddDevice.findByIdAndUpdate(deviceId, req.body, { new: true });
-        res.status(200).json({
-            success: true,
-            message: 'Device updated successfully',
-            data: device
-        })
+        const { device_uuid } = req.params;
+        const user_id = req.user._id
+        const device = await AddDevice.findOneAndUpdate({name: device_uuid , user_id: user_id }, req.body, { new: true });
+        
+        if(device){
+            res.status(200).json({
+                success: true,
+                message: 'Device updated successfully',
+                data: device
+            })
+        }else{
+            res.status(404).json({
+                success: false,
+                message: 'Device Not Found'
+            })
+        }
     } catch (error) {
         console.error('Error in Device Update endpoint:', error);
         res.status(500).json({
@@ -191,8 +200,9 @@ const getSingleUserDevice = async (req, res) => {
   
   const deleteDevice = async (req , res) => {
     try {
-        const { deviceId } = req.params;
-        await AddDevice.findByIdAndDelete(deviceId);
+        const { device_uuid } = req.params;
+        const user_id = req.user._id
+        await AddDevice.findOneAndDelete({name: device_uuid , user_id: user_id});
         res.status(200).json({
             success: true,
             message: 'Device deleted successfully',

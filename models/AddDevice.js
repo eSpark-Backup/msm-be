@@ -33,7 +33,6 @@ const deviceSchema = new mongoose.Schema(
     },
     access_token: {
       type: String,
-      unique: true,
       required: true,
     },
     z509: {
@@ -64,11 +63,21 @@ const deviceSchema = new mongoose.Schema(
   }
 );
 
+deviceSchema.index({ user_id: 1, name: 1 }, { unique: true });
+
+
 deviceSchema.virtual("device_data", {
   ref: "Device",
   localField: "name",
   foreignField: "device_uuid",
   justOne: true
 });
+
+deviceSchema.virtual("groups_data", {
+    ref: "Group",
+    localField: "groups",
+    foreignField: "_id",
+    justOne: true
+})
 
 module.exports = mongoose.model("AddDevice", deviceSchema);
