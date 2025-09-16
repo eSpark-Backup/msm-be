@@ -160,11 +160,28 @@ const getSingleUserDevice = async (req, res) => {
   const createDevice = async (req , res) => {
     try {
         const user_id = req.user._id;
+        const device_uuid = req.body.name;
+
+        const device_data = await Device.findOne({device_uuid: device_uuid});
+
+        if(!device_data){
+            return res.status(404).json({
+                success: false,
+                message: 'Device Not Found'
+            })
+        }
+
+        if(req.body.mqtt_password !== device_data.device_pass){
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid Credentials'
+            })
+        }
+
         const device = await AddDevice.create({...req.body, user_id: user_id});
         res.status(201).json({
             success: true,
-            message: 'Device created successfully',
-            data: device
+            message: 'Device created successfully'
         })
     } catch (error) {
         console.error('Error in Device Create endpoint:', error);

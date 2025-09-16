@@ -46,15 +46,7 @@ const deviceSchema = new mongoose.Schema(
     mqtt_user: {
       type: String,
       trim: true,
-    },
-    mqtt_username: {
-      type: String,
-      trim: true,
-    },
-    mqtt_password: {
-      type: String,
-      trim: true,
-    },
+    }
   },
   { 
     timestamps: true,
