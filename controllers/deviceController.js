@@ -135,12 +135,18 @@ const getSingleUserDevice = async (req, res) => {
     
         const device = await AddDevice.findOne(query).populate("device_data").populate("groups_data");
     
-        res.status(200).json({
-            success: true,
-            message: "Device found",
-            data: device
-        });
-    
+        if(device){
+            res.status(200).json({
+                success: true,
+                message: "Device found",
+                data: device
+            });
+        }else{
+            res.status(404).json({
+                success: false,
+                message: "Device Not Found"
+            });
+        }
     } catch (error) {
         console.error("Error in Device Get Single endpoint:", error);
         res.status(500).json({
