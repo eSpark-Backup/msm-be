@@ -7,13 +7,17 @@ const deviceSchema = new mongoose.Schema({
     unique: true,
     index: true
   },
+  device_pass: {
+    type: String,
+    required:true
+  },
   device_imei: {
     type: String,
-    required: false
+    required: true
   },
   device_ip: {
     type: String,
-    required: false
+    required: true
   },
   mqtt_status: {
     type: Boolean,

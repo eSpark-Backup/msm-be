@@ -11,7 +11,7 @@ class FleetConnect {
     constructor() {
         this.device = null;
         this.clientId = 'msm-backend-123';
-        
+
         // ===== MQTT TOPICS CONFIGURATION =====
         this.topics = [
             'msm/+/telemetry',    // Device → Cloud: High-frequency telemetry data
@@ -25,13 +25,13 @@ class FleetConnect {
             '$aws/things/+/shadow/update'
 
         ];
-        
+
         this.connectedDevices = new Map();  // Track connected devices
         this.connect();
     }
 
     connect() {
-        console.log('Connecting to AWS IoT...');        
+        console.log('Connecting to AWS IoT...');
         try {
             this.device = awsIot.device({
                 keyPath: path.join(__dirname, './things/ESP90000005/ESP90000005.private.key'),
@@ -85,9 +85,9 @@ class FleetConnect {
                     const message = JSON.parse(payload.toString());
                     const deviceUuid = this.extractDeviceUuid(topic);
                     const topicType = this.getTopicType(topic);
-                    
+
                     console.log(`📨 [${topicType.toUpperCase()}] Message from ${deviceUuid}:`, message);
-                    
+
                     // Route message to appropriate handler
                     switch (topicType) {
                         case 'telemetry':
@@ -131,10 +131,10 @@ class FleetConnect {
     async updateShadow(deviceUuid, message, topicType) {
         try {
             console.log(`Updating shadow for ${deviceUuid}:`, message);
-    
+
             // Construct shadow topic
             const shadowTopic = `$aws/things/${deviceUuid}/shadow/update`;
-    
+
             // Construct shadow payload
             const shadowPayload = {
                 state: {
@@ -143,7 +143,7 @@ class FleetConnect {
                     }
                 }
             };
-    
+
             // Publish to shadow
             this.device.publish(
                 shadowTopic,
@@ -157,24 +157,24 @@ class FleetConnect {
                     }
                 }
             );
-    
+
         } catch (error) {
             console.error(`❌ Error updating shadow for ${deviceUuid}:`, error);
         }
     }
-    
+
 
     // ===== UTILITY METHODS =====
     extractDeviceUuid(topic) {
         const parts = topic.split('/');
         return parts[1]; // msm/{device_uuid}/topic_type
     }
-    
+
     getTopicType(topic) {
         const parts = topic.split('/');
         return parts[2]; // msm/{device_uuid}/topic_type
     }
-    
+
     // ===== TELEMETRY HANDLER =====
     async handleTelemetryMessage(message, deviceUuid) {
         try {
@@ -182,14 +182,14 @@ class FleetConnect {
                 console.warn(`⚠️  No channels in telemetry message from ${deviceUuid}`);
                 return;
             }
-            
+
             const channel = message.channels[0];
-            
+
             // Process each phase in the channel data
             for (const [phaseKey, phaseData] of Object.entries(channel.data || {})) {
                 if (!phaseKey.startsWith('phase_')) continue;
                 const phase = phaseKey.split('_')[1]; // Extract 'a', 'b', or 'c'
-                
+
                 if (phaseData) {
                     const telemetryData = {
                         // Device and Channel Info
@@ -198,37 +198,43 @@ class FleetConnect {
                         channel_id: channel.ID,
                         phase: phase,
                         channel_status: channel.status,
-                        
+
                         // General measurements
                         temperature: channel.temperature,
                         line_voltage: phaseData.general?.line_voltage,
                         rms_voltage: phaseData.general?.rms_voltage,
                         frequency: phaseData.general?.frequency,
                         current: phaseData.general?.current,
-                        
+
                         // Power measurements
                         power_factor: phaseData.power?.factor,
                         active_power: phaseData.power?.active,
                         reactive_power: phaseData.power?.reactive,
                         apparent_power: phaseData.power?.apparent,
-                        
+
                         // Energy measurements - active
                         active_energy_positive: phaseData.energy?.active?.positive,
                         active_energy_negative: phaseData.energy?.active?.negative,
-                        
+
                         // Energy measurements - reactive
                         reactive_energy_positive: phaseData.energy?.reactive?.positive,
                         reactive_energy_negative: phaseData.energy?.reactive?.negative,
-                        
-                        // System metadata
-                        battery_level: message.battery_level,
-                        signal_strength: message.signal_strength,
-                        firmware_version: message.firmware_version,
-                        
-                        // Processing flags
-                        processed: false
+
+                        // Avg Power
+                        avg_power_factor: phaseData.avg_power?.factor,
+                        avg_active_power: phaseData.avg_power?.active,
+                        avg_reactive_power: phaseData.avg_power?.reactive,
+                        avg_apparent_power: phaseData.avg_power?.apparent,
+
+                        // Avg Energy - active
+                        avg_active_energy_positive: phaseData.avg_energy?.active?.positive,
+                        avg_active_energy_negative: phaseData.avg_energy?.active?.negative,
+
+                        // Avg Energy - reactive
+                        avg_reactive_energy_positive: phaseData.avg_energy?.reactive?.positive,
+                        avg_reactive_energy_negative: phaseData.avg_energy?.reactive?.negative,
                     };
-                    
+
                     // Save to database
                     const telemetry = new Telemetry(telemetryData);
                     await telemetry.save();
@@ -239,85 +245,86 @@ class FleetConnect {
             console.error(`❌ Error handling telemetry from ${deviceUuid}:`, error);
         }
     }
-    
+
+
     // ===== REBOOT HANDLER =====
     async handleRebootMessage(message, deviceUuid) {
         try {
             console.log(`🔄 Reboot message from ${deviceUuid}:`, message.data);
-            
+
             // Store reboot status/response in database or handle accordingly
             // This could be a response to a reboot command or a reboot notification
-            
+
             // Update device status
             this.updateDeviceStatus(deviceUuid, 'reboot_received', message.data);
-            
+
         } catch (error) {
             console.error(`❌ Error handling reboot message from ${deviceUuid}:`, error);
         }
     }
-    
+
     // ===== DEVICE INFO HANDLER =====
     async handleDeviceInfoMessage(message, deviceUuid) {
         try {
             console.log(`📱 Device info from ${deviceUuid}:`, message.data);
-            
+
             const deviceInfo = message.data[0];
-            
+
             // Update device information in database
             this.updateDeviceInfo(deviceUuid, {
                 device_imei: deviceInfo.device_imei,
+                device_pass: deviceInfo.device_pass,
                 device_ip: deviceInfo.device_ip,
                 mqtt_status: deviceInfo.mqtt_status,
-                sftp_status: deviceInfo.sftp_status,
-                last_seen: new Date()
+                sftp_status: deviceInfo.sftp_status
             });
-            
+
         } catch (error) {
             console.error(`❌ Error handling device info from ${deviceUuid}:`, error);
         }
     }
-    
+
     // ===== NTP HANDLER =====
     async handleNtpMessage(message, deviceUuid) {
         try {
             console.log(`🕐 NTP message from ${deviceUuid}:`, message.data);
-            
+
             // This could be a confirmation of NTP configuration
             const ntpData = message.data[0];
 
             this.updateNtpConfig(deviceUuid, ntpData);
-            
+
             // Store NTP configuration status
             this.updateDeviceConfig(deviceUuid, 'ntp', ntpData);
-            
+
         } catch (error) {
             console.error(`❌ Error handling NTP message from ${deviceUuid}:`, error);
         }
     }
-    
+
     // ===== MQTT HANDLER =====
     async handleMqttMessage(message, deviceUuid) {
         try {
             console.log(`📡 MQTT config message from ${deviceUuid}:`, message.data);
-            
+
             // This could be a confirmation of MQTT configuration
             const mqttData = message.data[0];
 
             this.updateMqttConfig(deviceUuid, mqttData);
-            
+
             // Store MQTT configuration status
             this.updateDeviceConfig(deviceUuid, 'mqtt', mqttData);
-            
+
         } catch (error) {
             console.error(`❌ Error handling MQTT message from ${deviceUuid}:`, error);
         }
     }
-    
+
     // ===== SFTP HANDLER =====
     async handleSftpMessage(message, deviceUuid) {
         try {
             console.log(`📁 SFTP config message from ${deviceUuid}:`, message.data);
-            
+
             // This could be a confirmation of SFTP configuration
             const sftpData = message.data[0];
 
@@ -325,14 +332,14 @@ class FleetConnect {
 
             // Store SFTP configuration status
             this.updateDeviceConfig(deviceUuid, 'sftp', sftpData);
-            
+
         } catch (error) {
             console.error(`❌ Error handling SFTP message from ${deviceUuid}:`, error);
         }
     }
-    
+
     // ===== COMMAND PUBLISHING METHODS =====
-    
+
     // Send reboot command to device
     sendRebootCommand(deviceUuid) {
         const topic = `msm/${deviceUuid}/reboot`;
@@ -342,11 +349,11 @@ class FleetConnect {
                 command: true
             }]
         };
-        
+
         this.publishMessage(topic, message);
         console.log(`🔄 Reboot command sent to ${deviceUuid}`);
     }
-    
+
     // Send NTP configuration to device
     sendNtpConfig(deviceUuid, ntpServers) {
         const topic = `msm/${deviceUuid}/ntp`;
@@ -354,11 +361,11 @@ class FleetConnect {
             device_uuid: deviceUuid,
             data: [ntpServers]
         };
-        
+
         this.publishMessage(topic, message);
         console.log(`🕐 NTP config sent to ${deviceUuid}`);
     }
-    
+
     // Send MQTT configuration to device
     sendMqttConfig(deviceUuid, mqttConfig) {
         const topic = `msm/${deviceUuid}/mqtt`;
@@ -366,11 +373,11 @@ class FleetConnect {
             device_uuid: deviceUuid,
             data: [mqttConfig]
         };
-        
+
         this.publishMessage(topic, message);
         console.log(`📡 MQTT config sent to ${deviceUuid}`);
     }
-    
+
     // Send SFTP configuration to device
     sendSftpConfig(deviceUuid, sftpConfig) {
         const topic = `msm/${deviceUuid}/sftp`;
@@ -378,13 +385,13 @@ class FleetConnect {
             device_uuid: deviceUuid,
             data: [sftpConfig]
         };
-        
+
         this.publishMessage(topic, message);
         console.log(`📁 SFTP config sent to ${deviceUuid}`);
     }
-    
+
     // ===== HELPER METHODS =====
-    
+
     publishMessage(topic, message) {
         if (this.device) {
             this.device.publish(topic, JSON.stringify(message));
@@ -396,13 +403,13 @@ class FleetConnect {
     async updateNtpConfig(deviceUuid, ntpData) {
         try {
             console.log(`🕐 NTP config updated for ${deviceUuid}:`, ntpData);
-            
+
             await Ntp.findOneAndUpdate(
                 { device_uuid: deviceUuid },
                 ntpData,
                 { upsert: true, new: true }
             );
-            
+
             console.log(`✅ NTP config saved to database: ${deviceUuid}`);
         } catch (error) {
             console.error(`❌ Error saving NTP config for ${deviceUuid}:`, error);
@@ -412,13 +419,13 @@ class FleetConnect {
     async updateMqttConfig(deviceUuid, mqttData) {
         try {
             console.log(`📡 MQTT config updated for ${deviceUuid}:`, mqttData);
-            
+
             await Mqtt.findOneAndUpdate(
                 { device_uuid: deviceUuid },
                 mqttData,
                 { upsert: true, new: true }
             );
-            
+
             console.log(`✅ MQTT config saved to database: ${deviceUuid}`);
         } catch (error) {
             console.error(`❌ Error saving MQTT config for ${deviceUuid}:`, error);
@@ -428,28 +435,28 @@ class FleetConnect {
     async updateSftpConfig(deviceUuid, sftpData) {
         try {
             console.log(`📁 SFTP config updated for ${deviceUuid}:`, sftpData);
-            
+
             await Sftp.findOneAndUpdate(
                 { device_uuid: deviceUuid },
                 sftpData,
                 { upsert: true, new: true }
             );
-            
+
             console.log(`✅ SFTP config saved to database: ${deviceUuid}`);
         } catch (error) {
             console.error(`❌ Error saving SFTP config for ${deviceUuid}:`, error);
         }
     }
-    
+
     async updateDeviceStatus(deviceUuid, status, data) {
         try {
             console.log(`📊 Device ${deviceUuid} status updated: ${status}`, data);
-            
+
             const updateData = {
                 last_seen: new Date(),
                 connection_status: 'online'
             };
-            
+
             if (status === 'reboot_received') {
                 updateData.$push = {
                     reboot_history: {
@@ -459,41 +466,42 @@ class FleetConnect {
                     }
                 };
             }
-            
+
             await Device.findOneAndUpdate(
                 { device_uuid: deviceUuid },
                 updateData,
                 { upsert: true, new: true }
             );
-            
+
             console.log(`✅ Device status saved to database: ${deviceUuid}`);
         } catch (error) {
             console.error(`❌ Error saving device status for ${deviceUuid}:`, error);
         }
     }
-    
+
     async updateDeviceInfo(deviceUuid, info) {
         try {
             console.log(`📱 Device ${deviceUuid} info updated:`, info);
-            
+
             const updateData = {
                 device_uuid: deviceUuid,
                 device_imei: info.device_imei,
+                device_pass: info.device_pass,
                 device_ip: info.device_ip,
                 mqtt_status: info.mqtt_status,
                 sftp_status: info.sftp_status,
                 last_seen: info.last_seen || new Date(),
                 connection_status: 'online'
             };
-            
+
             const device = await Device.findOneAndUpdate(
                 { device_uuid: deviceUuid },
                 updateData,
                 { upsert: true, new: true }
             );
-            
+
             const existingDashboard = await Dashboard.findOne({ device_id: deviceUuid });
-            
+
             if (!existingDashboard) {
                 const dashboardData = {
                     title: `Dashboard for ${deviceUuid}`,
@@ -504,13 +512,13 @@ class FleetConnect {
                     mobile_application_setting: false,
                     dashboard_order_in_mobile_application: 0
                 };
-                
+
                 const dashboard = new Dashboard(dashboardData);
                 await dashboard.save();
-                
+
                 console.log(`✅ Dashboard automatically created for device: ${deviceUuid}`);
             }
-            
+
             console.log(`✅ Device info saved to database: ${deviceUuid}`);
             return device;
         } catch (error) {
@@ -518,16 +526,16 @@ class FleetConnect {
             throw error;
         }
     }
-    
+
     async updateDeviceConfig(deviceUuid, configType, config) {
         try {
             console.log(`⚙️  Device ${deviceUuid} ${configType} config updated:`, config);
-            
+
             const updateData = {
                 last_seen: new Date(),
                 connection_status: 'online'
             };
-            
+
             // Update specific config based on type
             switch (configType) {
                 case 'ntp':
@@ -549,21 +557,21 @@ class FleetConnect {
                     };
                     break;
             }
-            
+
             await Device.findOneAndUpdate(
                 { device_uuid: deviceUuid },
                 updateData,
                 { upsert: true, new: true }
             );
-            
+
             console.log(`✅ Device ${configType} config saved to database: ${deviceUuid}`);
         } catch (error) {
             console.error(`❌ Error saving device ${configType} config for ${deviceUuid}:`, error);
         }
     }
-    
+
     // ===== CONNECTION MANAGEMENT =====
-    
+
     disconnect() {
         if (this.device) {
             console.log('🔌 Disconnecting from AWS IoT...');

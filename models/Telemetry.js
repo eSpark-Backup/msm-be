@@ -26,30 +26,36 @@ const telemetrySchema = new mongoose.Schema({
   },
   temperature: Number,
   
+  // General
   line_voltage: Number,
   rms_voltage: Number,
   frequency: Number,
   current: Number,
   
+  // Power
   power_factor: Number,
   active_power: Number,
   reactive_power: Number,
   apparent_power: Number,
   
+  // Energy
   active_energy_positive: Number,
   active_energy_negative: Number,
-  
   reactive_energy_positive: Number,
   reactive_energy_negative: Number,
   
-  battery_level: Number,
-  signal_strength: Number,
-  firmware_version: String,
+  // Avg Power
+  avg_power_factor: Number,
+  avg_active_power: Number,
+  avg_reactive_power: Number,
+  avg_apparent_power: Number,
   
-  processed: {
-    type: Boolean,
-    default: false
-  },
+  // Avg Energy
+  avg_active_energy_positive: Number,
+  avg_active_energy_negative: Number,
+  avg_reactive_energy_positive: Number,
+  avg_reactive_energy_negative: Number,
+  
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
@@ -64,5 +70,6 @@ telemetrySchema.virtual('device', {
   foreignField: 'device_uuid',
   justOne: true
 });
+
 
 module.exports = mongoose.model('Telemetry', telemetrySchema);
