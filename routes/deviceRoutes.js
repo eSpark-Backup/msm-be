@@ -10,7 +10,7 @@ router.post("/user", verifyToken, deviceController.createDevice);
 
 router.put("/user", verifyToken, deviceController.updateDevice);
 
-router.delete("/user/:device_uuid", verifyToken, deviceController.deleteDevice);
+router.delete("/user/:id", verifyToken, deviceController.deleteDevice);
 
 router.put("/user/:device_uuid", verifyToken, deviceController.updateDevice);
 
