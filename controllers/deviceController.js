@@ -157,6 +157,35 @@ const getSingleUserDevice = async (req, res) => {
     }
 }
 
+const getSingleUserDeviceById = async (req, res) => {
+    try{
+        const { id } = req.params;
+        const query = { user_id: id };
+    
+        const device = await AddDevice.find(query).populate("device_data").populate("groups_data");
+    
+        if(device && device.length > 0){
+            res.status(200).json({
+                success: true,
+                message: "Devices found",
+                data: device
+            });
+        }else{
+            res.status(404).json({
+                success: false,
+                message: "Devices Not Found"
+            });
+        }
+    }catch(error){
+        console.error("Error in Device Get Single endpoint:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+          error: error.message,
+        });
+    }
+}
+
   const createDevice = async (req , res) => {
     try {
         const user_id = req.user._id;
@@ -249,5 +278,6 @@ module.exports = {
     getSingleUserDevice,
     createDevice,
     updateDevice,
-    deleteDevice
+    deleteDevice,
+    getSingleUserDeviceById
 };

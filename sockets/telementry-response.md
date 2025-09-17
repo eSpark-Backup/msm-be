@@ -1,0 +1,92 @@
+✅ Connected: GThs8Qb8XeK0F1wIAAAD
+hello from server: { msg: 'Hi from server!' }
+telemetry from server: {
+  data: {
+    device_uuid: 'ESP90000005',
+    timestamp: '2025-07-23T19:33:00.000Z',
+    channel_id: 1,
+    phase: 'a',
+    channel_status: true,
+    temperature: 27.5,
+    line_voltage: 0,
+    rms_voltage: 0,
+    frequency: 0,
+    current: 0,
+    power_factor: 0,
+    active_power: 0,
+    reactive_power: 0,
+    apparent_power: 0,
+    active_energy_positive: 0,
+    active_energy_negative: 0,
+    reactive_energy_positive: 0,
+    reactive_energy_negative: 0,
+    avg_power_factor: 0,
+    avg_active_power: 0,
+    avg_reactive_power: 0,
+    avg_apparent_power: 0,
+    avg_active_energy_positive: 0,
+    avg_active_energy_negative: 0,
+    avg_reactive_energy_positive: 0,
+    avg_reactive_energy_negative: 0
+  }
+}
+telemetry from server: {
+  data: {
+    device_uuid: 'ESP90000005',
+    timestamp: '2025-07-23T19:33:00.000Z',
+    channel_id: 1,
+    phase: 'b',
+    channel_status: true,
+    temperature: 27.5,
+    line_voltage: 0,
+    rms_voltage: 0,
+    frequency: 0,
+    current: 0,
+    power_factor: 0,
+    active_power: 0,
+    reactive_power: 0,
+    apparent_power: 0,
+    active_energy_positive: 0,
+    active_energy_negative: 0,
+    reactive_energy_positive: 0,
+    reactive_energy_negative: 0,
+    avg_power_factor: 0,
+    avg_active_power: 0,
+    avg_reactive_power: 0,
+    avg_apparent_power: 0,
+    avg_active_energy_positive: 0,
+    avg_active_energy_negative: 0,
+    avg_reactive_energy_positive: 0,
+    avg_reactive_energy_negative: 0
+  }
+}
+telemetry from server: {
+  data: {
+    device_uuid: 'ESP90000005',
+    timestamp: '2025-07-23T19:33:00.000Z',
+    channel_id: 1,
+    phase: 'c',
+    channel_status: true,
+    temperature: 27.5,
+    line_voltage: 0,
+    rms_voltage: 0,
+    frequency: 0,
+    current: 0,
+    power_factor: 0,
+    active_power: 0,
+    reactive_power: 0,
+    apparent_power: 0,
+    active_energy_positive: 0,
+    active_energy_negative: 0,
+    reactive_energy_positive: 0,
+    reactive_energy_negative: 0,
+    avg_power_factor: 0,
+    avg_active_power: 0,
+    avg_reactive_power: 0,
+    avg_apparent_power: 0,
+    avg_active_energy_positive: 0,
+    avg_active_energy_negative: 0,
+    avg_reactive_energy_positive: 0,
+    avg_reactive_energy_negative: 0
+  }
+}
