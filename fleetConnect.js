@@ -5,7 +5,8 @@ const Device = require('./models/Device');
 const Mqtt = require('./models/Mqtt');
 const Ntp = require('./models/Ntp');
 const Sftp = require('./models/Sftp');
-const Dashboard = require('./models/Dashboard'); // Add this line
+const Dashboard = require('./models/Dashboard');
+const socketService = require('./sockets/socket');
 
 class FleetConnect {
     constructor() {
@@ -27,7 +28,6 @@ class FleetConnect {
         ];
 
         this.connectedDevices = new Map();  // Track connected devices
-        this.connect();
     }
 
     connect() {
@@ -238,6 +238,7 @@ class FleetConnect {
                     // Save to database
                     const telemetry = new Telemetry(telemetryData);
                     await telemetry.save();
+                    socketService.emit('telemetry', { data: telemetryData });
                     console.log(`✅ Telemetry saved: ${deviceUuid}, channel ${channel.ID}, phase ${phase}`);
                 }
             }

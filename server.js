@@ -13,11 +13,20 @@ const authRoutes = require('./routes/authRoutes');
 const roleRoutes = require('./routes/roleRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
-
-require('./fleetConnect');
+const socketService = require('./sockets/socket');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Create HTTP server
+const server = require('http').createServer(app);
+
+// Initialize socket.io
+socketService.init(server);
+
+// Initialize fleetConnect
+const fleetConnect = require('./fleetConnect');
+fleetConnect.connect();
 
 app.use(cors({
   origin: '*'
@@ -46,30 +55,24 @@ app.use('/api/ntp', ntpRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/role', roleRoutes);
 app.use('/api/groups', groupRoutes);
-app.use('/api/dashboard' , dashboardRoutes)
+app.use('/api/dashboard', dashboardRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-
-
-// Start server
-const server = app.listen(PORT, () => {
+// Start the server
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// Handle shutdown
+// Handle graceful shutdown
 process.on('SIGINT', () => {
   console.log('Shutting down...');
-  mqttClient.end();
   mongoose.connection.close();
   server.close(() => {
     console.log('Server stopped');
     process.exit(0);
   });
 });
-
-
-require('./sockets/socket')(server);

@@ -3,9 +3,11 @@ const Telemetry = require('../models/Telemetry');
 // Get all telemetry data
 const getAllTelemetry = async (req, res) => {
     try {
-        const offset = req.query.offset;
+        const page = req.query.page;
         const limit = req.query.limit;
-        const telemetryData = await Telemetry.find().populate('device').skip(offset).limit(limit);
+        const skip = (page - 1) * limit;
+        const telemetryData = await Telemetry.find().populate('device').skip(skip).limit(limit);
+
         res.status(200).json({
             success: true,
             data: telemetryData
@@ -45,10 +47,11 @@ const getSingleTelemetry = async (req, res) => {
 // Get telemetry by device
 const getTelemetryByDevice = async (req, res) => {
     try {
-        const offset = req.query.offset;
+        const page = req.query.page;
         const limit = req.query.limit;
+        const skip = (page - 1) * limit;
 
-        const telemetry = await Telemetry.find({ device_uuid: req.params.device_uuid }).populate('device').skip(offset).limit(limit);
+        const telemetry = await Telemetry.find({ device_uuid: req.params.device_uuid }).populate('device').skip(skip).limit(limit);
         if (!telemetry) {
             return res.status(404).json({
                 success: false,

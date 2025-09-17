@@ -14,6 +14,10 @@ socket.on("connect", () => {
   socket.on("hello", (data) => {
     console.log("hello from server:", data);
   });
+
+  socket.on("telemetry", (data) => {
+    console.log("telemetry from server:", data);
+  });
 });
 
 socket.on("disconnect", () => {
