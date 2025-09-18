@@ -278,6 +278,34 @@ const getSingleUserDeviceById = async (req, res) => {
         })
     }
   }
+
+  const deleteDeviceByUserId = async (req , res) => {
+    try {
+        const { device_uuid , user_id } = req.params;
+
+        const device = await AddDevice.findOne({ name: device_uuid , user_id: user_id });
+
+        if(!device){
+            return res.status(404).json({
+                success: false,
+                message: 'Device Not Found'
+            })
+        }        
+
+        await AddDevice.findOneAndDelete({ name: device_uuid , user_id: user_id});
+        res.status(200).json({
+            success: true,
+            message: 'Device deleted successfully',
+        })
+    } catch (error) {
+        console.error('Error in Device Delete endpoint:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal Server Error',
+            error: error.message,
+        })
+    }
+  }
   
 
 module.exports = {
@@ -289,5 +317,6 @@ module.exports = {
     createDevice,
     updateDevice,
     deleteDevice,
-    getSingleUserDeviceById
+    getSingleUserDeviceById,
+    deleteDeviceByUserId
 };
