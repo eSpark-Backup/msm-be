@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket Test</title>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+  <script>
+    const socket = io("http://51.20.89.127:5000", {
+      transports: ["websocket"],
+    });
+
+    socket.on("connect", () => {
+      console.log("✅ Connected:", socket.id);
+
+      socket.emit("hello", { msg: "Hi from browser client!" });
+
+      socket.on("hello", (data) => {
+        console.log("hello from server:", data);
+      });
+
+      socket.on("telemetry", (data) => {
+        console.log("telemetry from server:", data);
+      });
+    });
+
+    socket.on("disconnect", () => {
+      console.log("❌ Disconnected");
+    });
+  </script>
+</body>
+</html>

@@ -78,7 +78,6 @@ const getTelemetryByDevice = async (req, res) => {
     }
   };
   
-
 // Get latest telemetry by device and channel (phase wise)
 const getTelemetryByDeviceAndChannel = async (req, res) => {
     try {
@@ -133,11 +132,70 @@ const getTelemetryByDeviceAndChannel = async (req, res) => {
       });
     }
   };
+
+  const getTelemetryByDeviceAndChannelLatestTen = async (req, res) => {
+    try {
+      const { device_uuid, channel_id } = req.params;
+  
+      const telemetry = await Telemetry.aggregate([
+        {
+          $match: {
+            device_uuid,
+            channel_id: Number(channel_id)
+          }
+        },
+        { $sort: { timestamp: -1 } }, // latest pehle
+        {
+          $group: {
+            _id: "$phase", // phase-wise group
+            latestRecords: { $push: "$$ROOT" } // sab record ek array me
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            latestRecords: { $slice: ["$latestRecords", 10] } // sirf latest 10 per phase
+          }
+        },
+        { $unwind: "$latestRecords" },
+        { $replaceRoot: { newRoot: "$latestRecords" } },
+        {
+          $lookup: {
+            from: "devices",
+            localField: "device_uuid",
+            foreignField: "device_uuid",
+            as: "device"
+          }
+        },
+        { $unwind: "$device" }
+      ]);
+  
+      if (!telemetry || telemetry.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Telemetry record not found"
+        });
+      }
+  
+      res.status(200).json({
+        success: true,
+        data: telemetry
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Error fetching telemetry record",
+        error: error.message
+      });
+    }
+  };
+  
   
 
 module.exports = {
     getAllTelemetry,
     getSingleTelemetry,
     getTelemetryByDevice,
-    getTelemetryByDeviceAndChannel
+    getTelemetryByDeviceAndChannel,
+    getTelemetryByDeviceAndChannelLatestTen
 };

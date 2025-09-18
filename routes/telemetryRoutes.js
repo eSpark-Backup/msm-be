@@ -8,6 +8,8 @@ router.get('/', telemetryController.getAllTelemetry);
 // More specific routes should come first
 router.get('/device/:device_uuid/channel/:channel_id', telemetryController.getTelemetryByDeviceAndChannel);
 
+router.get('/device/:device_uuid/channel/:channel_id/latestten', telemetryController.getTelemetryByDeviceAndChannelLatestTen);
+
 router.get('/device/:device_uuid', telemetryController.getTelemetryByDevice);
 
 // Generic route should come last
