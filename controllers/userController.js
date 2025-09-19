@@ -9,7 +9,6 @@ const getAllUsers = async (req, res) => {
       const pageNum = Number(page) || 1;
       const limitNum = Number(limit) || 0;
       const skip = limitNum ? (pageNum - 1) * limitNum : 0;
-  
       const users = await User.aggregate([
         // Exclude current user
         {
