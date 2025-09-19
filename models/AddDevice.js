@@ -17,36 +17,9 @@ const deviceSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    label: {
-      type: String,
-      trim: true,
-    },
     group_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Group",
-    },
-    device_profile: {
-      type: String,
-      trim: true,
-    },
-    description: {
-      type: String,
-      trim: true,
-    },
-    owner: {
-      type: String,
-    },
-    access_token: {
-      type: String,
-      required: true,
-    },
-    z509: {
-      type: String,
-      trim: true,
-    },
-    mqtt_client_id: {
-      type: String,
-      trim: true,
     },
     mqtt_user: {
       type: String,

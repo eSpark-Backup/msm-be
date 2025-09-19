@@ -239,6 +239,8 @@ class FleetConnect {
                     const telemetry = new Telemetry(telemetryData);
                     await telemetry.save();
                     socketService.emit('telemetry', { data: telemetryData });
+                    const eventName = `telemetry:${deviceUuid}:channel:${channel.ID}`;
+                    socketService.emit(eventName, { data: telemetryData });
                     console.log(`✅ Telemetry saved: ${deviceUuid}, channel ${channel.ID}, phase ${phase}`);
                 }
             }

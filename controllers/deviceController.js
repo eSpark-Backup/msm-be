@@ -308,16 +308,26 @@ const getSingleUserDeviceById = async (req, res) => {
     try {
         const { device_uuid , user_id } = req.params;
 
-        const device = await AddDevice.findOne({ device_uuid: device_uuid , user_id: user_id });
+        const device = await Device.findOne({device_uuid: device_uuid});
 
         if(!device){
             return res.status(404).json({
                 success: false,
                 message: 'Device Not Found'
             })
-        }        
+        }
+        
+        const userDevice = await AddDevice.findOne({device_id: device._id , user_id: user_id});
 
-        await AddDevice.findOneAndDelete({ device_uuid: device_uuid , user_id: user_id});
+        if(!userDevice){
+            return res.status(404).json({
+                success: false,
+                message: 'User Device Not Found'
+            })
+        }    
+
+        await AddDevice.findOneAndDelete({ device_id: device._id , user_id: user_id});
+        
         res.status(200).json({
             success: true,
             message: 'Device deleted successfully',
