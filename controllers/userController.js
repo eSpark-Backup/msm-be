@@ -5,7 +5,6 @@ const getAllUsers = async (req, res) => {
     try {
       const { search, page, limit } = req.query;
       const query = {
-        email: { $ne: "superadmin@msm.com" }, 
         _id: { $ne: req.user._id }           
       };
   
