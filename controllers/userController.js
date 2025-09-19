@@ -1,27 +1,76 @@
 const User = require('../models/User');
 
+
 // Get all users
 const getAllUsers = async (req, res) => {
     try {
       const { search, page, limit } = req.query;
-      const query = {
-        _id: { $ne: req.user._id }           
-      };
-  
-      if (search) {
-        query.name = { $regex: search, $options: "i" }; 
-      }
   
       const pageNum = Number(page) || 1;
-      const limitNum = Number(limit) || 0; 
+      const limitNum = Number(limit) || 0;
       const skip = limitNum ? (pageNum - 1) * limitNum : 0;
   
-      const users = await User.find(query)
-        .populate("role")
-        .populate("groupsData")
-        .populate("devicesData")
-        .skip(skip)
-        .limit(limitNum);
+      const users = await User.aggregate([
+        // Exclude current user
+        {
+          $match: {
+            _id: { $ne: req.user._id }
+          }
+        },
+        // Populate role
+        {
+          $lookup: {
+            from: "roles", // collection name for Role
+            localField: "role_id",
+            foreignField: "_id",
+            as: "role"
+          }
+        },
+        { $unwind: "$role" },
+        // Exclude super_admin role
+        {
+          $match: {
+            "role.name": { $ne: "super_admin" }
+          }
+        },
+        // Populate groups
+        {
+          $lookup: {
+            from: "groups", // collection name for Groups
+            localField: "_id",
+            foreignField: "user_id",
+            as: "groupsData"
+          }
+        },
+        // Populate devices
+        {
+          $lookup: {
+            from: "devices", // collection name for Devices
+            localField: "_id",
+            foreignField: "user_id",
+            as: "devicesData"
+          }
+        },
+        // Add total_devices_count field
+        {
+          $addFields: {
+            total_devices_count: { $size: "$devicesData" }
+          }
+        },
+        // Search filter
+        ...(search
+          ? [
+              {
+                $match: {
+                  name: { $regex: search, $options: "i" }
+                }
+              }
+            ]
+          : []),
+        // Pagination
+        { $skip: skip },
+        ...(limitNum ? [{ $limit: limitNum }] : [])
+      ]);
   
       res.status(200).json({
         success: true,
