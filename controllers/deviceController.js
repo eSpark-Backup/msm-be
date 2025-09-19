@@ -131,7 +131,7 @@ const getAllUserDevices = async (req, res) => {
 const getSingleUserDevice = async (req, res) => {
     try {
         const { device_uuid } = req.params;
-        const query = { user_id: req.user._id, name: device_uuid };
+        const query = { user_id: req.user._id, device_uuid: device_uuid };
     
         const device = await AddDevice.findOne(query).populate("device_data").populate("groups_data");
     
@@ -189,7 +189,7 @@ const getSingleUserDeviceById = async (req, res) => {
   const createDevice = async (req , res) => {
     try {
         const user_id = req.user._id;
-        const device_uuid = req.body.name;
+        const device_uuid = req.body.device_uuid;
 
         const device_data = await Device.findOne({device_uuid: device_uuid});
 
@@ -207,10 +207,11 @@ const getSingleUserDeviceById = async (req, res) => {
             })
         }
 
-        const device = await AddDevice.create({...req.body, user_id: user_id});
+        const device = await AddDevice.create({...req.body, user_id: user_id , device_id: device_data._id});
         res.status(201).json({
             success: true,
-            message: 'Device created successfully'
+            message: 'Device created successfully',
+            data: device
         })
     } catch (error) {
         console.error('Error in Device Create endpoint:', error);
@@ -226,7 +227,7 @@ const getSingleUserDeviceById = async (req, res) => {
     try {
         const { device_uuid } = req.params;
         const user_id = req.user._id
-        const device = await AddDevice.findOneAndUpdate({name: device_uuid , user_id: user_id }, req.body, { new: true });
+        const device = await AddDevice.findOneAndUpdate({device_uuid: device_uuid , user_id: user_id }, req.body, { new: true });
         
         if(device){
             res.status(200).json({
@@ -255,7 +256,7 @@ const getSingleUserDeviceById = async (req, res) => {
         const { device_uuid } = req.params;
         const user_id = req.user._id
 
-        const device = await AddDevice.findOne({name: device_uuid , user_id: user_id});
+        const device = await AddDevice.findOne({device_uuid: device_uuid , user_id: user_id});
 
         if(!device){
             return res.status(404).json({
@@ -264,7 +265,7 @@ const getSingleUserDeviceById = async (req, res) => {
             })
         }        
 
-        await AddDevice.findOneAndDelete({name: device_uuid , user_id: user_id});
+        await AddDevice.findOneAndDelete({device_uuid: device_uuid , user_id: user_id});
         res.status(200).json({
             success: true,
             message: 'Device deleted successfully',
@@ -283,7 +284,7 @@ const getSingleUserDeviceById = async (req, res) => {
     try {
         const { device_uuid , user_id } = req.params;
 
-        const device = await AddDevice.findOne({ name: device_uuid , user_id: user_id });
+        const device = await AddDevice.findOne({ device_uuid: device_uuid , user_id: user_id });
 
         if(!device){
             return res.status(404).json({
@@ -292,7 +293,7 @@ const getSingleUserDeviceById = async (req, res) => {
             })
         }        
 
-        await AddDevice.findOneAndDelete({ name: device_uuid , user_id: user_id});
+        await AddDevice.findOneAndDelete({ device_uuid: device_uuid , user_id: user_id});
         res.status(200).json({
             success: true,
             message: 'Device deleted successfully',
