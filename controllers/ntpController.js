@@ -43,8 +43,8 @@ const getSingleNtp = async (req, res) => {
 // Create new NTP configuration
 const createNtp = async (req, res) => {
     try {
-        const ntpConfig = new Ntp(req.body);
-        await ntpConfig.save();
+        const device_uuid = req.body.device_uuid;
+        const ntpConfig = await Ntp.findOneAndUpdate({ device_uuid }, req.body, { new: true, upsert: true });
         res.status(201).json({
             success: true,
             message: 'NTP configuration created successfully',
@@ -62,17 +62,25 @@ const createNtp = async (req, res) => {
 // Update NTP configuration
 const updateNtp = async (req, res) => {
     try {
+        // Build a $set object dynamically
+        const updateData = {};
+        for (const key in req.body.data) {
+            updateData[`data.${key}`] = req.body.data[key];
+        }
+
         const ntpConfig = await Ntp.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            { $set: updateData },
             { new: true, runValidators: true }
         );
+
         if (!ntpConfig) {
             return res.status(404).json({
                 success: false,
                 message: 'NTP configuration not found'
             });
         }
+
         res.status(200).json({
             success: true,
             message: 'NTP configuration updated successfully',
@@ -86,6 +94,7 @@ const updateNtp = async (req, res) => {
         });
     }
 };
+
 
 // Delete NTP configuration
 const deleteNtp = async (req, res) => {
