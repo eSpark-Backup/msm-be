@@ -247,7 +247,7 @@ const getSingleUserDeviceById = async (req, res) => {
             })
         }
 
-        const userDevice = await AddDevice.findOneAndUpdate({device_id: device_data._id , user_id: user_id }, req.body, { new: true });
+        const userDevice = await AddDevice.findOneAndUpdate({device_id: device_data._id , user_id: user_id }, req.body, { new: true }).populate('groups_data').populate('device_data');
         
         if(userDevice){
             res.status(200).json({
