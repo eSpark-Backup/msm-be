@@ -128,5 +128,15 @@ UserSchema.virtual("groupsData", {
     justOne: false
 })
 
+UserSchema.virtual("devicesData", {
+    ref: "AddDevice",
+    localField: "_id",
+    foreignField: "user_id",
+    justOne: false
+})
+
+UserSchema.virtual("total_devices_count").get(function () {
+    return this.devicesData ? this.devicesData.length : 0;
+});
 
 module.exports = mongoose.model("User", UserSchema);
