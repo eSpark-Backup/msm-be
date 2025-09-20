@@ -8,6 +8,7 @@ class DeviceIntervals{
         this.devices = [];
         this.counter = 1;
         this.direction = 1;
+        this.intervals = {};
         this.init()
     }
 
@@ -31,8 +32,12 @@ class DeviceIntervals{
           
             const intervalSeconds = deviceInterval.data_interval || 10;
             const topic = `msm/${device.device_uuid}/telemetry`;
+
+            if(this.intervals[device.device_uuid]){
+                clearInterval(this.intervals[device.device_uuid])
+            }
           
-            setInterval(() => {
+            this.intervals[device.device_uuid] = setInterval(() => {
               const channel_one_data = this.getMockTelemetryData(device.device_uuid , 1)
               const channel_two_data = this.getMockTelemetryData(device.device_uuid , 2)
               const channel_three_data = this.getMockTelemetryData(device.device_uuid , 3)
