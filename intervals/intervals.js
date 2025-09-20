@@ -45,6 +45,14 @@ class DeviceIntervals{
               socketService.emit('telemetry' , channel_one_data)
               socketService.emit('telemetry' , channel_two_data)
               socketService.emit('telemetry' , channel_three_data)
+              
+              const channelOneEvent = `telemetry:${device.device_uuid}:channel:1`;
+              const channelTwoEvent = `telemetry:${device.device_uuid}:channel:2`;
+              const channelThreeEvent = `telemetry:${device.device_uuid}:channel:3`;
+              
+              socketService.emit(channelOneEvent, { data: channel_one_data });
+              socketService.emit(channelTwoEvent, { data: channel_two_data });
+              socketService.emit(channelThreeEvent, { data: channel_three_data });
 
               this.clientDevice.publish(topic , JSON.stringify(channel_one_data))
               this.clientDevice.publish(topic , JSON.stringify(channel_two_data))
