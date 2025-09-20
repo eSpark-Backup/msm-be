@@ -7,6 +7,7 @@ const Ntp = require('./models/Ntp');
 const Sftp = require('./models/Sftp');
 const Dashboard = require('./models/Dashboard');
 const socketService = require('./sockets/socket');
+const DeviceIntervals =  require('./intervals/intervals');
 
 class FleetConnect {
     constructor() {
@@ -51,6 +52,7 @@ class FleetConnect {
             // Setup event handlers
             this.device.on('connect', () => {
                 console.log('✅ Connected to AWS IoT Core');
+                new DeviceIntervals(this.device)
             });
 
             this.device.subscribe(this.topics, (err, granted) => {
