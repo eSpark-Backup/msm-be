@@ -43,9 +43,8 @@ class DeviceIntervals {
     async interval() {
         for (const device of this.devices) {
             const deviceInterval = await this.getInterval(device.device_uuid);
-            if (!deviceInterval) continue;
 
-            const intervalSeconds = deviceInterval.data_interval || 10;
+            const intervalSeconds = deviceInterval.data_interval;
             const topic = `msm/${device.device_uuid}/telemetry`;
 
             if (this.intervals[device.device_uuid]) {
