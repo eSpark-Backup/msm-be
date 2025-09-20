@@ -1,7 +1,9 @@
 const { Server } = require("socket.io");
+const EventEmitter = require("events");
 
-class SocketService {
+class SocketService extends EventEmitter {
   constructor() {
+    super();
     this.io = null;
   }
 
@@ -39,7 +41,7 @@ class SocketService {
     return this.io;
   }
 
-  emit(event, data) {
+  emitToClients(event, data) {
     if (!this.io) {
       throw new Error("Socket.io not initialized!");
     }

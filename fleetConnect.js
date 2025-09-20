@@ -52,7 +52,7 @@ class FleetConnect {
             // Setup event handlers
             this.device.on('connect', () => {
                 console.log('✅ Connected to AWS IoT Core');
-                // new DeviceIntervals(this.device)
+                new DeviceIntervals(this.device)
             });
 
             this.device.subscribe(this.topics, (err, granted) => {
@@ -88,7 +88,7 @@ class FleetConnect {
                     const deviceUuid = this.extractDeviceUuid(topic);
                     const topicType = this.getTopicType(topic);
 
-                    console.log(`📨 [${topicType.toUpperCase()}] Message from ${deviceUuid}:`, message);
+                    // console.log(`📨 [${topicType.toUpperCase()}] Message from ${deviceUuid}:`, message);
 
                     // Route message to appropriate handler
                     switch (topicType) {
@@ -117,7 +117,7 @@ class FleetConnect {
                             this.updateShadow(deviceUuid, message, topicType);
                             break;
                         default:
-                            console.warn(`⚠️  Unknown topic type: ${topicType}`);
+                            // console.warn(`⚠️  Unknown topic type: ${topicType}`);
                     }
                 } catch (error) {
                     console.error('❌ Error processing message:', error);
@@ -132,7 +132,7 @@ class FleetConnect {
 
     async updateShadow(deviceUuid, message, topicType) {
         try {
-            console.log(`Updating shadow for ${deviceUuid}:`, message);
+            // console.log(`Updating shadow for ${deviceUuid}:`, message);
 
             // Construct shadow topic
             const shadowTopic = `$aws/things/${deviceUuid}/shadow/update`;
@@ -155,7 +155,7 @@ class FleetConnect {
                     if (err) {
                         console.error(`❌ Failed to update shadow for ${deviceUuid}:`, err);
                     } else {
-                        console.log(`✅ Shadow updated for ${deviceUuid}`);
+                        // console.log(`✅ Shadow updated for ${deviceUuid}`);
                     }
                 }
             );
@@ -240,10 +240,10 @@ class FleetConnect {
                     // Save to database
                     const telemetry = new Telemetry(telemetryData);
                     await telemetry.save();
-                    socketService.emit('telemetry', { data: telemetryData });
+                    socketService.emitToClients('telemetry', { data: telemetryData });
                     const eventName = `telemetry:${deviceUuid}:channel:${channel.ID}`;
-                    socketService.emit(eventName, { data: telemetryData });
-                    console.log(`✅ Telemetry saved: ${deviceUuid}, channel ${channel.ID}, phase ${phase}`);
+                    socketService.emitToClients(eventName, { data: telemetryData });
+                    // console.log(`✅ Telemetry saved: ${deviceUuid}, channel ${channel.ID}, phase ${phase}`);
                 }
             }
         } catch (error) {

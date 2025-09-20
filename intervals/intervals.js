@@ -14,11 +14,18 @@ class DeviceIntervals {
 
     async init() {
         await this.getDevices();
-        this.interval();
+        for(const device of this.devices){
+            this.interval(device);
+        }
+        this.watchIntervals();
     }
 
     async getDevices() {
         this.devices = await Device.find({})
+    }
+
+    async getSingleDevice(device_uuid){
+        return await Device.findOne({ device_uuid })
     }
 
     async getInterval(device_uuid) {
@@ -39,10 +46,18 @@ class DeviceIntervals {
         return value;
     }
 
+    async watchIntervals(){
+        socketService.on('mqtt_updated' , async (device_uuid) => {
+            const device = await this.getSingleDevice(device_uuid)
+            this.interval(device)
+        })
+    }
 
-    async interval() {
-        for (const device of this.devices) {
+
+    async interval(device) {
+        console.log('interval runs');
             const deviceInterval = await this.getInterval(device.device_uuid);
+            if (!deviceInterval) return;
 
             const intervalSeconds = deviceInterval.data_interval;
             const topic = `msm/${device.device_uuid}/telemetry`;
@@ -59,23 +74,22 @@ class DeviceIntervals {
                 const channel_two_data = this.getMockTelemetryData(device.device_uuid, 2, value)
                 const channel_three_data = this.getMockTelemetryData(device.device_uuid, 3, value)
 
-                socketService.emit('telemetry', channel_one_data)
-                socketService.emit('telemetry', channel_two_data)
-                socketService.emit('telemetry', channel_three_data)
+                socketService.emitToClients('telemetry', channel_one_data)
+                socketService.emitToClients('telemetry', channel_two_data)
+                socketService.emitToClients('telemetry', channel_three_data)
 
                 const channelOneEvent = `telemetry:${device.device_uuid}:channel:1`;
                 const channelTwoEvent = `telemetry:${device.device_uuid}:channel:2`;
                 const channelThreeEvent = `telemetry:${device.device_uuid}:channel:3`;
 
-                socketService.emit(channelOneEvent, { data: channel_one_data });
-                socketService.emit(channelTwoEvent, { data: channel_two_data });
-                socketService.emit(channelThreeEvent, { data: channel_three_data });
+                socketService.emitToClients(channelOneEvent, { data: channel_one_data });
+                socketService.emitToClients(channelTwoEvent, { data: channel_two_data });
+                socketService.emitToClients(channelThreeEvent, { data: channel_three_data });
 
                 this.clientDevice.publish(topic, JSON.stringify(channel_one_data))
                 this.clientDevice.publish(topic, JSON.stringify(channel_two_data))
                 this.clientDevice.publish(topic, JSON.stringify(channel_three_data))
             }, intervalSeconds * 1000);
-        }
     }
 
     getMockTelemetryData(device_uuid, channel_id, value) {

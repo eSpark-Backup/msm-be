@@ -1,6 +1,6 @@
 const Mqtt = require('../models/Mqtt');
+const socketService = require('../sockets/socket');
 
-// Get all MQTT configurations
 const getAllMqtt = async (req, res) => {
     try {
         const mqttConfigs = await Mqtt.find();
@@ -101,6 +101,9 @@ const updateMqtt = async (req, res) => {
                 message: 'MQTT configuration not found'
             });
         }
+
+        socketService.emit('mqtt_updated' , mqttConfig.device_uuid);
+
         res.status(200).json({
             success: true,
             message: 'MQTT configuration updated successfully',
