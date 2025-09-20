@@ -13,6 +13,7 @@ const authRoutes = require('./routes/authRoutes');
 const roleRoutes = require('./routes/roleRoutes');
 const groupRoutes = require('./routes/groupRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const protocolsRoutes = require('./routes/protocolsRoutes');
 const socketService = require('./sockets/socket');
 
 const app = express();
@@ -57,6 +58,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/role', roleRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/protocols', protocolsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

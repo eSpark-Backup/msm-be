@@ -8,6 +8,7 @@ const Sftp = require('./models/Sftp');
 const Dashboard = require('./models/Dashboard');
 const socketService = require('./sockets/socket');
 const DeviceIntervals =  require('./intervals/intervals');
+const Protocol = require('./models/Protocol');
 
 class FleetConnect {
     constructor() {
@@ -22,6 +23,7 @@ class FleetConnect {
             'msm/+/ntp',          // Cloud ↔ Device: NTP server configuration
             'msm/+/mqtt',         // Cloud ↔ Device: MQTT broker credentials
             'msm/+/sftp',         // Cloud ↔ Device: SFTP server credentials
+            'msm/+/protocols',    // Cloud ↔ Device: Protocols configuration
 
             // Shadow topics
             '$aws/things/+/shadow/update'
@@ -114,6 +116,10 @@ class FleetConnect {
                             break;
                         case 'sftp':
                             await this.handleSftpMessage(message, deviceUuid);
+                            this.updateShadow(deviceUuid, message, topicType);
+                            break;
+                        case 'protocols':
+                            await this.handleProtocolsMessage(message, deviceUuid);
                             this.updateShadow(deviceUuid, message, topicType);
                             break;
                         default:
@@ -289,6 +295,182 @@ class FleetConnect {
         }
     }
 
+        // ===== PROTOCOLS HANDLER =====
+        async handleProtocolsMessage(message, deviceUuid) {
+            try {
+                console.log(`� Protocols message from ${deviceUuid}:`, message);
+    
+                // Create protocol data object matching the Protocol model schema
+                const protocolData = {
+                    // Main fields from the message root
+                    date: message.date,
+                    time: message.time,
+                    ip_address: message.ip_address,
+                    ofp_uid: message.ofp_uid,
+                    
+                    // All measurement data from message.data object
+                    V_R: message.data?.V_R,
+                    In1_R1: message.data?.In1_R1,
+                    In1_RPF: message.data?.In1_RPF,
+                    V_Y: message.data?.V_Y,
+                    In1_Y1: message.data?.In1_Y1,
+                    In1_YPF: message.data?.In1_YPF,
+                    V_B: message.data?.V_B,
+                    In1_B1: message.data?.In1_B1,
+                    In1_BPF: message.data?.In1_BPF,
+                    P1_R: message.data?.P1_R,
+                    P1_B: message.data?.P1_B,
+                    P1_Y: message.data?.P1_Y,
+                    P1: message.data?.P1,
+                    Q1_R: message.data?.Q1_R,
+                    Q1_B: message.data?.Q1_B,
+                    Q1_Y: message.data?.Q1_Y,
+                    Q1: message.data?.Q1,
+                    S1_R: message.data?.S1_R,
+                    S1_B: message.data?.S1_B,
+                    S1_Y: message.data?.S1_Y,
+                    S1: message.data?.S1,
+                    Epimp1: message.data?.Epimp1,
+                    Epexp1: message.data?.Epexp1,
+                    Eqimp1: message.data?.Eqimp1,
+                    Eqexp1: message.data?.Eqexp1,
+
+                    // F1 series
+                    F1_R: message.data?.F1_R,
+                    PF_R1: message.data?.PF_R1,
+                    F1_Y: message.data?.F1_Y,
+                    PF_Y1: message.data?.PF_Y1,
+                    F1_B: message.data?.F1_B,
+                    PF_B1: message.data?.PF_B1,
+                    F1_P: message.data?.F1_P,
+                    F1_Q: message.data?.F1_Q,
+                    F1_S: message.data?.F1_S,
+                    F1_Epimp: message.data?.F1_Epimp,
+                    F1_Epexp: message.data?.F1_Epexp,
+                    F1_Eqimp: message.data?.F1_Eqimp,
+                    F1_Eqexp: message.data?.F1_Eqexp,
+
+                    // F2 series
+                    F2_R: message.data?.F2_R,
+                    PF_R2: message.data?.PF_R2,
+                    F2_Y: message.data?.F2_Y,
+                    PF_Y2: message.data?.PF_Y2,
+                    F2_B: message.data?.F2_B,
+                    PF_B2: message.data?.PF_B2,
+                    F2_P: message.data?.F2_P,
+                    F2_Q: message.data?.F2_Q,
+                    F2_S: message.data?.F2_S,
+                    F2_Epimp: message.data?.F2_Epimp,
+                    F2_Epexp: message.data?.F2_Epexp,
+                    F2_Eqimp: message.data?.F2_Eqimp,
+                    F2_Eqexp: message.data?.F2_Eqexp,
+
+                    // F3 series
+                    F3_R: message.data?.F3_R,
+                    PF_R3: message.data?.PF_R3,
+                    F3_Y: message.data?.F3_Y,
+                    PF_Y3: message.data?.PF_Y3,
+                    F3_B: message.data?.F3_B,
+                    PF_B3: message.data?.PF_B3,
+                    F3_P: message.data?.F3_P,
+                    F3_Q: message.data?.F3_Q,
+                    F3_S: message.data?.F3_S,
+                    F3_Epimp: message.data?.F3_Epimp,
+                    F3_Epexp: message.data?.F3_Epexp,
+                    F3_Eqimp: message.data?.F3_Eqimp,
+                    F3_Eqexp: message.data?.F3_Eqexp,
+
+                    // F4 series
+                    F4_R: message.data?.F4_R,
+                    PF_R4: message.data?.PF_R4,
+                    F4_Y: message.data?.F4_Y,
+                    PF_Y4: message.data?.PF_Y4,
+                    F4_B: message.data?.F4_B,
+                    PF_B4: message.data?.PF_B4,
+                    F4_P: message.data?.F4_P,
+                    F4_Q: message.data?.F4_Q,
+                    F4_S: message.data?.F4_S,
+                    F4_Epimp: message.data?.F4_Epimp,
+                    F4_Epexp: message.data?.F4_Epexp,
+                    F4_Eqimp: message.data?.F4_Eqimp,
+                    F4_Eqexp: message.data?.F4_Eqexp,
+
+                    // F5 series
+                    F5_R: message.data?.F5_R,
+                    PF_R5: message.data?.PF_R5,
+                    F5_Y: message.data?.F5_Y,
+                    PF_Y5: message.data?.PF_Y5,
+                    F5_B: message.data?.F5_B,
+                    PF_B5: message.data?.PF_B5,
+                    F5_P: message.data?.F5_P,
+                    F5_Q: message.data?.F5_Q,
+                    F5_S: message.data?.F5_S,
+                    F5_Epimp: message.data?.F5_Epimp,
+                    F5_Epexp: message.data?.F5_Epexp,
+                    F5_Eqimp: message.data?.F5_Eqimp,
+                    F5_Eqexp: message.data?.F5_Eqexp,
+
+                    // F6 series
+                    F6_R: message.data?.F6_R,
+                    PF_R6: message.data?.PF_R6,
+                    F6_Y: message.data?.F6_Y,
+                    PF_Y6: message.data?.PF_Y6,
+                    F6_B: message.data?.F6_B,
+                    PF_B6: message.data?.PF_B6,
+                    F6_P: message.data?.F6_P,
+                    F6_Q: message.data?.F6_Q,
+                    F6_S: message.data?.F6_S,
+                    F6_Epimp: message.data?.F6_Epimp,
+                    F6_Epexp: message.data?.F6_Epexp,
+                    F6_Eqimp: message.data?.F6_Eqimp,
+                    F6_Eqexp: message.data?.F6_Eqexp,
+
+                    // F7 series
+                    F7_R: message.data?.F7_R,
+                    PF_R7: message.data?.PF_R7,
+                    F7_Y: message.data?.F7_Y,
+                    PF_Y7: message.data?.PF_Y7,
+                    F7_B: message.data?.F7_B,
+                    PF_B7: message.data?.PF_B7,
+                    F7_P: message.data?.F7_P,
+                    F7_Q: message.data?.F7_Q,
+                    F7_S: message.data?.F7_S,
+                    F7_Epimp: message.data?.F7_Epimp,
+                    F7_Epexp: message.data?.F7_Epexp,
+                    F7_Eqimp: message.data?.F7_Eqimp,
+                    F7_Eqexp: message.data?.F7_Eqexp,
+
+                    // F8 series
+                    F8_R: message.data?.F8_R,
+                    PF_R8: message.data?.PF_R8,
+                    F8_Y: message.data?.F8_Y,
+                    PF_Y8: message.data?.PF_Y8,
+                    F8_B: message.data?.F8_B,
+                    PF_B8: message.data?.PF_B8,
+                    F8_P: message.data?.F8_P,
+                    F8_Q: message.data?.F8_Q,
+                    F8_S: message.data?.F8_S,
+                    F8_Epimp: message.data?.F8_Epimp,
+                    F8_Epexp: message.data?.F8_Epexp,
+                    F8_Eqimp: message.data?.F8_Eqimp,
+                    F8_Eqexp: message.data?.F8_Eqexp
+                };
+
+                // Save to database
+                const protocol = await Protocol.findOneAndUpdate({ ofp_uid: deviceUuid }, protocolData, { new: true, upsert: true });
+
+                // Emit socket event for real-time updates
+                socketService.emitToClients('protocols', { data: protocol });
+                const eventName = `protocols:${deviceUuid}`;
+                socketService.emitToClients(eventName, { data: protocol });
+
+                console.log(`✅ Protocols data saved for device: ${deviceUuid}`);
+
+            } catch (error) {
+                console.error(`❌ Error handling protocols info from ${deviceUuid}:`, error);
+            }
+        }
+
     // ===== NTP HANDLER =====
     async handleNtpMessage(message, deviceUuid) {
         try {
@@ -324,6 +506,8 @@ class FleetConnect {
             console.error(`❌ Error handling MQTT message from ${deviceUuid}:`, error);
         }
     }
+
+
 
     // ===== SFTP HANDLER =====
     async handleSftpMessage(message, deviceUuid) {
