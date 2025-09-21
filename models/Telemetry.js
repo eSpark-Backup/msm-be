@@ -44,18 +44,6 @@ const telemetrySchema = new mongoose.Schema({
   reactive_energy_positive: Number,
   reactive_energy_negative: Number,
   
-  // Avg Power
-  avg_power_factor: Number,
-  avg_active_power: Number,
-  avg_reactive_power: Number,
-  avg_apparent_power: Number,
-  
-  // Avg Energy
-  avg_active_energy_positive: Number,
-  avg_active_energy_negative: Number,
-  avg_reactive_energy_positive: Number,
-  avg_reactive_energy_negative: Number,
-  
 }, {
   timestamps: true,
   toJSON: { virtuals: true },
