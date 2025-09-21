@@ -51,7 +51,7 @@ const getTelemetryByDevice = async (req, res) => {
   
       const telemetry = await Telemetry.aggregate([
         { $match: { device_uuid } },
-        { $sort: { timestamp: -1 } }, // latest first
+        { $sort: { timestamp: -1 } },
         {
           $group: {
             _id: {
@@ -59,10 +59,11 @@ const getTelemetryByDevice = async (req, res) => {
               channel_id: "$channel_id",
               phase: "$phase"
             },
-            latest: { $first: "$$ROOT" } // pick the first (latest) doc
+            latest: { $first: "$$ROOT" }
           }
         },
-        { $replaceRoot: { newRoot: "$latest" } }
+        { $replaceRoot: { newRoot: "$latest" } },
+        { $sort: { channel_id: 1, phase: 1 } }
       ]);
   
       res.status(200).json({
