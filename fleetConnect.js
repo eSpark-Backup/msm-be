@@ -13,8 +13,8 @@ const Protocol = require('./models/Protocol');
 class FleetConnect {
     constructor() {
         this.device = null;
-        this.clientId = 'msm-backend-1234';
-        // this.clientId = 'msm-backend-123';
+        // this.clientId = 'msm-backend-1234';
+        this.clientId = 'msm-backend-123';
 
         // ===== MQTT TOPICS CONFIGURATION =====
         this.topics = [
@@ -59,7 +59,7 @@ class FleetConnect {
             // Setup event handlers
             this.device.on('connect', () => {
                 console.log('✅ Connected to AWS IoT Core');
-                // new DeviceIntervals(this.device)
+                new DeviceIntervals(this.device)
             });
 
             this.device.subscribe(this.topics, (err, granted) => {
@@ -91,11 +91,12 @@ class FleetConnect {
             // ===== MESSAGE ROUTER =====
             this.device.on('message', async (topic, payload) => {
                 try {
+
                     const message = JSON.parse(payload.toString());
                     const deviceUuid = this.extractDeviceUuid(topic);
                     const topicType = this.getTopicType(topic);
 
-                    console.log(`📨 [${topicType.toUpperCase()}] Message from ${deviceUuid}:`, message);
+                    // console.log(`📨 [${topicType.toUpperCase()}] Message from ${deviceUuid}:`, message);
 
                     // Route message to appropriate handler
                     switch (topicType) {
@@ -126,6 +127,9 @@ class FleetConnect {
                         case 'protocols':
                             await this.handleProtocolsMessage(message, deviceUuid);
                             this.updateShadow(deviceUuid, message, topicType);
+                            break;
+                        case 'presence':
+                            await this.handlePresenceMessage(message, deviceUuid);
                             break;
                         default:
                             // console.warn(`⚠️  Unknown topic type: ${topicType}`);
@@ -173,6 +177,14 @@ class FleetConnect {
 
         } catch (error) {
             console.error(`❌ Error updating shadow for ${deviceUuid}:`, error);
+        }
+    }
+
+    async handlePresenceMessage(message, deviceUuid) {
+        try {
+            console.log(`Presence message from ${deviceUuid}:`, message);
+        } catch (error) {
+            console.error('❌ Error processing presence message:', error);
         }
     }
 
