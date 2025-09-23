@@ -14,7 +14,7 @@ class FleetConnect {
     constructor() {
         this.device = null;
         // this.clientId = 'msm-backend-1234';
-        this.clientId = 'msm-backend-123';
+        this.clientId = 'ESP90000005';
 
         // ===== MQTT TOPICS CONFIGURATION =====
         this.topics = [
