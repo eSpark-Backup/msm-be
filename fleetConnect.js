@@ -13,7 +13,8 @@ const Protocol = require('./models/Protocol');
 class FleetConnect {
     constructor() {
         this.device = null;
-        this.clientId = 'msm-backend-1234';
+       // this.clientId = 'msm-backend-1234';
+        this.clientId = 'msm-backend-12345';
         // this.clientId = 'ESP90000005';
 
         // ===== MQTT TOPICS CONFIGURATION =====
@@ -58,7 +59,7 @@ class FleetConnect {
             // Setup event handlers
             this.device.on('connect', () => {
                 console.log('✅ Connected to AWS IoT Core');
-                new DeviceIntervals(this.device)
+                // new DeviceIntervals(this.device)
             });
 
             this.device.subscribe(this.topics, (err, granted) => {
@@ -230,67 +231,68 @@ class FleetConnect {
                 return;
             }
 
-            const channel = message.channels[0];
-
-            // Process each phase in the channel data
-            for (const [phaseKey, phaseData] of Object.entries(channel.data || {})) {
-                if (!phaseKey.startsWith('phase_')) continue;
-                const phase = phaseKey.split('_')[1]; // Extract 'a', 'b', or 'c'
-
-                if (phaseData) {
-                    const telemetryData = {
-                        // Device and Channel Info
-                        device_uuid: message.device_uuid,
-                        timestamp: new Date(message.timestamp),
-                        channel_id: channel.ID,
-                        phase: phase,
-                        channel_status: channel.status,
-
-                        // General measurements
-                        temperature: channel.temperature,
-                        line_voltage: phaseData.general?.line_voltage,
-                        rms_voltage: phaseData.general?.rms_voltage,
-                        frequency: phaseData.general?.frequency,
-                        current: phaseData.general?.current,
-
-                        // Power measurements
-                        power_factor: phaseData.power?.factor,
-                        active_power: phaseData.power?.active,
-                        reactive_power: phaseData.power?.reactive,
-                        apparent_power: phaseData.power?.apparent,
-
-                        // Energy measurements - active
-                        active_energy_positive: phaseData.energy?.active?.positive,
-                        active_energy_negative: phaseData.energy?.active?.negative,
-
-                        // Energy measurements - reactive
-                        reactive_energy_positive: phaseData.energy?.reactive?.positive,
-                        reactive_energy_negative: phaseData.energy?.reactive?.negative,
-
-                        // Avg Power
-                        avg_power_factor: phaseData.avg_power?.factor,
-                        avg_active_power: phaseData.avg_power?.active,
-                        avg_reactive_power: phaseData.avg_power?.reactive,
-                        avg_apparent_power: phaseData.avg_power?.apparent,
-
-                        // Avg Energy - active
-                        avg_active_energy_positive: phaseData.avg_energy?.active?.positive,
-                        avg_active_energy_negative: phaseData.avg_energy?.active?.negative,
-
-                        // Avg Energy - reactive
-                        avg_reactive_energy_positive: phaseData.avg_energy?.reactive?.positive,
-                        avg_reactive_energy_negative: phaseData.avg_energy?.reactive?.negative,
-                    };
-
-                    // Save to database
-                    const telemetry = new Telemetry(telemetryData);
-                    await telemetry.save();
-                    socketService.emitToClients('telemetry', { data: telemetryData });
-                    const eventName = `telemetry:${deviceUuid}:channel:${channel.ID}`;
-                    socketService.emitToClients(eventName, { data: telemetryData });
-                    // console.log(`✅ Telemetry saved: ${deviceUuid}, channel ${channel.ID}, phase ${phase}`);
+            for (const channel of message.channels) {
+                // Process each phase in the channel data
+                for (const [phaseKey, phaseData] of Object.entries(channel.data || {})) {
+                    if (!phaseKey.startsWith('phase_')) continue;
+                    const phase = phaseKey.split('_')[1]; // Extract 'a', 'b', or 'c'
+    
+                    if (phaseData) {
+                        const telemetryData = {
+                            // Device and Channel Info
+                            device_uuid: message.device_uuid,
+                            timestamp: new Date(message.timestamp),
+                            channel_id: channel.ID,
+                            phase: phase,
+                            channel_status: channel.status,
+    
+                            // General measurements
+                            temperature: channel.temperature,
+                            line_voltage: phaseData.general?.line_voltage,
+                            rms_voltage: phaseData.general?.rms_voltage,
+                            frequency: phaseData.general?.frequency,
+                            current: phaseData.general?.current,
+    
+                            // Power measurements
+                            power_factor: phaseData.power?.factor,
+                            active_power: phaseData.power?.active,
+                            reactive_power: phaseData.power?.reactive,
+                            apparent_power: phaseData.power?.apparent,
+    
+                            // Energy measurements - active
+                            active_energy_positive: phaseData.energy?.active?.positive,
+                            active_energy_negative: phaseData.energy?.active?.negative,
+    
+                            // Energy measurements - reactive
+                            reactive_energy_positive: phaseData.energy?.reactive?.positive,
+                            reactive_energy_negative: phaseData.energy?.reactive?.negative,
+    
+                            // Avg Power
+                            avg_power_factor: phaseData.avg_power?.factor,
+                            avg_active_power: phaseData.avg_power?.active,
+                            avg_reactive_power: phaseData.avg_power?.reactive,
+                            avg_apparent_power: phaseData.avg_power?.apparent,
+    
+                            // Avg Energy - active
+                            avg_active_energy_positive: phaseData.avg_energy?.active?.positive,
+                            avg_active_energy_negative: phaseData.avg_energy?.active?.negative,
+    
+                            // Avg Energy - reactive
+                            avg_reactive_energy_positive: phaseData.avg_energy?.reactive?.positive,
+                            avg_reactive_energy_negative: phaseData.avg_energy?.reactive?.negative,
+                        };
+    
+                        // Save to database
+                        const telemetry = new Telemetry(telemetryData);
+                        await telemetry.save();
+                        socketService.emitToClients('telemetry', { data: telemetryData });
+                        const eventName = `telemetry:${deviceUuid}:channel:${channel.ID}`;
+                        socketService.emitToClients(eventName, { data: telemetryData });
+                        // console.log(`✅ Telemetry saved: ${deviceUuid}, channel ${channel.ID}, phase ${phase}`);
+                    }
                 }
             }
+
         } catch (error) {
             console.error(`❌ Error handling telemetry from ${deviceUuid}:`, error);
         }
