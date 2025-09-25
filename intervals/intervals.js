@@ -60,7 +60,6 @@ class DeviceIntervals {
             if (!deviceInterval) return;
 
             const intervalSeconds = deviceInterval.data_interval;
-            const topic = `msm/${device.device_uuid}/telemetry`;
 
             if (this.intervals[device.device_uuid]) {
                 clearInterval(this.intervals[device.device_uuid])
@@ -68,7 +67,7 @@ class DeviceIntervals {
 
             this.intervals[device.device_uuid] = setInterval(() => {
                 const value = this.getNextValue();
-                const topic = `msm/${device.device_uuid}/telemetry`;
+                const topic = `msm/${device.device_uuid}/pub/telemetry`;
             
                 for (let channelId = 1; channelId <= 6; channelId++) {
                     const channelData = this.getMockTelemetryData(device.device_uuid, channelId, value);

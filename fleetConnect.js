@@ -19,13 +19,13 @@ class FleetConnect {
 
         // ===== MQTT TOPICS CONFIGURATION =====
         this.topics = [
-            'msm/+/telemetry',    // Device → Cloud: High-frequency telemetry data
-            'msm/+/reboot',       // Cloud ↔ Device: Reboot commands and status
-            'msm/+/device_info',  // Device → Cloud: Device information
-            'msm/+/ntp',          // Cloud ↔ Device: NTP server configuration
-            'msm/+/mqtt',         // Cloud ↔ Device: MQTT broker credentials
-            'msm/+/sftp',         // Cloud ↔ Device: SFTP server credentials
-            'msm/+/protocols',    // Cloud ↔ Device: Protocols configuration
+            'msm/+/pub/telemetry',    // Device → Cloud: High-frequency telemetry data
+            'msm/+/pub/reboot',       // Cloud ↔ Device: Reboot commands and status
+            'msm/+/pub/device_info',  // Device → Cloud: Device information
+            'msm/+/pub/ntp',          // Cloud ↔ Device: NTP server configuration
+            'msm/+/pub/mqtt',         // Cloud ↔ Device: MQTT broker credentials
+            'msm/+/pub/sftp',         // Cloud ↔ Device: SFTP server credentials
+            'msm/+/pub/protocols',    // Cloud ↔ Device: Protocols configuration
 
             // Shadow topics
             '$aws/things/+/shadow/update',
@@ -215,12 +215,12 @@ class FleetConnect {
     // ===== UTILITY METHODS =====
     extractDeviceUuid(topic) {
         const parts = topic.split('/');
-        return parts[1]; // msm/{device_uuid}/topic_type
+        return parts[1]; // msm/{device_uuid}/pub/topic_type
     }
 
     getTopicType(topic) {
         const parts = topic.split('/');
-        return parts[2]; // msm/{device_uuid}/topic_type
+        return parts[3]; // msm/{device_uuid}/pub/topic_type
     }
 
     // ===== TELEMETRY HANDLER =====
@@ -572,7 +572,7 @@ class FleetConnect {
 
     // Send reboot command to device
     sendRebootCommand(deviceUuid) {
-        const topic = `msm/${deviceUuid}/reboot`;
+        const topic = `msm/${deviceUuid}/sub/reboot`;
         const message = {
             device_uuid: deviceUuid,
             data: [{
@@ -586,7 +586,7 @@ class FleetConnect {
 
     // Send NTP configuration to device
     sendNtpConfig(deviceUuid, ntpServers) {
-        const topic = `msm/${deviceUuid}/ntp`;
+        const topic = `msm/${deviceUuid}/sub/ntp`;
         const message = {
             device_uuid: deviceUuid,
             data: [ntpServers]
@@ -598,7 +598,7 @@ class FleetConnect {
 
     // Send MQTT configuration to device
     sendMqttConfig(deviceUuid, mqttConfig) {
-        const topic = `msm/${deviceUuid}/mqtt`;
+        const topic = `msm/${deviceUuid}/sub/mqtt`;
         const message = {
             device_uuid: deviceUuid,
             data: [mqttConfig]
@@ -610,7 +610,7 @@ class FleetConnect {
 
     // Send SFTP configuration to device
     sendSftpConfig(deviceUuid, sftpConfig) {
-        const topic = `msm/${deviceUuid}/sftp`;
+        const topic = `msm/${deviceUuid}/sub/sftp`;
         const message = {
             device_uuid: deviceUuid,
             data: [sftpConfig]
