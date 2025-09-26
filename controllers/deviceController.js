@@ -114,8 +114,25 @@ const getAllUserDevices = async (req, res) => {
         const limitNum = Number(limit) || 0; 
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
     
-        const devices = await AddDevice.find(query).skip(skip).limit(limitNum).populate("device_data").populate("groups_data");
-    
+        const devices = await AddDevice.aggregate([
+            { $match: query },
+            {
+              $group: {
+                _id: "$device_data",      // group by device
+                doc: { $first: "$$ROOT" } // take one entry per device
+              }
+            },
+            { $replaceRoot: { newRoot: "$doc" } },
+            { $skip: skip },
+            { $limit: limitNum }
+          ]);
+          
+          await AddDevice.populate(devices, [
+            { path: "device_data" },
+            { path: "groups_data" }
+          ]);
+          
+          
         res.status(200).json({
           success: true,
           message: "Devices found",
