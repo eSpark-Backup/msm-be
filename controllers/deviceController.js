@@ -145,7 +145,12 @@ const getSingleUserDevice = async (req, res) => {
             })
         }     
 
-        const query = { user_id: req.user._id, device_id: device._id };
+        let query = {};
+
+        if(req.user.role.name !== "super_admin"){
+            query.user_id = req.user._id;
+            query.device_id = device._id;
+        }
     
         const userDevice = await AddDevice.findOne(query).populate("device_data").populate("groups_data");
     
@@ -288,7 +293,6 @@ const getSingleUserDeviceById = async (req, res) => {
                 message: 'Device Not Found'
             })
         }    
-        
 
         const userDevice = await AddDevice.findOne({device_id: device_data._id , user_id: user_id});
 

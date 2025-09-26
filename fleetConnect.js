@@ -14,8 +14,8 @@ const AddDevice = require('./models/AddDevice');
 class FleetConnect {
     constructor() {
         this.device = null;
-    //    this.clientId = 'msm-backend-1234';
-        this.clientId = 'msm-backend-12345';
+       this.clientId = 'msm-backend-1234';
+        // this.clientId = 'msm-backend-12345';
         // this.clientId = 'ESP90000005';
 
         // ===== MQTT TOPICS CONFIGURATION =====
@@ -60,7 +60,7 @@ class FleetConnect {
             // Setup event handlers
             this.device.on('connect', () => {
                 console.log('✅ Connected to AWS IoT Core');
-                new DeviceIntervals(this.device)
+                // new DeviceIntervals(this.device)
             });
 
             this.device.subscribe(this.topics, (err, granted) => {
@@ -93,11 +93,11 @@ class FleetConnect {
             this.device.on('message', async (topic, payload) => {
                 try {
 
-                    const message = JSON.parse(payload.toString());
+
                     let deviceUuid = this.extractDeviceUuid(topic);
                     const topicType = this.getTopicType(topic);
 
-                    // console.log(`📨 [${topicType.toUpperCase()}] Message from ${deviceUuid}:`, message);
+                    const message = JSON.parse(payload.toString());
 
                     // Route message to appropriate handler
                     switch (topicType) {

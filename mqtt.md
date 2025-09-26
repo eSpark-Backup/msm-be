@@ -312,7 +312,7 @@
         {
             "server_1": "my.pool.ntp.org",
             "server_2": "0.asia.pool.ntp.org",
-            "server_3": "1.asia.pool.ntp.org",
+            "server_3": "1.asia.pool.ntp.org"
         }
     ]
 }
@@ -328,7 +328,7 @@
     "data":[
         {
             "broker_ip": "thingsboard.cloud",
-            "broker_port": 1883
+            "broker_port": 1883,
             "broker_user": "OFP-INDKOM",
             "broker_pass": "IND10",
             "data_interval" : 900,
