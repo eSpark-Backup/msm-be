@@ -22,7 +22,7 @@ const MQTT = new mongoose.Schema({
         type: String, 
         required: true 
     },
-    data_interval: { 
+    data_interval: {
         type: Number, 
         required: true 
     },

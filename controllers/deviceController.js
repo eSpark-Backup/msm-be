@@ -25,7 +25,6 @@ const rebootDevice = async (req, res) => {
             deviceId,
             topic: `msm/${deviceId}/reboot`
         });
-
     } catch (error) {
         console.error('Error in reboot endpoint:', error);
         res.status(500).json({
@@ -101,7 +100,11 @@ const getAllDevices = async (req, res) => {
 const getAllUserDevices = async (req, res) => {
     try {
         const { search, page, limit } = req.query;
-        const query = { user_id: req.user._id };
+        const query = {};
+
+        if (req.user.role?.name !== "super_admin") {
+            query.user_id = req.user._id;
+        }
     
         if (search) {
           query.name = { $regex: search, $options: "i" };

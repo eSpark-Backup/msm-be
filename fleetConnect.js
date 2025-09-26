@@ -9,6 +9,7 @@ const Dashboard = require('./models/Dashboard');
 const socketService = require('./sockets/socket');
 const DeviceIntervals = require('./intervals/intervals');
 const Protocol = require('./models/Protocol');
+const AddDevice = require('./models/AddDevice');
 
 class FleetConnect {
     constructor() {
@@ -184,21 +185,25 @@ class FleetConnect {
     async handlePresenceMessage(message, deviceUuid) {
         try {
 
-            const { eventType, ipAddress, clientId } = message;
+            const { eventType, clientId } = message;
 
             console.log(`Presence message from ${clientId}:`, message);
 
-            // mqtt_status will be true if connected, false otherwise
             const mqttStatus = eventType === "connected";
 
-            // update device in DB
-            const updatedDevice = await Device.findOneAndUpdate(
-                { device_uuid: clientId }, // find device by UUID
+            const device = await Device.findOne({ device_uuid: clientId });
+
+            if (!device) {
+                console.log(`⚠️ Device ${clientId} not found in DB`);
+                return;
+            }
+
+            const updatedDevice = await AddDevice.findOneAndUpdate(
+                { device_id: device._id }, 
                 {
-                    mqtt_status: mqttStatus,
-                    device_ip: ipAddress // optional: also update latest IP
+                    device_status: mqttStatus,
                 },
-                { new: true } // return updated document
+                { new: true }
             );
 
             if (updatedDevice) {
@@ -498,7 +503,7 @@ class FleetConnect {
             };
 
             // Save to database
-            const protocol = await Protocol.findOneAndUpdate({ ofp_uid: deviceUuid }, protocolData, { new: true, upsert: true });
+            const protocol = await Protocol.create(protocolData);
 
             // Emit socket event for real-time updates
             socketService.emitToClients('protocols', { data: protocol });
