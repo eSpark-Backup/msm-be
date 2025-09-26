@@ -198,11 +198,9 @@ class FleetConnect {
                 return;
             }
 
-            const updatedDevice = await AddDevice.findOneAndUpdate(
-                { device_id: device._id }, 
-                {
-                    device_status: mqttStatus,
-                },
+            const updatedDevice = await Device.findOneAndUpdate(
+                { device_uuid: clientId },
+                { device_status: mqttStatus },
                 { new: true }
             );
 

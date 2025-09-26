@@ -24,10 +24,6 @@ const deviceSchema = new mongoose.Schema(
     mqtt_user: {
       type: String,
       trim: true,
-    },
-    device_status : {
-        type: Boolean,
-        default: false
     }
   },
   { 

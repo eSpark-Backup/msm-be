@@ -26,6 +26,10 @@ const deviceSchema = new mongoose.Schema({
   sftp_status: {
     type: Boolean,
     default: false
+  },
+  device_status: {
+    type: Boolean,
+    default: false
   }
 },
   {
