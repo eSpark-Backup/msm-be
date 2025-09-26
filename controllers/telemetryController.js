@@ -84,7 +84,6 @@ const getTelemetryByDeviceAndChannel = async (req, res) => {
   try {
     const { device_uuid, channel_id } = req.params;
 
-    // Get the latest record (for timestamp + raw values)
     const latestRecord = await Telemetry.findOne({
       device_uuid,
       channel_id: Number(channel_id),
@@ -99,11 +98,9 @@ const getTelemetryByDeviceAndChannel = async (req, res) => {
       });
     }
 
-    // Define the 30-minute window
     const windowStart = new Date(latestRecord.timestamp);
     windowStart.setMinutes(windowStart.getMinutes() - 30);
 
-    // Aggregate averages in that window
     const telemetry = await Telemetry.aggregate([
       {
         $match: {
@@ -165,6 +162,7 @@ const getTelemetryByDeviceAndChannel = async (req, res) => {
         },
       },
       { $unwind: "$device" },
+      { $sort: { phase: 1 } },
     ]);
 
     res.status(200).json({
