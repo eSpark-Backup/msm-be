@@ -37,7 +37,7 @@ const deviceSchema = new mongoose.Schema(
   }
 );
 
-deviceSchema.index({ user_id: 1, name: 1 }, { unique: true });
+deviceSchema.index({ user_id: 1, device_id: 1 }, { unique: true });
 
 
 deviceSchema.virtual("device_data", {

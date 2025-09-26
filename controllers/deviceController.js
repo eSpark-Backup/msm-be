@@ -99,10 +99,11 @@ const getAllDevices = async (req, res) => {
 
 const getAllUserDevices = async (req, res) => {
     try {
+
         const { search, page, limit } = req.query;
         const query = {};
 
-        if (req.user.role?.name !== "super_admin") {
+        if (req.user.role.name !== "super_admin") {
             query.user_id = req.user._id;
         }
     
@@ -114,24 +115,7 @@ const getAllUserDevices = async (req, res) => {
         const limitNum = Number(limit) || 0; 
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
     
-        const devices = await AddDevice.aggregate([
-            { $match: query },
-            {
-              $group: {
-                _id: "$device_data",      // group by device
-                doc: { $first: "$$ROOT" } // take one entry per device
-              }
-            },
-            { $replaceRoot: { newRoot: "$doc" } },
-            { $skip: skip },
-            { $limit: limitNum }
-          ]);
-          
-          await AddDevice.populate(devices, [
-            { path: "device_data" },
-            { path: "groups_data" }
-          ]);
-          
+        const devices = await AddDevice.find(query).skip(skip).limit(limitNum).populate("device_data").populate("groups_data");
           
         res.status(200).json({
           success: true,
@@ -315,7 +299,7 @@ const getSingleUserDeviceById = async (req, res) => {
             })
         }    
 
-        await AddDevice.findOneAndDelete({device_id: device_data._id , user_id: user_id});
+        await AddDevice.deleteMany({device_id: device_data._id , user_id: user_id});
         res.status(200).json({
             success: true,
             message: 'Device deleted successfully',
