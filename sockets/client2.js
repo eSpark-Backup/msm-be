@@ -25,15 +25,6 @@ socket.on("connect", () => {
     console.log("hello from server:", data);
   });
 
-  // common telemetry
-  socket.on("telemetry", (data) => {
-    console.log("telemetry (all devices/channels):", data);
-  });
-
-  // specific device + channel listener
-  socket.on("telemetry:ESP90000005:channel:1", (data) => {
-    console.log("telemetry for ESP90000005 channel 1:", data);
-  });
 });
 
 socket.on("disconnect", () => {

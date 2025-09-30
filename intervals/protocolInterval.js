@@ -1,4 +1,5 @@
 const Telemetry = require('../models/Telemetry')
+const { mapProtocols } = require('../utils/mapProtocol')
 
 class ProtocolInterval {
     constructor(interval_time, device_uuid, data_range, socket) {
@@ -49,6 +50,15 @@ class ProtocolInterval {
     
                 { $unwind: "$latest" },               
                 { $replaceRoot: { newRoot: "$latest" } },
+
+                {
+                    $lookup: {
+                        from: "devices",
+                        localField: "device_uuid",
+                        foreignField: "device_uuid",
+                        as: "deviceInfo"
+                    }
+                },
     
                 { $sort: { channel_id: 1, phase: 1 } }
             ]).allowDiskUse(true);
@@ -69,8 +79,9 @@ class ProtocolInterval {
 
         try {
             const telemetry = await this.getTelemetryData();
-            if (telemetry && this.socket?.connected) {
-                this.socket.emit('mqtt_protocol', { telemetry });
+            if (telemetry && telemetry.length > 0 && this.socket?.connected) {
+                const mappedData = await mapProtocols(telemetry);
+                this.socket.emit('mqtt_protocol', mappedData);
                 console.log(`Interval ran for device ${this.device_uuid}`);
             }
         } catch (error) {
