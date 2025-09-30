@@ -57,7 +57,7 @@ const getAllProtocols = async (req, res) => {
       success: true,
       count: telemetry.length,
       message: 'Telemetry fetched successfully',
-      telemetry
+      protocolsByRank
     });
 
   } catch (err) {
