@@ -1,12 +1,24 @@
-const Telemetry = require('../models/Telemetry')
+const Telemetry = require('../models/Telemetry');
+const moment = require('moment-timezone');
 
 const getAllProtocols = async (req, res) => {
   try {
     const { device_uuid } = req.params;
-    const {limit} = req.query;
+    const { limit, timezone = 'Asia/Karachi', range_value = 2, range_unit = 'hours' } = req.query;
+
+    const endTime = moment.tz(timezone); 
+    const startTime = endTime.clone().subtract(Number(range_value), range_unit); 
+
+    const startUTC = startTime.utc().toDate();
+    const endUTC = endTime.utc().toDate();
 
     const telemetry = await Telemetry.aggregate([
-      { $match: { device_uuid } },
+      {
+        $match: {
+          device_uuid,
+          createdAt: { $gte: startUTC, $lte: endUTC } 
+        }
+      },
 
       {
         $group: {
@@ -15,7 +27,7 @@ const getAllProtocols = async (req, res) => {
             $topN: {
               output: "$$ROOT",
               sortBy: { createdAt: -1 },
-              n: parseInt(limit)
+              n: parseInt(limit) || 10
             }
           }
         }
@@ -27,16 +39,15 @@ const getAllProtocols = async (req, res) => {
         $setWindowFields: {
           partitionBy: { channel_id: "$channel_id", phase: "$phase" },
           sortBy: { createdAt: -1 },
-          output: {
-            rank: { $rank: {} } 
-          }
+          output: { rank: { $rank: {} } }
         }
       },
+
       {
         $lookup: {
-          from: "devices",            
-          localField: "device_uuid",     
-          foreignField: "device_uuid",  
+          from: "devices",
+          localField: "device_uuid",
+          foreignField: "device_uuid",
           as: "deviceInfo"
         }
       },
@@ -44,11 +55,9 @@ const getAllProtocols = async (req, res) => {
       { $sort: { channel_id: 1, phase: 1, createdAt: -1 } }
     ]).allowDiskUse(true);
 
-
     const telemetryByRank = filterTelemetryByRank(telemetry);
 
     const protocolsByRank = {};
-
     for (const rank in telemetryByRank) {
       protocolsByRank[rank] = await mapProtocols(telemetryByRank[rank]);
     }
@@ -70,6 +79,7 @@ const getAllProtocols = async (req, res) => {
   }
 };
 
+
 const filterTelemetryByRank = (telemetry) => {
   const result = {};
 
@@ -89,9 +99,7 @@ const filterTelemetryByRank = (telemetry) => {
 
 const mapProtocols = async (telemetry) => {
   try {
-
-    console.log(telemetry)
-
+    
     const channel_1 = telemetry.filter(item => item.channel_id === 1)
     const channel_2 = telemetry.filter(item => item.channel_id === 2)
     const channel_3 = telemetry.filter(item => item.channel_id === 3)
