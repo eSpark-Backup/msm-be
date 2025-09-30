@@ -13,8 +13,8 @@ const Protocol = require('./models/Protocol');
 class FleetConnect {
     constructor() {
         this.device = null;
-    //    this.clientId = 'msm-backend-1234';
-        this.clientId = 'msm-backend-12345';
+       this.clientId = 'msm-backend-1234';
+        // this.clientId = 'msm-backend-12345';
         // this.clientId = 'ESP90000005';
 
         // ===== MQTT TOPICS CONFIGURATION =====

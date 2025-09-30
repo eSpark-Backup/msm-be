@@ -48,9 +48,10 @@ const getSingleTelemetry = async (req, res) => {
 const getTelemetryByDevice = async (req, res) => {
     try {
       const device_uuid = req.params.device_uuid;
-  
+      const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+
       const telemetry = await Telemetry.aggregate([
-        { $match: { device_uuid } },
+        { $match: { device_uuid , createdAt: { $gte: thirtyMinutesAgo } } },
         { $sort: { createdAt: -1 } },
         {
           $group: {
@@ -177,9 +178,6 @@ const getTelemetryByDeviceAndChannel = async (req, res) => {
     });
   }
 };
-
-  
-
 
   const getTelemetryByDeviceAndChannelLatestTen = async (req, res) => {
     try {

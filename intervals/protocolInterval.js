@@ -23,8 +23,16 @@ class ProtocolInterval {
 
     async getTelemetryData() {
         try {
+            const now = new Date();
+            const fromTime = new Date(now.getTime() - 30 * 60 * 1000);
+
+
             const telemetry = await Telemetry.aggregate([
-                { $match: { device_uuid: this.device_uuid } },
+                { $match: { 
+                    device_uuid: this.device_uuid,
+                    createdAt: { $gte: fromTime, $lte: now }   
+
+                 }},
     
                 {
                     $group: {
@@ -55,7 +63,7 @@ class ProtocolInterval {
     
 
     async interval() {
-        console.log('interval runs')
+        console.log('interval runs' , this.isRunning);
         if (this.isRunning) return; 
         this.isRunning = true;
 
