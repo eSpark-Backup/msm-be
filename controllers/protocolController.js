@@ -3,6 +3,7 @@ const Telemetry = require('../models/Telemetry')
 const getAllProtocols = async (req, res) => {
   try {
     const { device_uuid } = req.params;
+    const {limit} = req.query;
 
     const telemetry = await Telemetry.aggregate([
       { $match: { device_uuid } },
@@ -14,7 +15,7 @@ const getAllProtocols = async (req, res) => {
             $topN: {
               output: "$$ROOT",
               sortBy: { createdAt: -1 },
-              n: 1
+              n: parseInt(limit)
             }
           }
         }
@@ -22,6 +23,15 @@ const getAllProtocols = async (req, res) => {
 
       { $unwind: "$latest" },
       { $replaceRoot: { newRoot: "$latest" } },
+      {
+        $setWindowFields: {
+          partitionBy: { channel_id: "$channel_id", phase: "$phase" },
+          sortBy: { createdAt: -1 },
+          output: {
+            rank: { $rank: {} } 
+          }
+        }
+      },
       {
         $lookup: {
           from: "devices",            
@@ -31,16 +41,23 @@ const getAllProtocols = async (req, res) => {
         }
       },
 
-      { $sort: { channel_id: 1, phase: 1 } }
+      { $sort: { channel_id: 1, phase: 1, createdAt: -1 } }
     ]).allowDiskUse(true);
 
-    const protocols = await mapProtocols(telemetry);
+
+    const telemetryByRank = filterTelemetryByRank(telemetry);
+
+    const protocolsByRank = {};
+
+    for (const rank in telemetryByRank) {
+      protocolsByRank[rank] = await mapProtocols(telemetryByRank[rank]);
+    }
 
     res.json({
       success: true,
       count: telemetry.length,
       message: 'Telemetry fetched successfully',
-      protocols
+      telemetry
     });
 
   } catch (err) {
@@ -53,9 +70,27 @@ const getAllProtocols = async (req, res) => {
   }
 };
 
+const filterTelemetryByRank = (telemetry) => {
+  const result = {};
+
+  telemetry.forEach(item => {
+    const r = item.rank; 
+    if (!result[r]) {
+      result[r] = [];
+    }
+    result[r].push(item);
+  });
+
+  return result;
+};
+
+
+
 
 const mapProtocols = async (telemetry) => {
   try {
+
+    console.log(telemetry)
 
     const channel_1 = telemetry.filter(item => item.channel_id === 1)
     const channel_2 = telemetry.filter(item => item.channel_id === 2)
