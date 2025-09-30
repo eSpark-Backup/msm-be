@@ -50,11 +50,9 @@ const telemetrySchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-telemetrySchema.index({ device_uuid: 1, timestamp: -1 });
-
-// Compound indexes for queries
-telemetrySchema.index({ device_uuid: 1, channel_id: 1, phase: 1, timestamp: -1 });
-telemetrySchema.index({ device_uuid: 1, channel_id: 1, timestamp: -1 });
+telemetrySchema.index({ device_uuid: 1, createdAt: -1 });
+telemetrySchema.index({ device_uuid: 1, channel_id: 1, createdAt: -1 });
+telemetrySchema.index({ device_uuid: 1, channel_id: 1, phase: 1, createdAt: -1 });
 
 
 telemetrySchema.virtual('device', {

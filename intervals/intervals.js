@@ -13,11 +13,6 @@ class DeviceIntervals {
     }
 
     async init() {
-        // await this.getDevices();
-        // for(const device of this.devices){
-        //     this.interval(device);
-        // }
-
         const device = await this.getSingleDevice('ESP90000005');
 
         if (device) {

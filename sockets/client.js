@@ -15,6 +15,10 @@ socket.on("connect", () => {
   // test event
   socket.emit("hello", { msg: "Hi from client!" });
 
+  socket.on("mqtt_protocol" , (data) => {
+    console.log("mqtt_protocol from server:", data);
+  });
+
   socket.on("hello", (data) => {
     console.log("hello from server:", data);
   });

@@ -1,5 +1,6 @@
 const { Server } = require("socket.io");
 const EventEmitter = require("events");
+const ProtocolInterval = require('../intervals/protocolInterval');
 
 class SocketService extends EventEmitter {
   constructor() {
@@ -17,17 +18,27 @@ class SocketService extends EventEmitter {
 
     this.io.on("connection", (socket) => {
       console.log("connected socket:", socket.id);
+      
+      // Track protocol intervals for this socket
+      const protocolIntervals = [];
 
-      // example listener
       socket.on("hello", (data) => {
         console.log("hello from client:", data);
       });
 
-      // send to this client only
+      socket.on('mqtt_protocol' , async (data) => {
+        console.log("mqtt_protocol from client:", data)
+        const interval = new ProtocolInterval(data.interval_time , data.thing_name , data.data_range , socket)
+        protocolIntervals.push(interval);
+      })
+
       socket.emit("hello", { msg: "Hi from server!" });
 
       socket.on("disconnect", () => {
         console.log("disconnected socket:", socket.id);
+        // Cleanup all protocol intervals for this socket
+        protocolIntervals.forEach(interval => interval.cleanup());
+        protocolIntervals.length = 0;
       });
     });
 

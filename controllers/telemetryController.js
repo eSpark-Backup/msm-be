@@ -51,7 +51,7 @@ const getTelemetryByDevice = async (req, res) => {
   
       const telemetry = await Telemetry.aggregate([
         { $match: { device_uuid } },
-        { $sort: { timestamp: -1 } },
+        { $sort: { createdAt: -1 } },
         {
           $group: {
             _id: {
@@ -88,7 +88,7 @@ const getTelemetryByDeviceAndChannel = async (req, res) => {
       device_uuid,
       channel_id: Number(channel_id),
     })
-      .sort({ timestamp: -1 })
+      .sort({ createdAt: -1 })
       .lean();
 
     if (!latestRecord) {
@@ -98,7 +98,7 @@ const getTelemetryByDeviceAndChannel = async (req, res) => {
       });
     }
 
-    const windowStart = new Date(latestRecord.timestamp);
+    const windowStart = new Date(latestRecord.createdAt);
     windowStart.setMinutes(windowStart.getMinutes() - 30);
 
     const telemetry = await Telemetry.aggregate([
@@ -106,7 +106,7 @@ const getTelemetryByDeviceAndChannel = async (req, res) => {
         $match: {
           device_uuid,
           channel_id: Number(channel_id),
-          timestamp: { $gte: windowStart, $lte: latestRecord.timestamp },
+          createdAt: { $gte: windowStart, $lte: latestRecord.createdAt },
         },
       },
       {
@@ -193,7 +193,7 @@ const getTelemetryByDeviceAndChannel = async (req, res) => {
             latestRecords: {
               $topN: {
                 output: "$$ROOT",
-                sortBy: { timestamp: -1 },
+                sortBy: { createdAt: -1 },
                 n: 10
               }
             }
