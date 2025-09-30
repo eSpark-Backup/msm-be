@@ -24,19 +24,26 @@ class ProtocolInterval {
     async getTelemetryData() {
         try {
             const telemetry = await Telemetry.aggregate([
-
-                { $match: { device_uuid: this.device_uuid } },    
+                { $match: { device_uuid: this.device_uuid } },
+    
                 {
                     $group: {
                         _id: { channel_id: "$channel_id", phase: "$phase" },
-                        latest: { $first: "$$ROOT" }
+                        latest: {
+                            $topN: {
+                                output: "$$ROOT",   
+                                sortBy: { createdAt: -1 },
+                                n: 1                   
+                            }
+                        }
                     }
                 },
     
+                { $unwind: "$latest" },               
                 { $replaceRoot: { newRoot: "$latest" } },
     
                 { $sort: { channel_id: 1, phase: 1 } }
-            ]);
+            ]).allowDiskUse(true);
     
             return telemetry;
         } catch (error) {
@@ -44,6 +51,7 @@ class ProtocolInterval {
             return [];
         }
     }
+    
     
 
     async interval() {
