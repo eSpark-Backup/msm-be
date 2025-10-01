@@ -15,9 +15,6 @@ const login = async (req, res) => {
         // Check if user exists
         const user = await User.findOne({ email }).populate('role');
 
-        console.log(user)
-        console.log(email , password)
-
         if (!user) {
             return res.status(401).json({
                 success: false,
@@ -28,7 +25,6 @@ const login = async (req, res) => {
         // Check password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         
-        console.log(isPasswordValid)
 
         if (!isPasswordValid) {
             return res.status(401).json({
@@ -77,7 +73,54 @@ const logout = async (req, res) => {
     }
 };
 
+const changePassword = async (req , res) => {
+    try {
+        const { newPassword , oldPassword } = req.body;
+
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+        
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                success: false,
+                message: 'Old password is incorrect'
+            });
+        }
+
+        if (oldPassword === newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'New password cannot be same as old password'
+            });
+        }        
+
+        user.password = newPassword;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Password changed successfully'
+        });
+    }catch(err){
+        console.log(err)
+        res.status(500).json({
+            success: false,
+            message: 'Error changing password',
+            error: err.message
+        });
+    }
+}
+
 module.exports = {
     login,
     logout,
+    changePassword
 };
