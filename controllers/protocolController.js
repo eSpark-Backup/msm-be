@@ -64,10 +64,12 @@ const getAllProtocols = async (req, res) => {
 
     const telemetryByRank = filterTelemetryByRank(telemetry);
 
-    const protocolsByRank = {};
-    for (const rank in telemetryByRank) {
-      protocolsByRank[rank] = await mapProtocols(telemetryByRank[rank]);
-    }
+    const protocolsByRank = await Promise.all(
+      Object.values(telemetryByRank).map(async (telemetry) => {
+        return await mapProtocols(telemetry);
+      })
+    );
+    
 
     res.json({
       success: true,
