@@ -5,10 +5,17 @@ const { mapProtocols } = require('../utils/mapProtocol');
 const getAllProtocols = async (req, res) => {
   try {
     const { device_uuid } = req.params;
-    const { limit, timezone = 'Asia/Karachi', range_value = 2, range_unit = 'hours' } = req.query;
+    const { limit, timezone = 'Asia/Karachi', range_value = 2, range_unit = 'hours' , startTime : startQuery , endTime : endQuery } = req.query;
 
-    const endTime = moment.tz(timezone); 
-    const startTime = endTime.clone().subtract(Number(range_value), range_unit); 
+    let startTime, endTime;
+
+    if (!startQuery || !endQuery) {
+      endTime = moment.tz(timezone); 
+      startTime = endTime.clone().subtract(Number(range_value), range_unit); 
+    }else{
+      startTime = moment.tz(startQuery, timezone);
+      endTime = moment.tz(endQuery, timezone);
+    }
 
     const startUTC = startTime.utc().toDate();
     const endUTC = endTime.utc().toDate();
@@ -20,7 +27,6 @@ const getAllProtocols = async (req, res) => {
           createdAt: { $gte: startUTC, $lte: endUTC } 
         }
       },
-
       {
         $group: {
           _id: { channel_id: "$channel_id", phase: "$phase" },

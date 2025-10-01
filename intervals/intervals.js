@@ -60,7 +60,6 @@ class DeviceIntervals {
 
 
     async interval(device) {
-        console.log('interval runs');
             const deviceInterval = await this.getInterval(device.device_uuid);
             if (!deviceInterval) return;
 
