@@ -1,6 +1,7 @@
 const mqttClient = require('../fleetConnect');
 const Device = require('../models/Device');
 const AddDevice = require('../models/AddDevice');
+const UserDevices = require('../models/UserDevices');
 
 // ===== DEVICE REBOOT CONTROLLER =====
 /**
@@ -205,6 +206,42 @@ const getSingleUserDeviceById = async (req, res) => {
     }
 }
 
+const getUserDevicesByUserId = async (req, res) => {
+    try{
+        const { user_id } = req.params;
+        const query = { user_id: user_id };
+    
+        const device = await UserDevices.find(query).populate("user_data").populate({
+            path: 'device_data',
+            populate: [{
+                path: 'groups_data',
+            }, {
+                path: 'device_data',
+            }]
+        });
+    
+        if(device && device.length > 0){
+            res.status(200).json({
+                success: true,
+                message: "Devices found",
+                data: device
+            });
+        }else{
+            res.status(404).json({
+                success: false,
+                message: "Devices Not Found"
+            });
+        }
+    }catch(error){
+        console.error("Error in Device Get Single endpoint:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+          error: error.message,
+        });
+    }
+}
+
   const createDevice = async (req , res) => {
     try {
         const user_id = req.user._id;
@@ -367,5 +404,6 @@ module.exports = {
     updateDevice,
     deleteDevice,
     getSingleUserDeviceById,
-    deleteDeviceByUserId
+    deleteDeviceByUserId,
+    getUserDevicesByUserId
 };

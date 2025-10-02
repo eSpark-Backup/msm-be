@@ -20,6 +20,8 @@ router.get("/user/:device_uuid", verifyToken, deviceController.getSingleUserDevi
 
 router.get("/user/id/:id" , verifyToken , authrize(['super_admin' , 'admin']) , deviceController.getSingleUserDeviceById)
 
+router.get("/user_devices/:user_id" , verifyToken , authrize(['super_admin' , 'admin']) , deviceController.getUserDevicesByUserId)
+
 router.delete("/user/:device_uuid/:user_id" , verifyToken , authrize(['super_admin' , 'admin']) , deviceController.deleteDeviceByUserId)
 
 router.post('/:deviceId/reboot', deviceController.rebootDevice);
