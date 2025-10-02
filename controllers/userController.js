@@ -108,7 +108,7 @@ const createUser = async (req, res) => {
         await user.save();
 
         if(userDevices.length > 0){
-            const userDevices = devices.map(deviceId => ({
+            const userDevices = userDevices.map(deviceId => ({
                 user_id: user._id,
                 device_id: deviceId,
               }));
