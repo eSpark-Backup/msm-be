@@ -102,7 +102,7 @@ const createUser = async (req, res) => {
         const password = generateRandomPassword();
         req.body.password = password;
 
-        const userDevices = req.body.userDevices;
+        const userDevices = req.body.userDevices || [];
 
         const user = new User(req.body);
         await user.save();
