@@ -148,7 +148,7 @@ const updateUser = async (req, res) => {
             }
         }
 
-        const userDevices = req.body?.userDevices;
+        const userDevices = req.body?.userDevices || [];
 
         if(userDevices.length > 0){
 
