@@ -24,6 +24,13 @@ const login = async (req, res) => {
             });
         }
 
+        if(user.status !== 'active'){
+            return res.status(401).json({
+                success: false,
+                message: 'User is not active'
+            });
+        }
+
         // Check password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         
