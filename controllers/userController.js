@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const crypto = require('crypto');
+const { sendWelcomeEmail } = require('../emailService');
 
 
 const getAllUsers = async (req, res) => {
@@ -63,12 +65,33 @@ const getUserById = async (req, res) => {
     }
 };
 
+// Generate random password
+const generateRandomPassword = () => {
+    const length = 12;
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = crypto.randomInt(0, charset.length);
+        password += charset[randomIndex];
+    }
+    return password;
+};
+
+
 // Create new user
 const createUser = async (req, res) => {
     try {
+        const password = generateRandomPassword();
+        req.body.password = password;
         const user = new User(req.body);
         await user.save();
         const populatedUser = await User.findById(user._id).populate('role').populate('groupsData').populate('devicesData');
+        await sendWelcomeEmail({
+            to: user.email,
+            name: user.name,
+            password,
+            loginUrl: process.env.FRONTEND_URL,
+        });
         res.status(201).json({
             success: true,
             message: 'User created successfully',

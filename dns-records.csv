@@ -1,0 +1,7 @@
+Type,Name,Value
+CNAME,jdcdgnavkhm6z2u27ihorj4dikspmsef._domainkey.eincloud.ai,jdcdgnavkhm6z2u27ihorj4dikspmsef.dkim.amazonses.com
+CNAME,uxyp6nuqyrvfqb6s3l4b2s2qcff536le._domainkey.eincloud.ai,uxyp6nuqyrvfqb6s3l4b2s2qcff536le.dkim.amazonses.com
+CNAME,cikxivhd2hnmjyjzkw3uvxah25iafwqg._domainkey.eincloud.ai,cikxivhd2hnmjyjzkw3uvxah25iafwqg.dkim.amazonses.com
+MX,api.eincloud.ai,10 feedback-smtp.eu-north-1.amazonses.com
+TXT,api.eincloud.ai,"v=spf1 include:amazonses.com ~all"
+TXT,_dmarc.eincloud.ai,"v=DMARC1; p=none;"

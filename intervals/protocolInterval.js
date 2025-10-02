@@ -2,7 +2,7 @@ const Telemetry = require('../models/Telemetry')
 const { mapProtocols } = require('../utils/mapProtocol')
 
 class ProtocolInterval {
-    constructor(interval_time, device_uuid, data_range, socket) {
+    constructor(interval_time = 5000, device_uuid, data_range, socket) {
         this.interval_time = interval_time;
         this.device_uuid = device_uuid;
         this.data_range = data_range;

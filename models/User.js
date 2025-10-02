@@ -33,14 +33,6 @@ const UserSchema = new mongoose.Schema(
             type: String,
             default: null
         },
-        method: {
-            type: String,
-            default: null
-        },
-        owner: {
-            type: String,
-            default: null
-        },
         customer_name: {
             type: String,
             default: null
@@ -73,6 +65,18 @@ const UserSchema = new mongoose.Schema(
         status: {
             type:String,
             default:'active'
+        },
+        resetToken: {
+            type: String,
+            default: null
+        },
+        resetTokenExpiry: {
+            type: Date,
+            default: null
+        },
+        isPasswordChanged: {
+            type: Boolean,
+            default: false
         }
     },
     {

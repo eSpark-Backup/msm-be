@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const crypto = require('crypto');
+const { sendForgetPasswordEmail } = require('../emailService');
 
 // Generate JWT token
 const generateToken = (userId) => {
@@ -103,6 +105,7 @@ const changePassword = async (req , res) => {
         }        
 
         user.password = newPassword;
+        user.isPasswordChanged = true;
         await user.save();
 
         res.status(200).json({
@@ -119,8 +122,52 @@ const changePassword = async (req , res) => {
     }
 }
 
+const forgetPassword = async  (req , res) => {
+    try {
+        const { email } = req.body;
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        const resetToken = crypto.randomInt(100000, 999999);
+        const expiryTime = Date.now() + 30 * 60 * 1000;
+        user.resetToken = resetToken;
+        user.resetTokenExpiry = expiryTime;
+        
+        await user.save();
+
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+        
+        await sendForgetPasswordEmail({
+            to: user.email,
+            name: user.name,
+            resetLink,
+            expiryTime: 30,
+        });
+        
+        res.status(200).json({
+            success: true,
+            message: 'Password reset email sent successfully'
+        });
+    }catch(err){
+        console.log(err)
+        res.status(500).json({
+            success: false,
+            message: 'Error sending password reset email',
+            error: err.message
+        });
+    }
+}
+
 module.exports = {
     login,
     logout,
-    changePassword
+    changePassword,
+    forgetPassword
 };
