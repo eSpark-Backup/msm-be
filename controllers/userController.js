@@ -130,12 +130,12 @@ const createUser = async (req, res) => {
                 }]
             }
         });
-        // await sendWelcomeEmail({
-        //     to: user.email,
-        //     name: user.name,
-        //     password,
-        //     loginUrl: process.env.FRONTEND_URL,
-        // });
+        await sendWelcomeEmail({
+            to: user.email,
+            name: user.name,
+            password,
+            loginUrl: process.env.FRONTEND_URL,
+        });
         res.status(201).json({
             success: true,
             message: 'User created successfully',
