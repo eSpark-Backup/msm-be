@@ -139,8 +139,20 @@ UserSchema.virtual("devicesData", {
     justOne: false
 })
 
+UserSchema.virtual("userDevicesData", {
+    ref: "UserDevices",
+    localField: "_id",
+    foreignField: "user_id",
+    justOne: false
+})
+
 UserSchema.virtual("total_devices_count").get(function () {
-    return this.devicesData ? this.devicesData.length : 0;
+    if (this.role && (this.role.name === "super_admin" || this.role.name === "admin")) {
+        return this.devicesData ? this.devicesData.length : 0;
+    } else {
+        return this.userDevicesData ? this.userDevicesData.length : 0;
+    }
 });
+
 
 module.exports = mongoose.model("User", UserSchema);

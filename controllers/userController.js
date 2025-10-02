@@ -24,6 +24,15 @@ const getAllUsers = async (req, res) => {
       .populate("role")
       .populate("groupsData")
       .populate("devicesData")
+      .populate({
+        path: 'userDevicesData',
+        populate: {
+            path: 'devicesData',
+            populate: {
+                path: 'groupsData',
+            }
+        }
+    })
       .skip(skip)
       .limit(limitNum) 
 
@@ -46,7 +55,15 @@ const getAllUsers = async (req, res) => {
 // Get single user by ID
 const getUserById = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id).populate('role').populate('groupsData').populate('devicesData');
+        const user = await User.findById(req.params.id).populate('role').populate('groupsData').populate('devicesData').populate({
+            path: 'userDevicesData',
+            populate: {
+                path: 'devicesData',
+                populate: {
+                    path: 'groupsData',
+                }
+            }
+        });
         if (!user) {
             return res.status(404).json({
                 success: false,
@@ -98,7 +115,7 @@ const createUser = async (req, res) => {
             await UserDevices.insertMany(userDevices);
         }
 
-        const populatedUser = await User.findById(user._id).populate('role').populate('groupsData').populate('devicesData');
+        const populatedUser = await User.findById(user._id).populate('role').populate('groupsData').populate('devicesData').populate('userDevicesData');
         await sendWelcomeEmail({
             to: user.email,
             name: user.name,
@@ -148,7 +165,7 @@ const updateUser = async (req, res) => {
             req.params.id,
             req.body,
             { new: true, runValidators: true }
-        ).populate('role').populate('groupsData').populate('devicesData');
+        ).populate('role').populate('groupsData').populate('devicesData').populate('userDevicesData');
         if (!user) {
             return res.status(404).json({
                 success: false,

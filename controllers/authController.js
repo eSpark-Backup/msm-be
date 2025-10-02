@@ -79,7 +79,7 @@ const changePassword = async (req , res) => {
     try {
         const { newPassword , oldPassword } = req.body;
 
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.user.id).populate('role');
 
         if (!user) {
             return res.status(404).json({
