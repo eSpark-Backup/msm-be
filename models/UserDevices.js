@@ -24,7 +24,7 @@ userDeviceSchema.index({ user_id: 1, device_id: 1 }, { unique: true });
 
 
 userDeviceSchema.virtual("device_data", {
-  ref: "Device",
+  ref: "AddDevice",
   localField: "device_id",
   foreignField: "_id",
   justOne: true

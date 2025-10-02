@@ -27,10 +27,12 @@ const getAllUsers = async (req, res) => {
       .populate({
         path: 'userDevicesData',
         populate: {
-            path: 'devicesData',
-            populate: {
-                path: 'groupsData',
-            }
+            path: 'device_data',
+            populate: [{
+                path: 'groups_data',
+            }, {
+                path: 'device_data',
+            }]
         }
     })
       .skip(skip)
@@ -58,10 +60,12 @@ const getUserById = async (req, res) => {
         const user = await User.findById(req.params.id).populate('role').populate('groupsData').populate('devicesData').populate({
             path: 'userDevicesData',
             populate: {
-                path: 'devicesData',
-                populate: {
-                    path: 'groupsData',
-                }
+                path: 'device_data',
+                populate: [{
+                    path: 'groups_data',
+                }, {
+                    path: 'device_data',
+                }]
             }
         });
         if (!user) {
@@ -115,13 +119,23 @@ const createUser = async (req, res) => {
             await UserDevices.insertMany(userDevices);
         }
 
-        const populatedUser = await User.findById(user._id).populate('role').populate('groupsData').populate('devicesData').populate('userDevicesData');
-        await sendWelcomeEmail({
-            to: user.email,
-            name: user.name,
-            password,
-            loginUrl: process.env.FRONTEND_URL,
+        const populatedUser = await User.findById(user._id).populate('role').populate('groupsData').populate('devicesData').populate({
+            path: 'userDevicesData',
+            populate: {
+                path: 'device_data',
+                populate: [{
+                    path: 'groups_data',
+                }, {
+                    path: 'device_data',
+                }]
+            }
         });
+        // await sendWelcomeEmail({
+        //     to: user.email,
+        //     name: user.name,
+        //     password,
+        //     loginUrl: process.env.FRONTEND_URL,
+        // });
         res.status(201).json({
             success: true,
             message: 'User created successfully',
@@ -148,13 +162,13 @@ const updateUser = async (req, res) => {
             }
         }
 
-        const userDevices = req.body?.userDevices || [];
+        let userDevices = req.body?.userDevices || [];
 
         if(userDevices.length > 0){
 
             await UserDevices.deleteMany({ user_id: req.params.id });
 
-            const userDevices = userDevices.map(deviceId => ({
+            userDevices = userDevices.map(deviceId => ({
                 user_id: req.params.id,
                 device_id: deviceId,
               }));
@@ -165,7 +179,17 @@ const updateUser = async (req, res) => {
             req.params.id,
             req.body,
             { new: true, runValidators: true }
-        ).populate('role').populate('groupsData').populate('devicesData').populate('userDevicesData');
+        ).populate('role').populate('groupsData').populate('devicesData').populate({
+            path: 'userDevicesData',
+            populate: {
+                path: 'device_data',
+                populate: [{
+                    path: 'groups_data',
+                }, {
+                    path: 'device_data',
+                }]
+            }
+        });
         if (!user) {
             return res.status(404).json({
                 success: false,
