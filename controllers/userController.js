@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const UserDevices = require('../models/UserDevices');
 const crypto = require('crypto');
 const { sendWelcomeEmail } = require('../emailService');
 
@@ -83,8 +84,20 @@ const createUser = async (req, res) => {
     try {
         const password = generateRandomPassword();
         req.body.password = password;
+
+        const userDevices = req.body.userDevices;
+
         const user = new User(req.body);
         await user.save();
+
+        if(userDevices.length > 0){
+            const userDevices = devices.map(deviceId => ({
+                user_id: user._id,
+                device_id: deviceId,
+              }));
+            await UserDevices.insertMany(userDevices);
+        }
+
         const populatedUser = await User.findById(user._id).populate('role').populate('groupsData').populate('devicesData');
         await sendWelcomeEmail({
             to: user.email,
@@ -109,8 +122,6 @@ const createUser = async (req, res) => {
 // Update user
 const updateUser = async (req, res) => {
     try {
-
-
         if (req.files) {
             if (req.files.profile_image?.[0]) {
                 req.body.profile_image = req.files.profile_image[0].filename;
@@ -118,6 +129,19 @@ const updateUser = async (req, res) => {
             if (req.files.logo?.[0]) {
                 req.body.logo = req.files.logo[0].filename;
             }
+        }
+
+        const userDevices = req.body?.userDevices;
+
+        if(userDevices.length > 0){
+
+            await UserDevices.deleteMany({ user_id: req.params.id });
+
+            const userDevices = userDevices.map(deviceId => ({
+                user_id: req.params.id,
+                device_id: deviceId,
+              }));
+            await UserDevices.insertMany(userDevices);
         }
         
         const user = await User.findByIdAndUpdate(
@@ -155,6 +179,9 @@ const deleteUser = async (req, res) => {
                 message: 'User not found'
             });
         }
+
+        await UserDevices.deleteMany({ user_id: req.params.id });
+
         res.status(200).json({
             success: true,
             message: 'User deleted successfully'

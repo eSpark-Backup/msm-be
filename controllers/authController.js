@@ -110,7 +110,8 @@ const changePassword = async (req , res) => {
 
         res.status(200).json({
             success: true,
-            message: 'Password changed successfully'
+            message: 'Password changed successfully',
+            user
         });
     }catch(err){
         console.log(err)
@@ -165,9 +166,46 @@ const forgetPassword = async  (req , res) => {
     }
 }
 
+const resetPassword = async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        const user = await User.findOne({
+            resetToken: token,
+            resetTokenExpiry: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid or expired reset token"
+            });
+        }
+
+        user.password = newPassword;
+        user.resetToken = undefined;
+        user.resetTokenExpiry = undefined;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Password has been reset successfully"
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            success: false,
+            message: "Error resetting password",
+            error: err.message
+        });
+    }
+};
+
 module.exports = {
     login,
     logout,
     changePassword,
-    forgetPassword
+    forgetPassword,
+    resetPassword
 };
