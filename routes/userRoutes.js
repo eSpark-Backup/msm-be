@@ -9,6 +9,10 @@ router.get('/', verifyToken, authrize(['super_admin']), (req, res) => {
     userController.getAllUsers(req, res);
 });
 
+router.get('/me', verifyToken , (req, res) => {
+    userController.getMe(req, res);
+});
+
 router.post('/', verifyToken, authrize(['super_admin']), (req, res) => {
     userController.createUser(req, res);
 });
@@ -16,6 +20,10 @@ router.post('/', verifyToken, authrize(['super_admin']), (req, res) => {
 
 router.put('/:id', verifyToken, authrize(['super_admin']), handleUserUpload.fields([{name: 'logo'},{name : 'profile_image'}]), (req, res) => {
     userController.updateUser(req, res);
+});
+
+router.put('/me', verifyToken, handleUserUpload.fields([{name: 'logo'},{name : 'profile_image'}]), (req, res) => {
+    userController.updateMe(req, res);
 });
 
 router.delete('/:id', verifyToken, authrize(['super_admin']), (req, res) => {
