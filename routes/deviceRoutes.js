@@ -16,7 +16,11 @@ router.put("/user/:device_uuid", verifyToken, deviceController.updateDevice);
 
 router.get("/user", verifyToken, deviceController.getAllUserDevices);
 
+router.get("/assign_devices", verifyToken, deviceController.getAllAssignDevices);
+
 router.get("/user/:device_uuid", verifyToken, deviceController.getSingleUserDevice);
+
+router.get("/assign_devices/:device_uuid", verifyToken, deviceController.getSingleAssignDevice);
 
 router.get("/user/id/:id" , verifyToken , authrize(['super_admin' , 'admin']) , deviceController.getSingleUserDeviceById)
 

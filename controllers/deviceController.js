@@ -117,7 +117,59 @@ const getAllUserDevices = async (req, res) => {
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
     
         const devices = await AddDevice.find(query).skip(skip).limit(limitNum).populate("device_data").populate("groups_data");
-          
+        
+        if(devices.length == 0){
+            return res.status(404).json({
+                success: false,
+                message: 'Devices Not Found'
+            })
+        }
+
+        res.status(200).json({
+          success: true,
+          message: "Devices found",
+          data: devices,
+        });
+      } catch (error) {
+        console.error("Error in Device Get All endpoint:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+          error: error.message,
+        });
+      }
+}
+
+const getAllAssignDevices = async (req, res) => {
+    try {
+
+        const { search, page, limit } = req.query;
+        const query = {user_id: req.user._id};
+
+        if (search) {
+          query.name = { $regex: search, $options: "i" };
+        }
+    
+        const pageNum = Number(page) || 1;
+        const limitNum = Number(limit) || 0; 
+        const skip = limitNum ? (pageNum - 1) * limitNum : 0;
+    
+        const devices = await UserDevices.find(query).skip(skip).limit(limitNum).populate("user_data").populate({
+            path: 'device_data',
+            populate: [{
+                path: 'groups_data',
+            }, {
+                path: 'device_data',
+            }]
+        });
+        
+        if(devices.length == 0){
+            return res.status(404).json({
+                success: false,
+                message: 'Devices Not Found'
+            })
+        }
+
         res.status(200).json({
           success: true,
           message: "Devices found",
@@ -155,6 +207,62 @@ const getSingleUserDevice = async (req, res) => {
     
         const userDevice = await AddDevice.findOne(query).populate("device_data").populate("groups_data");
     
+        if(userDevice){
+            res.status(200).json({
+                success: true,
+                message: "User Device found",
+                data: userDevice
+            });
+        }else{
+            res.status(404).json({
+                success: false,
+                message: "User Device Not Found"
+            });
+        }
+    } catch (error) {
+        console.error("Error in Device Get Single endpoint:", error);
+        res.status(500).json({
+          success: false,
+          message: "Internal Server Error",
+          error: error.message,
+        });
+    }
+}
+
+const getSingleAssignDevice = async (req, res) => {
+    try {
+        const { device_uuid } = req.params;
+
+        const device = await Device.findOne({device_uuid: device_uuid});
+
+
+        if(!device){
+            return res.status(404).json({
+                success: false,
+                message: 'Device Not Found'
+            })
+        }     
+
+        const addDevice = await AddDevice.findOne({device_id: device._id});
+
+        if(!addDevice){
+            return res.status(404).json({
+                success: false,
+                message: 'Device Not Found'
+            })
+        }
+
+        let query = { user_id: req.user._id , device_id: addDevice._id };
+
+        const userDevice = await UserDevices.findOne(query).populate("user_data").populate({
+            path: 'device_data',
+            populate: [{
+                path: 'groups_data',
+            }, {
+                path: 'device_data',
+            }]
+        });
+
         if(userDevice){
             res.status(200).json({
                 success: true,
@@ -405,5 +513,7 @@ module.exports = {
     deleteDevice,
     getSingleUserDeviceById,
     deleteDeviceByUserId,
-    getUserDevicesByUserId
+    getUserDevicesByUserId,
+    getAllAssignDevices,
+    getSingleAssignDevice
 };
