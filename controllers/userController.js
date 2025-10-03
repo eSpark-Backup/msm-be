@@ -206,6 +206,8 @@ const updateUser = async (req, res) => {
                 device_id: deviceId,
               }));
             await UserDevices.insertMany(userDevices);
+        }else{
+            await UserDevices.deleteMany({ user_id: req.params.id });
         }
         
         const user = await User.findByIdAndUpdate(
