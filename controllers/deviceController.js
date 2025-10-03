@@ -139,6 +139,7 @@ const getSingleUserDevice = async (req, res) => {
 
         const device = await Device.findOne({device_uuid: device_uuid});
 
+
         if(!device){
             return res.status(404).json({
                 success: false,
@@ -146,11 +147,10 @@ const getSingleUserDevice = async (req, res) => {
             })
         }     
 
-        let query = {};
+        let query = { device_id: device._id };
 
         if(req.user.role.name !== "super_admin"){
             query.user_id = req.user._id;
-            query.device_id = device._id;
         }
     
         const userDevice = await AddDevice.findOne(query).populate("device_data").populate("groups_data");
