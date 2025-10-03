@@ -13,8 +13,8 @@ const Protocol = require('./models/Protocol');
 class FleetConnect {
     constructor() {
         this.device = null;
-    //    this.clientId = 'msm-backend-1234';
-        this.clientId = 'msm-backend-12345';
+       this.clientId = 'msm-backend-1234';
+        // this.clientId = 'msm-backend-12345';
         // this.clientId = 'ESP90000005';
 
         // ===== MQTT TOPICS CONFIGURATION =====
@@ -234,10 +234,9 @@ class FleetConnect {
             }
 
             for (const channel of message.channels) {
-                // Process each phase in the channel data
                 for (const [phaseKey, phaseData] of Object.entries(channel.data || {})) {
                     if (!phaseKey.startsWith('phase_')) continue;
-                    const phase = phaseKey.split('_')[1]; // Extract 'a', 'b', or 'c'
+                    const phase = phaseKey.split('_')[1]; 
     
                     if (phaseData) {
                         const telemetryData = {
@@ -287,6 +286,10 @@ class FleetConnect {
                         // Save to database
                         const telemetry = new Telemetry(telemetryData);
                         await telemetry.save();
+
+                        this.sendDeviceTelemetryCommand(deviceUuid , telemetryData);
+
+
                         socketService.emitToClients('telemetry', { data: telemetryData });
                         const eventName = `telemetry:${deviceUuid}:channel:${channel.ID}`;
                         socketService.emitToClients(eventName, { data: telemetryData });
@@ -572,6 +575,29 @@ class FleetConnect {
 
     // ===== COMMAND PUBLISHING METHODS =====
 
+    sendDeviceInfoCommand(deviceUuid , deviceInfo) {
+        const topic = `msm/${deviceUuid}/sub/device_info`;
+        const message = {
+            device_uuid: deviceUuid,
+            data: [deviceInfo]
+        };
+
+        this.publishMessage(topic, message);
+        console.log(`🔄 Device info command sent to ${deviceUuid}`);
+    }
+
+    sendDeviceTelemetryCommand(deviceUuid , telemetryData) {
+        const topic = `msm/${deviceUuid}/sub/telemetry`;
+        const message = {
+            device_uuid: deviceUuid,
+            data: [telemetryData]
+
+        };
+
+        this.publishMessage(topic, message);
+        console.log(`🔄 Device telemetry command sent to ${deviceUuid}`);
+    }
+
     // Send reboot command to device
     sendRebootCommand(deviceUuid) {
         const topic = `msm/${deviceUuid}/sub/reboot`;
@@ -722,8 +748,6 @@ class FleetConnect {
                 device_ip: info.device_ip,
                 mqtt_status: info.mqtt_status,
                 sftp_status: info.sftp_status,
-                last_seen: info.last_seen || new Date(),
-                connection_status: 'online'
             };
 
             const device = await Device.findOneAndUpdate(
@@ -731,6 +755,8 @@ class FleetConnect {
                 updateData,
                 { upsert: true, new: true }
             );
+
+            this.sendDeviceInfoCommand(deviceUuid , info);
 
             const existingDashboard = await Dashboard.findOne({ device_id: deviceUuid });
 
