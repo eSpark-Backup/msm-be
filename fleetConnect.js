@@ -13,8 +13,8 @@ const Protocol = require('./models/Protocol');
 class FleetConnect {
     constructor() {
         this.device = null;
-       this.clientId = 'msm-backend-1234';
-        // this.clientId = 'msm-backend-12345';
+    //    this.clientId = 'msm-backend-1234';
+        this.clientId = 'msm-backend-12345';
         // this.clientId = 'ESP90000005';
 
         // ===== MQTT TOPICS CONFIGURATION =====
@@ -202,8 +202,6 @@ class FleetConnect {
                 { device_status: mqttStatus },
                 { new: true }
             );
-
-            console.log('Device updated:', updatedDevice);
 
             socketService.emitToClients('device_status_updated', updatedDevice);
 
@@ -590,7 +588,7 @@ class FleetConnect {
         };
 
         this.publishMessage(topic, message);
-        this.socketService.emitToClients('device_info', deviceInfo);
+        socketService.emitToClients('device_info', deviceInfo);
         console.log(`🔄 Device info command sent to ${deviceUuid}`);
     }
 
@@ -629,7 +627,7 @@ class FleetConnect {
         };
 
         this.publishMessage(topic, message);
-        this.socketService.emitToClients('ntp_info', ntpServers);
+        socketService.emitToClients('ntp_info', ntpServers);
         console.log(`🕐 NTP config sent to ${deviceUuid}`);
     }
 
@@ -642,7 +640,7 @@ class FleetConnect {
         };
 
         this.publishMessage(topic, message);
-        this.socketService.emitToClients('mqtt_info', mqttConfig);
+        socketService.emitToClients('mqtt_info', mqttConfig);
         console.log(`📡 MQTT config sent to ${deviceUuid}`);
     }
 
@@ -655,7 +653,7 @@ class FleetConnect {
         };
 
         this.publishMessage(topic, message);
-        this.socketService.emitToClients('sftp_info', sftpConfig);
+        socketService.emitToClients('sftp_info', sftpConfig);
         console.log(`📁 SFTP config sent to ${deviceUuid}`);
     }
 
