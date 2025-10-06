@@ -13,10 +13,20 @@ class DeviceIntervals {
     }
 
     async init() {
-        const device = await this.getSingleDevice('ESP90000005');
-
-        if (device) {
-            this.interval(device);
+        const device1 = await this.getSingleDevice('ESP90000005');
+        const device2 = await this.getSingleDevice('ESP00000003');
+        const device3 = await this.getSingleDevice('IND00000391');
+    
+        if (device1) {
+            this.interval(device1);
+        }
+        
+        if (device2) {
+            this.interval(device2);
+        }
+        
+        if (device3) {
+            this.interval(device3);
         }
     
         this.watchIntervals();
@@ -50,8 +60,8 @@ class DeviceIntervals {
 
     async watchIntervals(){
         socketService.on('mqtt_updated' , async (device_uuid) => {
-
-            if (device_uuid !== 'ESP90000005') return;
+    
+            if (device_uuid !== 'ESP90000005' && device_uuid !== 'ESP00000003' && device_uuid !== 'IND00000391') return;
             
             const device = await this.getSingleDevice(device_uuid)
             this.interval(device)
