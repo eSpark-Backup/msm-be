@@ -89,6 +89,7 @@ class ProtocolInterval {
         } finally {
             this.isRunning = false;
         }
+
     }
 
     cleanup() {
@@ -98,4 +99,5 @@ class ProtocolInterval {
         }
     }
 }
+
 module.exports = ProtocolInterval

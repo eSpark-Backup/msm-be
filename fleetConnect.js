@@ -583,6 +583,7 @@ class FleetConnect {
         };
 
         this.publishMessage(topic, message);
+        this.socketService.emitToClients('device_info', deviceInfo);
         console.log(`🔄 Device info command sent to ${deviceUuid}`);
     }
 
@@ -621,6 +622,7 @@ class FleetConnect {
         };
 
         this.publishMessage(topic, message);
+        this.socketService.emitToClients('ntp_info', ntpServers);
         console.log(`🕐 NTP config sent to ${deviceUuid}`);
     }
 
@@ -633,6 +635,7 @@ class FleetConnect {
         };
 
         this.publishMessage(topic, message);
+        this.socketService.emitToClients('mqtt_info', mqttConfig);
         console.log(`📡 MQTT config sent to ${deviceUuid}`);
     }
 
@@ -645,6 +648,7 @@ class FleetConnect {
         };
 
         this.publishMessage(topic, message);
+        this.socketService.emitToClients('sftp_info', sftpConfig);
         console.log(`📁 SFTP config sent to ${deviceUuid}`);
     }
 

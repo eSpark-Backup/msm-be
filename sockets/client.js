@@ -32,6 +32,28 @@ socket.on("connect", () => {
   socket.on("telemetry:ESP90000005:channel:1", (data) => {
     console.log("telemetry for ESP90000005 channel 1:", data);
   });
+
+  socket.emit("mqtt_protocol" , { thing_name : "ESP90000005" , interval_time : 10000 , data_range : 10 });
+
+  socket.on("mqtt_protocol" , (data) => {
+    console.log("mqtt_protocol from server:", data);
+  });
+
+  socket.on("device_info", (data) => {
+    console.log("device_info from server:", data);
+  });
+
+  socket.on("ntp_info", (data) => {
+    console.log("ntp_info from server:", data);
+  });
+
+  socket.on("mqtt_info", (data) => {
+    console.log("mqtt_info from server:", data);
+  });
+
+  socket.on("sftp_info", (data) => {
+    console.log("sftp_info from server:", data);
+  });
 });
 
 socket.on("disconnect", () => {
