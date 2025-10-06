@@ -103,8 +103,7 @@ const updateMqtt = async (req, res) => {
             });
         }
 
-
-        fleetConnect.sendMqttConfig(mqttConfig.device_uuid , req.body.data);
+        fleetConnect.sendMqttConfig(mqttConfig.device_uuid , req.body);
 
         res.status(200).json({
             success: true,

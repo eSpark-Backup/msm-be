@@ -639,6 +639,8 @@ class FleetConnect {
             data: [mqttConfig]
         };
 
+        console.log('MQTT configuration updated:', mqttConfig);
+
         this.publishMessage(topic, message);
         socketService.emitToClients('mqtt_info', mqttConfig);
         console.log(`📡 MQTT config sent to ${deviceUuid}`);

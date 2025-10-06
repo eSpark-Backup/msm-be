@@ -78,7 +78,9 @@ const updateSftp = async (req, res) => {
             });
         }
 
-        fleetConnect.sendSftpConfig(sftpConfig.device_uuid , req.body.data);
+        console.log('SFTP configuration updated:', req.body);
+
+        fleetConnect.sendSftpConfig(sftpConfig.device_uuid , req.body);
 
         res.status(200).json({
             success: true,
