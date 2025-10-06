@@ -26,6 +26,15 @@ class SocketService extends EventEmitter {
         console.log("hello from client:", data);
       });
 
+      socket.on("mqtt_protocol_stop" , (data) => {
+        console.log("mqtt_protocol_stop from client:", data)
+        const interval = protocolIntervals.find(interval => interval.device_uuid === data.thing_name)
+        if (interval) {
+          interval.cleanup();
+          protocolIntervals.splice(protocolIntervals.indexOf(interval), 1);
+        }
+      } )
+
       socket.on('mqtt_protocol' , async (data) => {
         console.log("mqtt_protocol from client:", data)
         const interval = new ProtocolInterval(data.interval_time , data.thing_name , data.data_range , socket)
