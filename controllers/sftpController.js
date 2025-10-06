@@ -1,4 +1,5 @@
 const Sftp = require('../models/Sftp');
+const fleetConnect = require('../fleetConnect');
 
 // Get all SFTP configurations
 const getAllSftp = async (req, res) => {
@@ -76,6 +77,9 @@ const updateSftp = async (req, res) => {
                 message: 'SFTP configuration not found'
             });
         }
+
+        fleetConnect.sendSftpCommand(sftpConfig.device_uuid , req.body.data);
+
         res.status(200).json({
             success: true,
             message: 'SFTP configuration updated successfully',

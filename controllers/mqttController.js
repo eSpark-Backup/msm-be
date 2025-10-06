@@ -1,5 +1,6 @@
 const Mqtt = require('../models/Mqtt');
 const socketService = require('../sockets/socket');
+const fleetConnect = require('../fleetConnect');
 
 const getAllMqtt = async (req, res) => {
     try {
@@ -103,6 +104,8 @@ const updateMqtt = async (req, res) => {
         }
 
         socketService.emit('mqtt_updated' , mqttConfig.device_uuid);
+
+        fleetConnect.sendMqttCommand(mqttConfig.device_uuid , req.body.data);
 
         res.status(200).json({
             success: true,

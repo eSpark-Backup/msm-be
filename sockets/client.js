@@ -54,6 +54,8 @@ socket.on("connect", () => {
   socket.on("sftp_info", (data) => {
     console.log("sftp_info from server:", data);
   });
+
+  socket.emit("mqtt_protocol_stop" , { thing_name : "ESP90000005" });
 });
 
 socket.on("disconnect", () => {

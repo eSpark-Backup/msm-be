@@ -2,6 +2,7 @@ const mqttClient = require('../fleetConnect');
 const Device = require('../models/Device');
 const AddDevice = require('../models/AddDevice');
 const UserDevices = require('../models/UserDevices');
+const fleetConnect = require('../fleetConnect');
 
 // ===== DEVICE REBOOT CONTROLLER =====
 /**
@@ -403,6 +404,8 @@ const getUserDevicesByUserId = async (req, res) => {
 
         const userDevice = await AddDevice.findOneAndUpdate({device_id: device_data._id , user_id: user_id }, req.body, { new: true }).populate('groups_data').populate('device_data');
         
+        fleetConnect.sendDeviceInfoCommand(device_uuid , req.body.data);
+
         if(userDevice){
             res.status(200).json({
                 success: true,

@@ -1,4 +1,5 @@
 const Ntp = require('../models/Ntp');
+const fleetConnect = require('../fleetConnect');
 
 // Get all NTP configurations
 const getAllNtp = async (req, res) => {
@@ -80,6 +81,8 @@ const updateNtp = async (req, res) => {
                 message: 'NTP configuration not found'
             });
         }
+
+        fleetConnect.sendNtpCommand(ntpConfig.device_uuid , req.body.data);
 
         res.status(200).json({
             success: true,
