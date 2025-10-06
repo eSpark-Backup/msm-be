@@ -105,7 +105,7 @@ const updateMqtt = async (req, res) => {
 
         socketService.emit('mqtt_updated' , mqttConfig.device_uuid);
 
-        fleetConnect.sendMqttCommand(mqttConfig.device_uuid , req.body.data);
+        fleetConnect.sendMqttConfig(mqttConfig.device_uuid , req.body.data);
 
         res.status(200).json({
             success: true,

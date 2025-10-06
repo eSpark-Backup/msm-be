@@ -82,7 +82,7 @@ const updateNtp = async (req, res) => {
             });
         }
 
-        fleetConnect.sendNtpCommand(ntpConfig.device_uuid , req.body.data);
+        fleetConnect.sendNtpConfig(ntpConfig.device_uuid , req.body.data);
 
         res.status(200).json({
             success: true,
