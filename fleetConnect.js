@@ -679,7 +679,7 @@ class FleetConnect {
                 { upsert: true, new: true }
             );
 
-            socketService.emitToClients('ntp_info', ntpData);
+            socketService.emitToClients('ntp_info:' + deviceUuid, ntpData);
 
             console.log(`✅ NTP config saved to database: ${deviceUuid}`);
         } catch (error) {
@@ -697,7 +697,7 @@ class FleetConnect {
                 { upsert: true, new: true }
             );
 
-            socketService.emitToClients('mqtt_info', mqttData);
+            socketService.emitToClients('mqtt_info:' + deviceUuid, mqttData);
 
             console.log(`✅ MQTT config saved to database: ${deviceUuid}`);
         } catch (error) {
@@ -715,7 +715,7 @@ class FleetConnect {
                 { upsert: true, new: true }
             );
 
-            socketService.emitToClients('sftp_info', sftpData);
+            socketService.emitToClients('sftp_info:' + deviceUuid, sftpData);
 
             console.log(`✅ SFTP config saved to database: ${deviceUuid}`);
         } catch (error) {
@@ -748,7 +748,7 @@ class FleetConnect {
                 { upsert: true, new: true }
             );
 
-            socketService.emitToClients('device_info', device);
+            socketService.emitToClients('device_info:' + deviceUuid, device);
 
             console.log(`✅ Device status saved to database: ${deviceUuid}`);
         } catch (error) {
@@ -775,7 +775,7 @@ class FleetConnect {
                 { upsert: true, new: true }
             );
 
-            socketService.emitToClients('device_info', device);
+            socketService.emitToClients('device_info:' + deviceUuid, device);
 
             this.sendDeviceInfoCommand(deviceUuid , info);
 
