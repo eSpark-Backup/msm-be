@@ -21,13 +21,13 @@ class DeviceIntervals {
             this.interval(device1);
         }
         
-        if (device2) {
-            this.interval(device2);
-        }
+        // if (device2) {
+        //     this.interval(device2);
+        // }
         
-        if (device3) {
-            this.interval(device3);
-        }
+        // if (device3) {
+        //     this.interval(device3);
+        // }
     
         this.watchIntervals();
     }
