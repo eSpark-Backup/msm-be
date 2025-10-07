@@ -61,7 +61,7 @@ class DeviceIntervals {
     async watchIntervals(){
         socketService.on('mqtt_updated' , async (device_uuid) => {
     
-            if (device_uuid !== 'ESP90000005' && device_uuid !== 'ESP00000003' && device_uuid !== 'IND00000391') return;
+            if (device_uuid !== 'ESP90000005') return;
             
             const device = await this.getSingleDevice(device_uuid)
             this.interval(device)
