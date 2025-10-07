@@ -10,18 +10,18 @@ const getAllProtocols = async (req, res) => {
     let startTime, endTime;
 
     if (!startQuery || !endQuery) {
-      endTime = moment().utcOffset(timezone);
-      startTime = endTime.clone().subtract(Number(range_value), range_unit);
+      endTime = moment.utc(); 
+      startTime = moment.utc().subtract(Number(range_value), range_unit);
     } else {
-      startTime = moment(startQuery, "YYYY-MM-DDTHH:mm:ss").utcOffset(timezone);
-      endTime = moment(endQuery, "YYYY-MM-DDTHH:mm:ss").utcOffset(timezone);
+      startTime = moment.utc(startQuery);
+      endTime = moment.utc(endQuery);
     }
     
-    console.log("Start:", startTime.format(), "End:", endTime.format());
+     
+    const startUTC = startTime.toDate();
+    const endUTC = endTime.toDate();
     
-
-    const startUTC = startTime.utc().toDate();
-    const endUTC = endTime.utc().toDate();
+    console.log("Start (UTC):", startUTC, "End (UTC):", endUTC);
 
     const telemetry = await Telemetry.aggregate([
       {
