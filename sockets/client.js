@@ -1,13 +1,13 @@
 // test-socket.js
 const { io } = require("socket.io-client");
 
-// const socket = io("https://api.eincloud.ai/", {
-//   transports: ["websocket"], 
-// });
-
-const socket = io("http://localhost:5000", {
+const socket = io("https://api.eincloud.ai/", {
   transports: ["websocket"], 
 });
+
+// const socket = io("http://localhost:5000", {
+//   transports: ["websocket"], 
+// });
 
 socket.on("connect", () => {
   console.log("Connected:", socket.id);
@@ -24,9 +24,9 @@ socket.on("connect", () => {
   });
 
   // common telemetry
-  // socket.on("telemetry", (data) => {
-  //   console.log("telemetry (all devices/channels):", data);
-  // });
+  socket.on("telemetry", (data) => {
+    console.log("telemetry (all devices/channels):", data);
+  });
 
   // specific device + channel listener
   // socket.on("telemetry:ESP90000005:channel:1", (data) => {
@@ -43,21 +43,21 @@ socket.on("connect", () => {
   //   console.log("device_info from server:", data);
   // });
 
-  socket.on("ntp_info:ESP90000005", (data) => {
-    console.log("ntp_info from server:", data);
-  });
+  // socket.on("ntp_info:ESP90000005", (data) => {
+  //   console.log("ntp_info from server:", data);
+  // });
 
-  socket.on("mqtt_info:ESP90000005", (data) => {
-    console.log("mqtt_info from server:", data);
-  });
+  // socket.on("mqtt_info:ESP90000005", (data) => {
+  //   console.log("mqtt_info from server:", data);
+  // });
 
-  socket.on("sftp_info:ESP90000005", (data) => {
-    console.log("sftp_info from server:", data);
-  });
+  // socket.on("sftp_info:ESP90000005", (data) => {
+  //   console.log("sftp_info from server:", data);
+  // });
 
-  socket.on("device_status_updated:IND00000391", (data) => {
-    console.log("device_status_updated from server:", data);
-  });
+  // socket.on("device_status_updated", (data) => {
+  //   console.log("device_status_updated from server:", data);
+  // });
 
   // socket.emit("mqtt_protocol_stop" , { thing_name : "ESP90000005" });
 });

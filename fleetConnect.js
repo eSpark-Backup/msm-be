@@ -205,7 +205,7 @@ class FleetConnect {
                 { new: true }
             );
 
-            socketService.emitToClients('device_status_updated:' + clientId, updatedDevice);
+            socketService.emitToClients('device_status_updated', updatedDevice);
 
             if (updatedDevice) {
                 console.log(`✅ Device ${clientId} updated. MQTT status: ${mqttStatus}`);
