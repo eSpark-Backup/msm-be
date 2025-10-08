@@ -13,6 +13,7 @@ const getAllProtocols = async (req, res) => {
       endTime = moment.utc();
       startTime = moment.utc().subtract(Number(range_value), range_unit);
     } else {
+      
       startTime = moment(startQuery + timezone);
       endTime = moment(endQuery + timezone);
     }

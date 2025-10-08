@@ -14,11 +14,11 @@ const mapProtocols = async (telemetry) => {
       const channel_10 = telemetry.filter(item => item.channel_id === 10)
       const channel_11 = telemetry.filter(item => item.channel_id === 11)
       const channel_12 = telemetry.filter(item => item.channel_id === 12)
-  
+      
       return {
         "timestamp": telemetry[0].timestamp,
-        "date": dayjs(telemetry[0].createdAt).format('YYYY,MM,DD'),
-        "time" : dayjs(telemetry[0].createdAt).format('HH,MM'),
+        "date": dayjs(telemetry[0].createdAt).format('DD-MM-YYYY'),
+        "time" : dayjs(telemetry[0].createdAt).format('HH-mm'),
         "ip_address": telemetry[0].deviceInfo?.[0]?.device_ip || null,
         "ofp_uid": telemetry[0].device_uuid,
         "data": {
