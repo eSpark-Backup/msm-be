@@ -1,3 +1,5 @@
+const dayjs = require("dayjs")
+
 const mapProtocols = async (telemetry) => {
     try {
       const channel_1 = telemetry.filter(item => item.channel_id === 1)
@@ -15,6 +17,8 @@ const mapProtocols = async (telemetry) => {
   
       return {
         "timestamp": telemetry[0].timestamp,
+        "date": dayjs(telemetry[0].createdAt).format('YYYY,MM,DD'),
+        "time" : dayjs(telemetry[0].createdAt).format('HH,MM'),
         "ip_address": telemetry[0].deviceInfo?.[0]?.device_ip || null,
         "ofp_uid": telemetry[0].device_uuid,
         "data": {
