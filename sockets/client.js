@@ -43,19 +43,19 @@ socket.on("connect", () => {
   //   console.log("device_info from server:", data);
   // });
 
-  // socket.on("ntp_info:ESP90000005", (data) => {
-  //   console.log("ntp_info from server:", data);
-  // });
+  socket.on("ntp_info:ESP90000005", (data) => {
+    console.log("ntp_info from server:", data);
+  });
 
-  // socket.on("mqtt_info:ESP90000005", (data) => {
-  //   console.log("mqtt_info from server:", data);
-  // });
+  socket.on("mqtt_info:ESP90000005", (data) => {
+    console.log("mqtt_info from server:", data);
+  });
 
-  // socket.on("sftp_info:ESP90000005", (data) => {
-  //   console.log("sftp_info from server:", data);
-  // });
+  socket.on("sftp_info:ESP90000005", (data) => {
+    console.log("sftp_info from server:", data);
+  });
 
-  socket.on("device_status_updated:ESP90000005", (data) => {
+  socket.on("device_status_updated:IND00000391", (data) => {
     console.log("device_status_updated from server:", data);
   });
 
