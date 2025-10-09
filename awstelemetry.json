@@ -1,0 +1,408 @@
+{
+    "state": {
+      "reported": {
+        "telemetry": {
+          "timestamp": "2025-10-09T18:10:02.237Z",
+          "device_uuid": "ESP90000005",
+          "channels": [
+            {
+              "ID": 10,
+              "status": true,
+              "temperature": 1,
+              "data": {
+                "phase_a": {
+                  "general": {
+                    "line_voltage": 1,
+                    "rms_voltage": 1,
+                    "frequency": 1,
+                    "current": 1
+                  },
+                  "power": {
+                    "factor": 1,
+                    "active": 1,
+                    "reactive": 1,
+                    "apparent": 1
+                  },
+                  "energy": {
+                    "active": {
+                      "positive": 1,
+                      "negative": 1
+                    },
+                    "reactive": {
+                      "positive": 1,
+                      "negative": 1
+                    }
+                  },
+                  "avg_power": {
+                    "factor": 1,
+                    "active": 1,
+                    "reactive": 1,
+                    "apparent": 1
+                  },
+                  "avg_energy": {
+                    "active": {
+                      "positive": 1,
+                      "negative": 1
+                    },
+                    "reactive": {
+                      "positive": 1,
+                      "negative": 1
+                    }
+                  }
+                },
+                "phase_b": {
+                  "general": {
+                    "line_voltage": 1,
+                    "rms_voltage": 1,
+                    "frequency": 1,
+                    "current": 1
+                  },
+                  "power": {
+                    "factor": 1,
+                    "active": 1,
+                    "reactive": 1,
+                    "apparent": 1
+                  },
+                  "energy": {
+                    "active": {
+                      "positive": 1,
+                      "negative": 1
+                    },
+                    "reactive": {
+                      "positive": 1,
+                      "negative": 1
+                    }
+                  },
+                  "avg_power": {
+                    "factor": 1,
+                    "active": 1,
+                    "reactive": 1,
+                    "apparent": 1
+                  },
+                  "avg_energy": {
+                    "active": {
+                      "positive": 1,
+                      "negative": 1
+                    },
+                    "reactive": {
+                      "positive": 1,
+                      "negative": 1
+                    }
+                  }
+                },
+                "phase_c": {
+                  "general": {
+                    "line_voltage": 1,
+                    "rms_voltage": 1,
+                    "frequency": 1,
+                    "current": 1
+                  },
+                  "power": {
+                    "factor": 1,
+                    "active": 1,
+                    "reactive": 1,
+                    "apparent": 1
+                  },
+                  "energy": {
+                    "active": {
+                      "positive": 1,
+                      "negative": 1
+                    },
+                    "reactive": {
+                      "positive": 1,
+                      "negative": 1
+                    }
+                  },
+                  "avg_power": {
+                    "factor": 1,
+                    "active": 1,
+                    "reactive": 1,
+                    "apparent": 1
+                  },
+                  "avg_energy": {
+                    "active": {
+                      "positive": 1,
+                      "negative": 1
+                    },
+                    "reactive": {
+                      "positive": 1,
+                      "negative": 1
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "metadata": {
+      "reported": {
+        "telemetry": {
+          "timestamp": {
+            "timestamp": 1760034426
+          },
+          "device_uuid": {
+            "timestamp": 1760034426
+          },
+          "channels": [
+            {
+              "ID": {
+                "timestamp": 1760034426
+              },
+              "status": {
+                "timestamp": 1760034426
+              },
+              "temperature": {
+                "timestamp": 1760034426
+              },
+              "data": {
+                "phase_a": {
+                  "general": {
+                    "line_voltage": {
+                      "timestamp": 1760034426
+                    },
+                    "rms_voltage": {
+                      "timestamp": 1760034426
+                    },
+                    "frequency": {
+                      "timestamp": 1760034426
+                    },
+                    "current": {
+                      "timestamp": 1760034426
+                    }
+                  },
+                  "power": {
+                    "factor": {
+                      "timestamp": 1760034426
+                    },
+                    "active": {
+                      "timestamp": 1760034426
+                    },
+                    "reactive": {
+                      "timestamp": 1760034426
+                    },
+                    "apparent": {
+                      "timestamp": 1760034426
+                    }
+                  },
+                  "energy": {
+                    "active": {
+                      "positive": {
+                        "timestamp": 1760034426
+                      },
+                      "negative": {
+                        "timestamp": 1760034426
+                      }
+                    },
+                    "reactive": {
+                      "positive": {
+                        "timestamp": 1760034426
+                      },
+                      "negative": {
+                        "timestamp": 1760034426
+                      }
+                    }
+                  },
+                  "avg_power": {
+                    "factor": {
+                      "timestamp": 1760034426
+                    },
+                    "active": {
+                      "timestamp": 1760034426
+                    },
+                    "reactive": {
+                      "timestamp": 1760034426
+                    },
+                    "apparent": {
+                      "timestamp": 1760034426
+                    }
+                  },
+                  "avg_energy": {
+                    "active": {
+                      "positive": {
+                        "timestamp": 1760034426
+                      },
+                      "negative": {
+                        "timestamp": 1760034426
+                      }
+                    },
+                    "reactive": {
+                      "positive": {
+                        "timestamp": 1760034426
+                      },
+                      "negative": {
+                        "timestamp": 1760034426
+                      }
+                    }
+                  }
+                },
+                "phase_b": {
+                  "general": {
+                    "line_voltage": {
+                      "timestamp": 1760034426
+                    },
+                    "rms_voltage": {
+                      "timestamp": 1760034426
+                    },
+                    "frequency": {
+                      "timestamp": 1760034426
+                    },
+                    "current": {
+                      "timestamp": 1760034426
+                    }
+                  },
+                  "power": {
+                    "factor": {
+                      "timestamp": 1760034426
+                    },
+                    "active": {
+                      "timestamp": 1760034426
+                    },
+                    "reactive": {
+                      "timestamp": 1760034426
+                    },
+                    "apparent": {
+                      "timestamp": 1760034426
+                    }
+                  },
+                  "energy": {
+                    "active": {
+                      "positive": {
+                        "timestamp": 1760034426
+                      },
+                      "negative": {
+                        "timestamp": 1760034426
+                      }
+                    },
+                    "reactive": {
+                      "positive": {
+                        "timestamp": 1760034426
+                      },
+                      "negative": {
+                        "timestamp": 1760034426
+                      }
+                    }
+                  },
+                  "avg_power": {
+                    "factor": {
+                      "timestamp": 1760034426
+                    },
+                    "active": {
+                      "timestamp": 1760034426
+                    },
+                    "reactive": {
+                      "timestamp": 1760034426
+                    },
+                    "apparent": {
+                      "timestamp": 1760034426
+                    }
+                  },
+                  "avg_energy": {
+                    "active": {
+                      "positive": {
+                        "timestamp": 1760034426
+                      },
+                      "negative": {
+                        "timestamp": 1760034426
+                      }
+                    },
+                    "reactive": {
+                      "positive": {
+                        "timestamp": 1760034426
+                      },
+                      "negative": {
+                        "timestamp": 1760034426
+                      }
+                    }
+                  }
+                },
+                "phase_c": {
+                  "general": {
+                    "line_voltage": {
+                      "timestamp": 1760034426
+                    },
+                    "rms_voltage": {
+                      "timestamp": 1760034426
+                    },
+                    "frequency": {
+                      "timestamp": 1760034426
+                    },
+                    "current": {
+                      "timestamp": 1760034426
+                    }
+                  },
+                  "power": {
+                    "factor": {
+                      "timestamp": 1760034426
+                    },
+                    "active": {
+                      "timestamp": 1760034426
+                    },
+                    "reactive": {
+                      "timestamp": 1760034426
+                    },
+                    "apparent": {
+                      "timestamp": 1760034426
+                    }
+                  },
+                  "energy": {
+                    "active": {
+                      "positive": {
+                        "timestamp": 1760034426
+                      },
+                      "negative": {
+                        "timestamp": 1760034426
+                      }
+                    },
+                    "reactive": {
+                      "positive": {
+                        "timestamp": 1760034426
+                      },
+                      "negative": {
+                        "timestamp": 1760034426
+                      }
+                    }
+                  },
+                  "avg_power": {
+                    "factor": {
+                      "timestamp": 1760034426
+                    },
+                    "active": {
+                      "timestamp": 1760034426
+                    },
+                    "reactive": {
+                      "timestamp": 1760034426
+                    },
+                    "apparent": {
+                      "timestamp": 1760034426
+                    }
+                  },
+                  "avg_energy": {
+                    "active": {
+                      "positive": {
+                        "timestamp": 1760034426
+                      },
+                      "negative": {
+                        "timestamp": 1760034426
+                      }
+                    },
+                    "reactive": {
+                      "positive": {
+                        "timestamp": 1760034426
+                      },
+                      "negative": {
+                        "timestamp": 1760034426
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "version": 3103334,
+    "timestamp": 1760034426
+  }
