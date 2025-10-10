@@ -14,8 +14,6 @@ const mapProtocols = async (telemetry) => {
       const channel_10 = telemetry.filter(item => item.channel_id === 10)
       const channel_11 = telemetry.filter(item => item.channel_id === 11)
       const channel_12 = telemetry.filter(item => item.channel_id === 12)
-
-      console.log(telemetry[0].timestamp)
       
       return {
         "timestamp": telemetry[0].timestamp,

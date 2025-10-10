@@ -1,6 +1,7 @@
 const Mqtt = require('../models/Mqtt');
 const Device = require('../models/Device');
 const socketService = require('../sockets/socket');
+const dayjs = require('dayjs');
 
 class DeviceIntervals {
     constructor(device) {
@@ -112,7 +113,7 @@ class DeviceIntervals {
     getMockTelemetryData(device_uuid, channel_id, value) {
 
         const data = {
-            "timestamp": new Date().toISOString(),
+            "timestamp": dayjs().format('YYYY-MM-DDTHH:mm:ss'),
             "device_uuid": device_uuid,
             "channels": [
                 {
