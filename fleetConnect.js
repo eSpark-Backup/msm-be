@@ -243,8 +243,6 @@ class FleetConnect {
                 return;
             }
 
-            console.log(message)
-
             for (const channel of message.channels) {
                 for (const [phaseKey, phaseData] of Object.entries(channel.data || {})) {
                     if (!phaseKey.startsWith('phase_')) continue;
