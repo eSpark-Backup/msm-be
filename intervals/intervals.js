@@ -2,6 +2,11 @@ const Mqtt = require('../models/Mqtt');
 const Device = require('../models/Device');
 const socketService = require('../sockets/socket');
 const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 class DeviceIntervals {
     constructor(device) {
@@ -20,6 +25,7 @@ class DeviceIntervals {
     
         if (device1) {
             this.interval(device1);
+            console.log('interval runs')
         }
         
         // if (device2) {
@@ -112,8 +118,10 @@ class DeviceIntervals {
 
     getMockTelemetryData(device_uuid, channel_id, value) {
 
+        const timestamp = dayjs().tz('Asia/Karachi').format('YYYY-MM-DDTHH:mm:ss');
+
         const data = {
-            "timestamp": dayjs().format('YYYY-MM-DDTHH:mm:ss'),
+            "timestamp": timestamp,
             "device_uuid": device_uuid,
             "channels": [
                 {

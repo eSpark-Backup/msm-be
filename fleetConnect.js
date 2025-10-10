@@ -14,8 +14,8 @@ class FleetConnect {
     constructor() {
         this.device = null;
 
-        this.clientId = 'msm-backend-1233434244';
-        // this.clientId = 'msm-backend-12345';
+        // this.clientId = 'msm-backend-1233434244';
+        this.clientId = 'msm-backend-12345';
 
         // this.clientId = 'ESP90000005';
 
@@ -242,6 +242,8 @@ class FleetConnect {
                 console.warn(`⚠️  No channels in telemetry message from ${deviceUuid}`);
                 return;
             }
+
+            console.log(message)
 
             for (const channel of message.channels) {
                 for (const [phaseKey, phaseData] of Object.entries(channel.data || {})) {
