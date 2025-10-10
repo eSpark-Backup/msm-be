@@ -7,7 +7,7 @@ const telemetrySchema = new mongoose.Schema({
     index: true
   },
   timestamp: {
-    type: Date,
+    type: String,
     required: true,
     index: true
   },
