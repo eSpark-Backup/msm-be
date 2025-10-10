@@ -14,8 +14,8 @@ class FleetConnect {
     constructor() {
         this.device = null;
 
-        // this.clientId = 'msm-backend-1233434244';
-        this.clientId = 'msm-backend-12345';
+        this.clientId = 'msm-backend-1233434244';
+        // this.clientId = 'msm-backend-12345';
 
         // this.clientId = 'ESP90000005';
 
@@ -247,12 +247,14 @@ class FleetConnect {
                 for (const [phaseKey, phaseData] of Object.entries(channel.data || {})) {
                     if (!phaseKey.startsWith('phase_')) continue;
                     const phase = phaseKey.split('_')[1]; 
+
+                    // console.log(deviceUuid, message.timestamp)
     
                     if (phaseData) {
                         const telemetryData = {
                             // Device and Channel Info
                             device_uuid: message.device_uuid,
-                            timestamp: new Date(message.timestamp),
+                            timestamp: message.timestamp,
                             channel_id: channel.ID,
                             phase: phase,
                             channel_status: channel.status,
