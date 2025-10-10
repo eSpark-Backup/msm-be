@@ -19,8 +19,7 @@ const mapProtocols = async (telemetry) => {
       
       return {
         "timestamp": telemetry[0].timestamp,
-        "date": dayjs(telemetry[0].createdAt).format('DD-MM-YYYY'),
-        "time" : dayjs(telemetry[0].createdAt).format('HH-mm'),
+        "created_at":  telemetry[0].createdAt,
         "ip_address": telemetry[0].deviceInfo?.[0]?.device_ip || null,
         "ofp_uid": telemetry[0].device_uuid,
         "data": {
