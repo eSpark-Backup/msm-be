@@ -380,6 +380,14 @@ const getUserDevicesByUserId = async (req, res) => {
         })
     } catch (error) {
         console.error('Error in Device Create endpoint:', error);
+
+        if (error.code === 11000) {
+            return res.status(400).json({
+              success: false,
+              message: 'Device already exists for this user',
+            });
+        }
+
         res.status(500).json({
             success: false,
             message: 'Internal Server Error',
