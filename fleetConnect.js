@@ -273,6 +273,12 @@ class FleetConnect {
                 const allChannels = [...group1, ...group2];
 
                 socketService.emitToClients(`telemetry:${deviceUuid}:channels:all`, {data : allChannels , deviceUuid});
+
+                this.telemetryBuffer[deviceUuid] = {
+                    group1: [],
+                    group2: [],
+                    timer : null
+                }
             }, 5000);
 
             for (const channel of message.channels) {
