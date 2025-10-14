@@ -279,7 +279,7 @@ class FleetConnect {
                     group2: [],
                     timer : null
                 }
-            }, 5000);
+            }, 1500);
 
             for (const channel of message.channels) {
                 for (const [phaseKey, phaseData] of Object.entries(channel.data || {})) {
