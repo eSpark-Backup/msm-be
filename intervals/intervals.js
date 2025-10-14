@@ -22,20 +22,20 @@ class DeviceIntervals {
         const device1 = await this.getSingleDevice('ESP90000005');
         const device2 = await this.getSingleDevice('ESP00000003');
         const device3 = await this.getSingleDevice('IND00000391');
-    
+
         if (device1) {
             this.interval(device1);
             console.log('interval runs')
         }
-        
+
         // if (device2) {
         //     this.interval(device2);
         // }
-        
+
         // if (device3) {
         //     this.interval(device3);
         // }
-    
+
         this.watchIntervals();
     }
 
@@ -43,7 +43,7 @@ class DeviceIntervals {
         this.devices = await Device.find({})
     }
 
-    async getSingleDevice(device_uuid){
+    async getSingleDevice(device_uuid) {
         return await Device.findOne({ device_uuid })
     }
 
@@ -65,11 +65,11 @@ class DeviceIntervals {
         return value;
     }
 
-    async watchIntervals(){
-        socketService.on('mqtt_updated' , async (device_uuid) => {
-    
+    async watchIntervals() {
+        socketService.on('mqtt_updated', async (device_uuid) => {
+
             if (device_uuid !== 'ESP90000005') return;
-            
+
             const device = await this.getSingleDevice(device_uuid)
             this.interval(device)
         })
@@ -77,52 +77,47 @@ class DeviceIntervals {
 
 
     async interval(device) {
-            const deviceInterval = await this.getInterval(device.device_uuid);
-            if (!deviceInterval) return;
+        const deviceInterval = await this.getInterval(device.device_uuid);
+        if (!deviceInterval) return;
 
-            const intervalSeconds = deviceInterval.data_interval;
+        const intervalSeconds = deviceInterval.data_interval;
 
-            if (this.intervals[device.device_uuid]) {
-                clearInterval(this.intervals[device.device_uuid])
+        if (this.intervals[device.device_uuid]) {
+            clearInterval(this.intervals[device.device_uuid]);
+        }
+
+        this.intervals[device.device_uuid] = setInterval(() => {
+            const value = this.getNextValue();
+            const topic = `msm/${device.device_uuid}/pub/telemetry`;
+
+            // 👇 Single timestamp + single device_uuid
+            const timestamp = dayjs().tz('Asia/Karachi').format('YYYY-MM-DDTHH:mm:ss');
+            const channels = [];
+
+            // Create all 12 channels
+            for (let channelId = 1; channelId <= 12; channelId++) {
+                const channelData = this.getMockChannelData(channelId, value);
+                channels.push(channelData);
+
+                // Still emit individual events if needed
+                const channelEvent = `telemetry:${device.device_uuid}:channel:${channelId}`;
+                socketService.emitToClients(channelEvent, { data: channelData });
             }
 
-            this.intervals[device.device_uuid] = setInterval(() => {
-                const value = this.getNextValue();
-                const topic = `msm/${device.device_uuid}/pub/telemetry`;
-            
+            // ✅ One unified payload
+            const payload = {
+                device_uuid: device.device_uuid,
+                timestamp,
+                channels
+            };
 
-                const channels1to6 = [];
-                const channels7to12 = [];
+            // Emit one main telemetry event
+            socketService.emitToClients('telemetry', payload);
 
-                for (let channelId = 1; channelId <= 6; channelId++) {
-                    const channelData = this.getMockTelemetryData(device.device_uuid, channelId, value);
-            
-                    socketService.emitToClients('telemetry', channelData);
-            
-                    const channelEvent = `telemetry:${device.device_uuid}:channel:${channelId}`;
-                    socketService.emitToClients(channelEvent, { data: channelData });
+            // Publish to MQTT as one complete object
+            this.clientDevice.publish(topic, JSON.stringify(payload));
 
-                    channels1to6.push(channelData);
-            
-                }
-            
-                for (let channelId = 7; channelId <= 12; channelId++) {
-                    const channelData = this.getMockTelemetryData(device.device_uuid, channelId, value);
-            
-                    socketService.emitToClients('telemetry', channelData);
-            
-                    const channelEvent = `telemetry:${device.device_uuid}:channel:${channelId}`;
-                    socketService.emitToClients(channelEvent, { data: channelData });
-            
-                    channels7to12.push(channelData);
-                }
-
-                this.clientDevice.publish(topic, JSON.stringify(channels1to6));
-                this.clientDevice.publish(topic, JSON.stringify(channels7to12));
-
-            
-            }, intervalSeconds * 1000);
-            
+        }, intervalSeconds * 1000);
     }
 
     getMockTelemetryData(device_uuid, channel_id, value) {
@@ -265,6 +260,51 @@ class DeviceIntervals {
 
         return data
     }
+
+    getMockChannelData(channel_id, value) {
+        return {
+            ID: channel_id,
+            status: true,
+            temperature: value,
+            data: {
+                phase_a: this.getPhaseData(value),
+                phase_b: this.getPhaseData(value),
+                phase_c: this.getPhaseData(value)
+            }
+        };
+    }
+
+    getPhaseData(value) {
+        return {
+            general: {
+                line_voltage: value,
+                rms_voltage: value,
+                frequency: value,
+                current: value
+            },
+            power: {
+                factor: value,
+                active: value,
+                reactive: value,
+                apparent: value
+            },
+            energy: {
+                active: { positive: value, negative: value },
+                reactive: { positive: value, negative: value }
+            },
+            avg_power: {
+                factor: value,
+                active: value,
+                reactive: value,
+                apparent: value
+            },
+            avg_energy: {
+                active: { positive: value, negative: value },
+                reactive: { positive: value, negative: value }
+            }
+        };
+    }
+
 
 
 }
