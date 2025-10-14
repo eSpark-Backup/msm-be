@@ -301,14 +301,14 @@ class FleetConnect {
 
                         this.sendDeviceTelemetryCommand(deviceUuid , telemetryData);
 
+
+                        socketService.emitToClients('telemetry', { data: telemetryData });
                         const eventName = `telemetry:${deviceUuid}:channel:${channel.ID}`;
                         socketService.emitToClients(eventName, { data: telemetryData });
                         // console.log(`✅ Telemetry saved: ${deviceUuid}, channel ${channel.ID}, phase ${phase}`);
                     }
                 }
             }
-
-        socketService.emitToClients(`telemetry:${deviceUuid}`, { data: message.channels });
 
         } catch (error) {
             console.error(`❌ Error handling telemetry from ${deviceUuid}:`, error);

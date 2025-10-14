@@ -1,13 +1,13 @@
 // test-socket.js
 const { io } = require("socket.io-client");
 
-const socket = io("https://api.eincloud.ai/", {
-  transports: ["websocket"], 
-});
-
-// const socket = io("http://localhost:5000", {
+// const socket = io("https://api.eincloud.ai/", {
 //   transports: ["websocket"], 
 // });
+
+const socket = io("http://localhost:5000", {
+  transports: ["websocket"], 
+});
 
 socket.on("connect", () => {
   console.log("Connected:", socket.id);
@@ -29,9 +29,9 @@ socket.on("connect", () => {
   });
 
   // specific device + channel listener
-  // socket.on("telemetry:ESP90000005:channel:1", (data) => {
-  //   console.log("telemetry for ESP90000005 channel 1:", data);
-  // });
+  socket.on("telemetry:ESP90000005:channel:1", (data) => {
+    console.log("telemetry for ESP90000005 channel 1:", data);
+  });
 
 
 
