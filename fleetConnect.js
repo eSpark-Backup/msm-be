@@ -38,6 +38,8 @@ class FleetConnect {
         ];
 
         this.connectedDevices = new Map();  // Track connected devices
+
+        this.telemetryBuffer = [];
     }
 
     connect() {
@@ -243,6 +245,36 @@ class FleetConnect {
                 return;
             }
 
+            const isGroup1 = message.channels.some(ch => ch.ID >= 1 && ch.ID <= 6);
+            const isGroup2 = message.channels.some(ch => ch.ID >= 7 && ch.ID <= 12);
+
+            if(!this.telemetryBuffer[deviceUuid]){
+                this.telemetryBuffer[deviceUuid] = {
+                    group1: [],
+                    group2: [],
+                    timer : null
+                }
+            }
+
+           // Save group data to buffer
+            if (isGroup1) this.telemetryBuffer[deviceUuid].group1 = message.channels;
+            if (isGroup2) this.telemetryBuffer[deviceUuid].group2 = message.channels;
+
+            // clear previous timeout if any
+            if(this.telemetryBuffer[deviceUuid].timer){
+                clearTimeout(this.telemetryBuffer[deviceUuid].timer);
+            }
+
+            // set new timeout
+            this.telemetryBuffer[deviceUuid].timer = setTimeout(() => {
+                const group1 = this.telemetryBuffer[deviceUuid].group1;
+                const group2 = this.telemetryBuffer[deviceUuid].group2;
+
+                const allChannels = [...group1, ...group2];
+
+                socketService.emitToClients(`telemetry:${deviceUuid}:channels:all`, allChannels);
+            }, 1000);
+
             for (const channel of message.channels) {
                 for (const [phaseKey, phaseData] of Object.entries(channel.data || {})) {
                     if (!phaseKey.startsWith('phase_')) continue;
@@ -298,7 +330,6 @@ class FleetConnect {
                         await telemetry.save();
 
                         this.sendDeviceTelemetryCommand(deviceUuid , telemetryData);
-
 
                         const eventName = `telemetry:${deviceUuid}:channel:${channel.ID}`;
                         socketService.emitToClients(eventName, { data: telemetryData });
