@@ -14,8 +14,8 @@ class FleetConnect {
     constructor() {
         this.device = null;
 
-        // this.clientId = 'msm-backend-1233434244';
-        this.clientId = 'msm-backend-12345';
+        this.clientId = 'msm-backend-1233434244';
+        // this.clientId = 'msm-backend-12345';
 
         // this.clientId = 'ESP90000005';
 
@@ -310,8 +310,14 @@ class FleetConnect {
             const channels1to6 = message.channels.filter(channel => channel.ID >= 1 && channel.ID <= 6);
             const channels7to12 = message.channels.filter(channel => channel.ID >= 7 && channel.ID <= 12);
 
-            socketService.emitToClients(`telemetry:${deviceUuid}:channels:1to6`, { data: channels1to6 , device_uuid : deviceUuid  });
-            socketService.emitToClients(`telemetry:${deviceUuid}:channels:7to12`, { data: channels7to12 , device_uuid : deviceUuid });
+
+            if(channels1to6.length > 0) {
+                socketService.emitToClients(`telemetry:${deviceUuid}:channels:1to6`, { data: channels1to6 , device_uuid : deviceUuid  });
+            }
+
+            if(channels7to12.length > 0) {
+                socketService.emitToClients(`telemetry:${deviceUuid}:channels:7to12`, { data: channels7to12 , device_uuid : deviceUuid });
+            }
 
         } catch (error) {
             console.error(`❌ Error handling telemetry from ${deviceUuid}:`, error);
