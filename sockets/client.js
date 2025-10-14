@@ -24,14 +24,20 @@ socket.on("connect", () => {
   });
 
   // common telemetry
-  socket.on("telemetry", (data) => {
-    console.log("telemetry (all devices/channels):", data);
+  socket.on("telemetry:ESP90000005:channels:1to6", (data) => {
+    console.log("channels data 1 to 6:");
+    console.log(data)
+  });
+
+  socket.on("telemetry:ESP90000005:channels:7to12", (data) => {
+    console.log("channels data 7 to 12:");
+    console.log(data)
   });
 
   // specific device + channel listener
-  socket.on("telemetry:ESP90000005:channel:1", (data) => {
-    console.log("telemetry for ESP90000005 channel 1:", data);
-  });
+  // socket.on("telemetry:ESP90000005:channel:1", (data) => {
+  //   console.log("telemetry for ESP90000005 channel 1:", data);
+  // });
 
 
 

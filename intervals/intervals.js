@@ -90,6 +90,10 @@ class DeviceIntervals {
                 const value = this.getNextValue();
                 const topic = `msm/${device.device_uuid}/pub/telemetry`;
             
+
+                const channels1to6 = [];
+                const channels7to12 = [];
+
                 for (let channelId = 1; channelId <= 6; channelId++) {
                     const channelData = this.getMockTelemetryData(device.device_uuid, channelId, value);
             
@@ -97,8 +101,9 @@ class DeviceIntervals {
             
                     const channelEvent = `telemetry:${device.device_uuid}:channel:${channelId}`;
                     socketService.emitToClients(channelEvent, { data: channelData });
+
+                    channels1to6.push(channelData);
             
-                    this.clientDevice.publish(topic, JSON.stringify(channelData));
                 }
             
                 for (let channelId = 7; channelId <= 12; channelId++) {
@@ -109,8 +114,12 @@ class DeviceIntervals {
                     const channelEvent = `telemetry:${device.device_uuid}:channel:${channelId}`;
                     socketService.emitToClients(channelEvent, { data: channelData });
             
-                    this.clientDevice.publish(topic, JSON.stringify(channelData));
+                    channels7to12.push(channelData);
                 }
+
+                this.clientDevice.publish(topic, JSON.stringify(channels1to6));
+                this.clientDevice.publish(topic, JSON.stringify(channels7to12));
+
             
             }, intervalSeconds * 1000);
             

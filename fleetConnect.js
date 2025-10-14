@@ -14,8 +14,8 @@ class FleetConnect {
     constructor() {
         this.device = null;
 
-        // this.clientId = 'msm-backend-1233434244';
-        this.clientId = 'msm-backend-12345';
+        this.clientId = 'msm-backend-1233434244';
+        // this.clientId = 'msm-backend-12345';
 
         // this.clientId = 'ESP90000005';
 
@@ -247,8 +247,6 @@ class FleetConnect {
                 for (const [phaseKey, phaseData] of Object.entries(channel.data || {})) {
                     if (!phaseKey.startsWith('phase_')) continue;
                     const phase = phaseKey.split('_')[1]; 
-
-                    // console.log(deviceUuid, message.timestamp)
     
                     if (phaseData) {
                         const telemetryData = {
@@ -302,13 +300,18 @@ class FleetConnect {
                         this.sendDeviceTelemetryCommand(deviceUuid , telemetryData);
 
 
-                        socketService.emitToClients('telemetry', { data: telemetryData });
                         const eventName = `telemetry:${deviceUuid}:channel:${channel.ID}`;
                         socketService.emitToClients(eventName, { data: telemetryData });
                         // console.log(`✅ Telemetry saved: ${deviceUuid}, channel ${channel.ID}, phase ${phase}`);
                     }
                 }
             }
+
+            const channels1to6 = message.channels.filter(channel => channel.ID >= 1 && channel.ID <= 6);
+            const channels7to12 = message.channels.filter(channel => channel.ID >= 7 && channel.ID <= 12);
+
+            socketService.emitToClients(`telemetry:${deviceUuid}:channels:1to6`, { data: channels1to6 });
+            socketService.emitToClients(`telemetry:${deviceUuid}:channels:7to12`, { data: channels7to12 });
 
         } catch (error) {
             console.error(`❌ Error handling telemetry from ${deviceUuid}:`, error);
