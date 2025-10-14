@@ -238,8 +238,6 @@ class FleetConnect {
     // ===== TELEMETRY HANDLER =====
     async handleTelemetryMessage(message, deviceUuid) {
         try {
-            console.log('handleTelemetryMessage runs');
-            console.log(message)
             if (!message.channels || message.channels.length === 0) {
                 console.warn(`⚠️  No channels in telemetry message from ${deviceUuid}`);
                 return;
@@ -312,8 +310,8 @@ class FleetConnect {
             const channels1to6 = message.channels.filter(channel => channel.ID >= 1 && channel.ID <= 6);
             const channels7to12 = message.channels.filter(channel => channel.ID >= 7 && channel.ID <= 12);
 
-            socketService.emitToClients(`telemetry:${deviceUuid}:channels:1to6`, { data: channels1to6 });
-            socketService.emitToClients(`telemetry:${deviceUuid}:channels:7to12`, { data: channels7to12 });
+            socketService.emitToClients(`telemetry:${deviceUuid}:channels:1to6`, { data: channels1to6 , device_uuid : deviceUuid  });
+            socketService.emitToClients(`telemetry:${deviceUuid}:channels:7to12`, { data: channels7to12 , device_uuid : deviceUuid });
 
         } catch (error) {
             console.error(`❌ Error handling telemetry from ${deviceUuid}:`, error);
