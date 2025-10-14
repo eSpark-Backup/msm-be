@@ -19,20 +19,25 @@ socket.on("connect", () => {
   //   console.log("mqtt_protocol from server:", data);
   // });
 
+  socket.on("telemetry:ESP00000003:channels:all", (data) => {
+    console.log("channels data all:");
+    console.log(data)
+  });
+
   socket.on("hello", (data) => {
     console.log("hello from server:", data);
   });
 
   // common telemetry
-  socket.on("telemetry:ESP90000005:channels:1to6", (data) => {
-    console.log("channels data 1 to 6:");
-    console.log(data)
-  });
+  // socket.on("telemetry:ESP90000005:channels:1to6", (data) => {
+  //   console.log("channels data 1 to 6:");
+  //   console.log(data)
+  // });
 
-  socket.on("telemetry:ESP90000005:channels:7to12", (data) => {
-    console.log("channels data 7 to 12:");
-    console.log(data)
-  });
+  // socket.on("telemetry:ESP90000005:channels:7to12", (data) => {
+  //   console.log("channels data 7 to 12:");
+  //   console.log(data)
+  // });
 
   // specific device + channel listener
   // socket.on("telemetry:ESP90000005:channel:1", (data) => {
