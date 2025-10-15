@@ -330,6 +330,8 @@ class FleetConnect {
                             avg_reactive_energy_positive: phaseData.avg_energy?.reactive?.positive,
                             avg_reactive_energy_negative: phaseData.avg_energy?.reactive?.negative,
                         };
+
+                        // console.log(telemetryData)
     
                         // Save to database
                         const telemetry = new Telemetry(telemetryData);
