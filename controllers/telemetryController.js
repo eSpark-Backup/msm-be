@@ -166,6 +166,10 @@ const getTelemetryByDeviceAndChannel = async (req, res) => {
       { $sort: { phase: 1 } },
     ]);
 
+    telemetry.push({
+      latestRecord: latestRecord,
+    });
+
     res.status(200).json({
       success: true,
       data: telemetry,

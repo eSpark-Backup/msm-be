@@ -19,10 +19,10 @@ socket.on("connect", () => {
   //   console.log("mqtt_protocol from server:", data);
   // });
 
-  socket.on("telemetry:ESP00000003:channels:all", (data) => {
-    console.log("channels data all:");
-    console.log(data)
-  });
+  // socket.on("telemetry:ESP00000003:channels:all", (data) => {
+  //   console.log("channels data all:");
+  //   console.log(data)
+  // });
 
   socket.on("hello", (data) => {
     console.log("hello from server:", data);
