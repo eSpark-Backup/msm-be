@@ -166,14 +166,30 @@ const getTelemetryByDeviceAndChannel = async (req, res) => {
       { $sort: { phase: 1 } },
     ]);
 
+
+    const latestPhases = await Telemetry.aggregate([
+      {
+        $match: { device_uuid, channel_id: Number(channel_id) },
+      },
+      { $sort: { createdAt: -1 } },
+      {
+        $group: {
+          _id: "$phase",
+          latestRecord: { $first: "$$ROOT" },
+        },
+      },
+      { $replaceRoot: { newRoot: "$latestRecord" } },
+    ]);
+
     telemetry.push({
-      latestRecord: latestRecord,
+      latestPhases: latestPhases,
     });
 
     res.status(200).json({
       success: true,
       data: telemetry,
     });
+    
   } catch (error) {
     res.status(500).json({
       success: false,
