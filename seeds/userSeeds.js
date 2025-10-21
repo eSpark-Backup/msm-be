@@ -22,12 +22,10 @@ const seedUsers = async () => {
         // Create super admin user
         const superAdminUser = {
             name: 'Super Admin',
-            email: 'superadmin@msm.com',
+            email: 'eintechnologylabs@gmail.com',
             password: 'SuperAdmin123!', // This will be hashed by the pre-save hook
             role_id: superAdminRole._id,
             description: 'System Super Administrator',
-            method: 'manual',
-            owner: 'system'
         };
 
         const createdUser = await User.create(superAdminUser);
