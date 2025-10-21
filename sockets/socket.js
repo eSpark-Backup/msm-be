@@ -33,11 +33,12 @@ class SocketService extends EventEmitter {
           interval.cleanup();
           protocolIntervals.splice(protocolIntervals.indexOf(interval), 1);
         }
-      } )
-
+      })
+      
       socket.on('mqtt_protocol' , async (data) => {
         console.log("mqtt_protocol from client:", data)
         const interval = new ProtocolInterval(data.interval_time , data.thing_name , data.data_range , socket)
+        protocolIntervals.forEach(interval => interval.cleanup());
         protocolIntervals.push(interval);
       })
 
