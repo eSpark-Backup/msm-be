@@ -120,6 +120,7 @@
             "sftp_status": "boolean",
             "ntp_status": "boolean",
             "gsm_status": "boolean",
+            "device_pass": "abc123"
         }
     ]
 }

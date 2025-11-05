@@ -17,7 +17,7 @@ class FleetConnect {
         this.device = null;
 
         // this.clientId = 'msm-backend-1233434244';
-        this.clientId = 'msm-backend-12346';
+        this.clientId = 'msm-backend-12347';
 
         // this.clientId = 'ESP90000005';
 
@@ -30,7 +30,7 @@ class FleetConnect {
             'msm/+/pub/mqtt',         // Cloud ↔ Device: MQTT broker credentials
             'msm/+/pub/sftp',         // Cloud ↔ Device: SFTP server credentials
             'msm/+/pub/protocols',    // Cloud ↔ Device: Protocols configuration
-            'msm/+/pub/ota',          // Cloud ↔ Device: OTA info
+            'msm/+/pub/ota_info',          // Cloud ↔ Device: OTA info
             'msm/+/pub/mqtts',        // Cloud ↔ Device: MQTTs broker credentials
 
             // Shadow topics
@@ -38,7 +38,6 @@ class FleetConnect {
 
             // Aws mqtt topics
             '$aws/events/presence/#',
-
         ];
 
         this.connectedDevices = new Map();  // Track connected devices
@@ -721,7 +720,7 @@ class FleetConnect {
     }
 
     sendVersionCommand(deviceUuid , version){
-        const topic = `msm/${deviceUuid}/sub/version_list`;
+        const topic = `msm/${deviceUuid}/sub/ota_trigger`;
         const message = {
             device_uuid: deviceUuid,
             data: [
@@ -929,6 +928,7 @@ class FleetConnect {
                 updateData,
                 { upsert: true, new: true }
             );
+            
 
             socketService.emitToClients('device_info:' + deviceUuid, device);
 

@@ -29,7 +29,7 @@ const getSingleMqttsByDeviceUuid = async (req, res) => {
 const updateMqttsByDeviceUuid = async (req, res) => {
     try {
         const deviceUuid = req.params.device_uuid;
-        const mqtts = await Mqtts.findOne({ device_uuid: deviceUuid });
+        const mqtts = await Mqtts.findOneAndUpdate({ device_uuid: deviceUuid }, req.body, { new: true });
         if (!mqtts) {
             return res.status(404).json({
                 status: false,
@@ -38,14 +38,14 @@ const updateMqttsByDeviceUuid = async (req, res) => {
         }
         res.status(200).json({
             status: true,
-            message: 'Mqtts found successfully',
+            message: 'Mqtts Updated successfully',
             data: mqtts
         });
 
     } catch (error) {
         res.status(500).json({
             status: false,
-            message: 'Failed to get mqtts',
+            message: 'Failed to update mqtts',
             error: error.message
         });
     }

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const encrypt = require('../utils/enryption');
 
 const deviceSchema = new mongoose.Schema({
   device_uuid: {
@@ -53,7 +53,7 @@ const deviceSchema = new mongoose.Schema({
 
 deviceSchema.pre('save' , async function(next){
     if(this.isModified('device_pass')){
-        this.device_pass = await bcrypt.hash(this.device_pass , 10);
+        this.device_pass = encrypt.encrypt(this.device_pass);
     }
     next();
 })
