@@ -31,7 +31,7 @@ socketService.init(server);
 
 // Initialize fleetConnect
 const fleetConnect = require('./fleetConnect');
-// fleetConnect.connect();
+fleetConnect.connect();
 
 app.use(cors({
   origin: '*'

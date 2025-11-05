@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const encrypt = require('../utils/enryption');
+const { encrypt } = require('../utils/enryption');
 
 const deviceSchema = new mongoose.Schema({
   device_uuid: {
@@ -46,16 +46,59 @@ const deviceSchema = new mongoose.Schema({
   }
 },
   {
-    timestamps: true
+    timestamps: true,
+    toJSON: true,
+    toObject: true
   }
 );
 
 
 deviceSchema.pre('save' , async function(next){
     if(this.isModified('device_pass')){
-        this.device_pass = encrypt.encrypt(this.device_pass);
+        this.device_pass = encrypt(this.device_pass);
     }
     next();
+})
+
+deviceSchema.pre('findOneAndUpdate', async function(next) {
+  const update = this.getUpdate();
+
+  if (update.device_pass) {
+    update.device_pass = encrypt(update.device_pass);
+    this.setUpdate(update);
+  }
+
+  next();
+});
+
+deviceSchema.virtual('sftp' , {
+    ref: 'SFTP',
+    localField: 'device_uuid',
+    foreignField: 'device_uuid'
+})
+
+deviceSchema.virtual('mqtt' , {
+    ref: 'MQTT',
+    localField: 'device_uuid',
+    foreignField: 'device_uuid'
+})
+
+deviceSchema.virtual('ntp' , {
+  ref : 'NTP',
+  localField: 'device_uuid',
+  foreignField: 'device_uuid'
+})
+
+deviceSchema.virtual('mqtts' , {
+  ref : 'MqttS',
+  localField: 'device_uuid',
+  foreignField: 'device_uuid'
+})
+
+deviceSchema.virtual('ota' , {
+  ref : 'OTA',
+  localField: 'device_uuid',
+  foreignField: 'device_uuid'
 })
 
 
