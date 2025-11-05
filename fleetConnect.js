@@ -9,13 +9,15 @@ const Dashboard = require('./models/Dashboard');
 const socketService = require('./sockets/socket');
 const DeviceIntervals = require('./intervals/intervals');
 const Protocol = require('./models/Protocol');
+const OTA = require('./models/Ota');
+const Mqtts = require('./models/Mqtts');
 
 class FleetConnect {
     constructor() {
         this.device = null;
 
         // this.clientId = 'msm-backend-1233434244';
-        this.clientId = 'msm-backend-12345';
+        this.clientId = 'msm-backend-12346';
 
         // this.clientId = 'ESP90000005';
 
@@ -28,6 +30,8 @@ class FleetConnect {
             'msm/+/pub/mqtt',         // Cloud ↔ Device: MQTT broker credentials
             'msm/+/pub/sftp',         // Cloud ↔ Device: SFTP server credentials
             'msm/+/pub/protocols',    // Cloud ↔ Device: Protocols configuration
+            'msm/+/pub/ota',          // Cloud ↔ Device: OTA info
+            'msm/+/pub/mqtts',        // Cloud ↔ Device: MQTTs broker credentials
 
             // Shadow topics
             '$aws/things/+/shadow/update',
@@ -132,6 +136,14 @@ class FleetConnect {
                             await this.handleProtocolsMessage(message, deviceUuid);
                             this.updateShadow(deviceUuid, message, topicType);
                             break;
+                        case 'ota':
+                            await this.handleOtaMessage(message, deviceUuid);
+                            this.updateShadow(deviceUuid, message, topicType);
+                            break;
+                        case 'mqtts':
+                            await this.handleMqttsMessage(message, deviceUuid);
+                            this.updateShadow(deviceUuid, message, topicType);
+                            break;
                         case 'presence':
                             deviceUuid = topic.split('/').pop();
                             await this.handlePresenceMessage(message, deviceUuid);
@@ -182,6 +194,39 @@ class FleetConnect {
 
         } catch (error) {
             console.error(`❌ Error updating shadow for ${deviceUuid}:`, error);
+        }
+    }
+
+    async handleOtaMessage(message, deviceUuid) {
+        try {
+            const ota_info = message.data[0];
+
+            this.updateOtaInfo(deviceUuid, {
+                current_version: ota_info.current_version,
+                last_update_date: ota_info.last_update.date,
+                last_update_time: ota_info.last_update.time
+            });
+
+        } catch (error) {
+            console.error(`❌ Error handling OTA message for ${deviceUuid}:`, error);
+        }
+    }
+
+    async handleMqttsMessage(message, deviceUuid) {
+        try {
+            const mqtts_info = message.data[0];
+
+            this.updateMqttsInfo(deviceUuid, {
+                broker_ip: mqtts_info.broker_ip,
+                broker_port: mqtts_info.broker_port,
+                data_interval: mqtts_info.data_interval,
+                root_ca: mqtts_info.credentials.root_ca,
+                claim_cert: mqtts_info.credentials.claim_cert,
+                claim_key: mqtts_info.credentials.claim_key
+            });
+
+        } catch (error) {
+            console.error(`❌ Error handling MQTTs message for ${deviceUuid}:`, error);
         }
     }
 
@@ -393,7 +438,9 @@ class FleetConnect {
                 device_pass: deviceInfo.device_pass,
                 device_ip: deviceInfo.device_ip,
                 mqtt_status: deviceInfo.mqtt_status,
-                sftp_status: deviceInfo.sftp_status
+                sftp_status: deviceInfo.sftp_status,
+                ntp_status: deviceInfo.ntp_status,
+                gsm_status: deviceInfo.gsm_status,
             });
 
         } catch (error) {
@@ -673,6 +720,21 @@ class FleetConnect {
         console.log(`🔄 Reboot command sent to ${deviceUuid}`);
     }
 
+    sendVersionCommand(deviceUuid , version){
+        const topic = `msm/${deviceUuid}/sub/version_list`;
+        const message = {
+            device_uuid: deviceUuid,
+            data: [
+                {
+                    ota_version: version
+                }
+            ]
+        };
+
+        this.publishMessage(topic, message);
+        console.log(`🔄 Version list command sent to ${deviceUuid}`);
+    }
+
     // Send NTP configuration to device
     sendNtpConfig(deviceUuid, ntpServers) {
         const topic = `msm/${deviceUuid}/sub/ntp`;
@@ -811,6 +873,42 @@ class FleetConnect {
         }
     }
 
+    async updateOtaInfo(deviceUuid, info) {
+        try {
+            console.log(`OTA info updated for ${deviceUuid}:`, info);
+
+            await OTA.findOneAndUpdate(
+                { device_uuid: deviceUuid },
+                info,
+                { upsert: true, new: true }
+            );
+
+            socketService.emitToClients('ota_info:' + deviceUuid, info);
+
+            console.log(`✅ OTA info saved to database: ${deviceUuid}`);
+        } catch (error) {
+            console.error(`❌ Error saving OTA info for ${deviceUuid}:`, error);
+        }
+    }
+
+    async updateMqttsInfo(deviceUuid, info) {
+        try {
+            console.log(`MQTTs info updated for ${deviceUuid}:`, info);
+
+            await Mqtts.findOneAndUpdate(
+                { device_uuid: deviceUuid },
+                info,
+                { upsert: true, new: true }
+            );
+
+            socketService.emitToClients('mqtts_info:' + deviceUuid, info);
+
+            console.log(`✅ MQTTs info saved to database: ${deviceUuid}`);
+        } catch (error) {
+            console.error(`❌ Error saving MQTTs info for ${deviceUuid}:`, error);
+        }
+    }
+
     async updateDeviceInfo(deviceUuid, info) {
         try {
             console.log(`📱 Device ${deviceUuid} info updated:`, info);
@@ -822,6 +920,8 @@ class FleetConnect {
                 device_ip: info.device_ip,
                 mqtt_status: info.mqtt_status,
                 sftp_status: info.sftp_status,
+                ntp_status: info.ntp_status,
+                gsm_status: info.gsm_status,
             };
 
             const device = await Device.findOneAndUpdate(

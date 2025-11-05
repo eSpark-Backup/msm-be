@@ -15,8 +15,9 @@ const groupRoutes = require('./routes/groupRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const protocolsRoutes = require('./routes/protocolsRoutes');
 const socketService = require('./sockets/socket');
-
-
+const mqttsRoutes = require('./routes/mqttsRoutes');
+const otaRoutes = require('./routes/otaRoutes');
+const versionListRoutes = require('./routes/versionListRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -61,6 +62,9 @@ app.use('/api/role', roleRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/protocols', protocolsRoutes);
+app.use('/api/mqtts', mqttsRoutes);
+app.use('/api/ota', otaRoutes);
+app.use('/api/version-list', versionListRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

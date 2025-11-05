@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const deviceSchema = new mongoose.Schema({
   device_uuid: {
@@ -27,9 +28,17 @@ const deviceSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  ntp_status: {
+    type: String,
+    default: ""
+  },
+  gsm_status: {
+    type: String,
+    default: ""
+  },
   device_status: {
-    type: Boolean,
-    default: false
+    type: String,
+    default: ""
   },
   device_status_updated_at: {
     type: Date,
@@ -40,6 +49,14 @@ const deviceSchema = new mongoose.Schema({
     timestamps: true
   }
 );
+
+
+deviceSchema.pre('save' , async function(next){
+    if(this.isModified('device_pass')){
+        this.device_pass = await bcrypt.hash(this.device_pass , 10);
+    }
+    next();
+})
 
 
 

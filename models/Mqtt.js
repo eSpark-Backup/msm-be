@@ -31,7 +31,8 @@ const MQTT = new mongoose.Schema({
         required: true 
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    collection: 'mqtt'
 }
 
 )
