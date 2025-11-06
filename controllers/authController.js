@@ -209,10 +209,47 @@ const resetPassword = async (req, res) => {
     }
 };
 
+const verifyPassword = async (req , res) => {
+    try{
+        const { password } = req.body;
+
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid password'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Password verified successfully'
+        });
+    }catch(err){
+        console.log(err)
+        res.status(500).json({
+            success: false,
+            message: 'Error verifying password',
+            error: err.message
+        });
+    }
+}
+
 module.exports = {
     login,
     logout,
     changePassword,
     forgetPassword,
-    resetPassword
+    resetPassword,
+    verifyPassword
 };
