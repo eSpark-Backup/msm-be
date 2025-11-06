@@ -43,7 +43,7 @@ const getDeviceById = async (req, res) => {
     try {
         const device_id = req.params.deviceId;
 
-        const device = await Device.findById(device_id);
+        const device = await Device.findById(device_id).populate('ota');
 
         if (!device) {
             return res.status(404).json({
@@ -82,7 +82,7 @@ const getAllDevices = async (req, res) => {
         const limitNum = Number(limit) || 0;
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
-        const devices = await Device.find(query).skip(skip).limit(limitNum);
+        const devices = await Device.find(query).skip(skip).limit(limitNum).populate('ota');
 
         res.status(200).json({
             success: true,
@@ -118,7 +118,7 @@ const getAllUserDevices = async (req, res) => {
         const limitNum = Number(limit) || 0;
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
-        const devices = await AddDevice.find(query).skip(skip).limit(limitNum).populate("device_data").populate("groups_data");
+        const devices = await AddDevice.find(query).skip(skip).limit(limitNum).populate({ path: "device_data", populate: { path: "ota" }}).populate("groups_data");
 
         if (devices.length == 0) {
             return res.status(404).json({
@@ -162,6 +162,7 @@ const getAllAssignDevices = async (req, res) => {
                 path: 'groups_data',
             }, {
                 path: 'device_data',
+                populate: { path: "ota" }
             }]
         });
 
@@ -207,7 +208,7 @@ const getSingleUserDevice = async (req, res) => {
             query.user_id = req.user._id;
         }
 
-        const userDevice = await AddDevice.findOne(query).populate("device_data").populate("groups_data");
+        const userDevice = await AddDevice.findOne(query).populate({path:"device_data", populate: { path: "ota" }}).populate("groups_data");
 
         if (userDevice) {
             res.status(200).json({
@@ -235,7 +236,7 @@ const getSingleAssignDevice = async (req, res) => {
     try {
         const { device_uuid } = req.params;
 
-        const device = await Device.findOne({ device_uuid: device_uuid });
+        const device = await Device.findOne({ device_uuid: device_uuid }).populate('ota');
 
 
         if (!device) {
@@ -292,7 +293,7 @@ const getSingleUserDeviceById = async (req, res) => {
         const { id } = req.params;
         const query = { user_id: id };
 
-        const device = await AddDevice.find(query).populate("device_data").populate("groups_data");
+        const device = await AddDevice.find(query).populate("device_data").populate("groups_data").populate('ota');
 
         if (device && device.length > 0) {
             res.status(200).json({
@@ -328,7 +329,7 @@ const getUserDevicesByUserId = async (req, res) => {
             }, {
                 path: 'device_data',
             }]
-        });
+        }).populate('ota');
 
         if (device && device.length > 0) {
             res.status(200).json({
@@ -523,8 +524,6 @@ const getPublicDeviceByDeviceUuid = async (req, res) => {
                 message: 'Device Not Found'
             })
         }
-
-        // device_data.device_pass = decrypt(device_data.device_pass);
 
         res.status(200).json({
             success: true,
