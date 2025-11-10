@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const crypto = require('crypto');
 const { sendForgetPasswordEmail } = require('../emailService');
+const Device = require('../models/Device');
+const { decrypt } = require('../utils/enryption');
 
 // Generate JWT token
 const generateToken = (userId) => {
@@ -245,11 +247,85 @@ const verifyPassword = async (req , res) => {
     }
 }
 
+const changeDevicePassword = async (req , res) => {
+    try{
+        const { old_password , new_password } = req.body;
+        const device_uuid = req.params.device_uuid;
+
+        const device = await Device.findOne({device_uuid});
+
+        if (!device) {
+            return res.status(404).json({
+                success: false,
+                message: 'Device not found'
+            });
+        }
+
+        const device_password = decrypt(device.device_pass);
+
+        const isPasswordValid = old_password == device_password;
+
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid password'
+            });
+        }
+
+        device.device_pass = new_password;
+        await device.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Password changed successfully'
+        });
+    }catch(err){
+        console.log(err)
+        res.status(500).json({
+            success: false,
+            message: 'Error changing password',
+            error: err.message
+        });
+    }
+}
+
+const getDevice = async (req , res) => {
+    try{
+        const device_uuid = req.params.device_uuid;
+
+        const device = await Device.findOne({device_uuid});
+
+        device.device_pass = decrypt(device.device_pass);
+
+        if (!device) {
+            return res.status(404).json({
+                success: false,
+                message: 'Device not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Device found successfully',
+            device
+        });
+    }catch(err){
+        console.log(err)
+        res.status(500).json({
+            success: false,
+            message: 'Error getting device',
+            error: err.message
+        });
+    }
+}
+
 module.exports = {
     login,
     logout,
     changePassword,
     forgetPassword,
     resetPassword,
-    verifyPassword
+    verifyPassword,
+    changeDevicePassword,
+    getDevice
 };

@@ -1,0 +1,53 @@
+[2025-11-06 17:54:32] local.INFO: array (
+  'iss' => 'https://ssoappdev.momra.gov.sa',
+  'nbf' => 1762448366,
+  'iat' => 1762448366,
+  'exp' => 1765948366,
+  'aud' => 
+  array (
+    0 => 'https://ssoappdev.momra.gov.sa/resources',
+    1 => 'IdentityServerConstants.LocalApi.ScopeName',
+    2 => 'EmployeeAdminstration.Api',
+  ),
+  'scope' => 
+  array (
+    0 => 'EmployeeAdminstration.Api',
+    1 => 'openid',
+    2 => 'profile',
+    3 => 'email',
+    4 => 'roles',
+    5 => 'profile',
+    6 => 'IdentityServerApi',
+    7 => 'IdentityServerConstants.LocalApi.ScopeName',
+    8 => 'offline_access',
+  ),
+  'amr' => 
+  array (
+    0 => 'pwd',
+  ),
+  'client_id' => 'balady_mobile_app',->
+  'sub' => '2d1e5735-2a98-4848-a1b7-736ce2cf7034',
+  'auth_time' => 1762448366,
+  'idp' => 'local',
+  'email' => 'salnaggar@momrah.gov.saxx',
+  'AspNet.Identity.SecurityStamp' => '64A4QWKVBWD6ADN2H43DTNP7CGIVQ3GL',
+  'LastActivate' => '24/02/2026',
+  'preferred_username' => '1000164788',
+  'given_name' => 'فهد',
+  'family_name' => 'الصقر',
+  'name' => '1000164788',
+  'phone_number' => '0512345678',
+  'mail' => 'salnaggar@momrah.gov.saxx',
+  'sex' => '1',
+  'dob' => '01/08/1981',
+  'phone' => '0512345678',
+  'ar_name' => 'فهد بن عبدالعزيز بن عبدالله الصقر',
+  'en_name' => 'فهد بن عبدالعزيز بن عبدالله الصقر',
+  'id_no' => '1000164788',
+  'nid' => '113',
+  'nationality' => 'سعودي',
+  'id_type' => '1',
+  'sname' => 'فهد,بن عبدالعزيز,بن عبدالله,الصقر',
+  'sid' => 'defc3fca-139f-4fc7-8eaf-5f87b10c27cc',
+  'jti' => 'DAD35CAC8607CDB499A9845B60B3899D',
+)  
