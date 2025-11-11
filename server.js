@@ -18,7 +18,8 @@ const socketService = require('./sockets/socket');
 const mqttsRoutes = require('./routes/mqttsRoutes');
 const otaRoutes = require('./routes/otaRoutes');
 const versionListRoutes = require('./routes/versionListRoutes');
-
+const aboutRoutes = require('./routes/aboutRoutes');
+const measurementRoutes = require('./routes/measurementRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -65,7 +66,8 @@ app.use('/api/protocols', protocolsRoutes);
 app.use('/api/mqtts', mqttsRoutes);
 app.use('/api/ota', otaRoutes);
 app.use('/api/version-list', versionListRoutes);
-
+app.use('/api/about', aboutRoutes);
+app.use('/api/measurement', measurementRoutes);
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });

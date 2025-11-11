@@ -32,6 +32,7 @@ class FleetConnect {
             'msm/+/pub/protocols',    // Cloud ↔ Device: Protocols configuration
             'msm/+/pub/ota_info',          // Cloud ↔ Device: OTA info
             'msm/+/pub/mqtts',        // Cloud ↔ Device: MQTTs broker credentials
+            'msm/+/pub/about',        // Cloud ↔ Device: About info
 
             // Shadow topics
             '$aws/things/+/shadow/update',

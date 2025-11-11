@@ -367,7 +367,7 @@ const createDevice = async (req, res) => {
             })
         }
 
-        if (req.body.mqtt_password !== device_data.device_pass) {
+        if (req.body.mqtt_password !== decrypt(device_data.device_pass)) {
             return res.status(400).json({
                 success: false,
                 message: 'Invalid Credentials'
