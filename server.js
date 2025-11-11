@@ -30,6 +30,7 @@ const server = require('http').createServer(app);
 // Initialize socket.io
 socketService.init(server);
 
+
 // Initialize fleetConnect
 const fleetConnect = require('./fleetConnect');
 fleetConnect.connect();
