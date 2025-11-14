@@ -19,7 +19,7 @@ class FleetConnect {
         this.device = null;
 
         // this.clientId = 'msm-backend-1233434244';
-        this.clientId = 'msm-backend-123441';
+        this.clientId = 'msm-backend-123434541';
 
         // this.clientId = 'ESP90000005';
 
@@ -29,6 +29,7 @@ class FleetConnect {
             'msm/+/pub/reboot',       // Cloud ↔ Device: Reboot commands and status
             'msm/+/pub/device_info',  // Device → Cloud: Device information
             'msm/+/pub/ntp',          // Cloud ↔ Device: NTP server configuration
+            'msm/+/sub/ntp',          // Cloud ↔ Device: NTP server configuration
             'msm/+/pub/mqtt',         // Cloud ↔ Device: MQTT broker credentials
             'msm/+/pub/sftp',         // Cloud ↔ Device: SFTP server credentials
             'msm/+/pub/protocols',    // Cloud ↔ Device: Protocols configuration
@@ -783,6 +784,8 @@ class FleetConnect {
             device_uuid: deviceUuid,
             data: [ntpServers]
         };
+
+        console.log(topic)
 
         this.publishMessage(topic, message);
         socketService.emitToClients('ntp_info', ntpServers);
