@@ -29,7 +29,6 @@ class FleetConnect {
             'msm/+/pub/reboot',       // Cloud ↔ Device: Reboot commands and status
             'msm/+/pub/device_info',  // Device → Cloud: Device information
             'msm/+/pub/ntp',          // Cloud ↔ Device: NTP server configuration
-            'msm/+/sub/ntp',          // Cloud ↔ Device: NTP server configuration
             'msm/+/pub/mqtt',         // Cloud ↔ Device: MQTT broker credentials
             'msm/+/pub/sftp',         // Cloud ↔ Device: SFTP server credentials
             'msm/+/pub/protocols',    // Cloud ↔ Device: Protocols configuration
