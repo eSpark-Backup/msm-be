@@ -860,6 +860,14 @@ class FleetConnect {
 
     publishMessage(topic, message) {
         if (this.device) {
+            if(topic == 'msm/ESP90000005/sub/mqtt'){
+                console.log('MQTT published');
+            }else if(topic == 'msm/ESP90000005/sub/ntp'){
+                console.log('NTP published');
+            }else if(topic == 'msm/ESP90000005/sub/sftp'){
+                console.log('SFTP published');
+            }
+
             this.device.publish(topic, JSON.stringify(message));
         } else {
             console.error('❌ MQTT device not connected');
