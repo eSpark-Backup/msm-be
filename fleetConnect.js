@@ -11,13 +11,14 @@ const DeviceIntervals = require('./intervals/intervals');
 const Protocol = require('./models/Protocol');
 const OTA = require('./models/Ota');
 const Mqtts = require('./models/Mqtts');
+const About = require('./models/About');
 
 class FleetConnect {
     constructor() {
         this.device = null;
 
         // this.clientId = 'msm-backend-1233434244';
-        this.clientId = 'msm-backend-12347';
+        this.clientId = 'msm-backend-12341';
 
         // this.clientId = 'ESP90000005';
 
@@ -101,6 +102,8 @@ class FleetConnect {
             this.device.on('message', async (topic, payload) => {
                 try {
 
+                    console.log(topic)
+
 
                     let deviceUuid = this.extractDeviceUuid(topic);
                     const topicType = this.getTopicType(topic);
@@ -143,6 +146,10 @@ class FleetConnect {
                             break;
                         case 'mqtts':
                             await this.handleMqttsMessage(message, deviceUuid);
+                            this.updateShadow(deviceUuid, message, topicType);
+                            break;
+                        case 'about':
+                            await this.handleAboutMessage(message, deviceUuid);
                             this.updateShadow(deviceUuid, message, topicType);
                             break;
                         case 'presence':
@@ -229,6 +236,19 @@ class FleetConnect {
         } catch (error) {
             console.error(`❌ Error handling MQTTs message for ${deviceUuid}:`, error);
         }
+    }
+
+    async handleAboutMessage(message , deviceUuid){
+        try{
+
+            console.log('about message : ' ,  message);
+            
+        }catch(error){
+            console.error(`Error handling About message for ${deviceUuid}  :`, error)
+        }
+        const about_info = message.data[0];
+
+        
     }
 
     async handlePresenceMessage(message, deviceUuid) {

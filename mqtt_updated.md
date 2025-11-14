@@ -234,3 +234,22 @@
     ]
 }
 ```
+
+## About Info
+### Method
+- Publish
+### Structure
+```
+{
+    "device_uuid": "ESP90000005",
+    "data": [  
+      {
+        "manufacturer": "string",
+        "hardware_version":  "string",
+        "firmware_version": "string",
+        "qt_license_version": "string"
+      }
+    ]
+}
+
+```

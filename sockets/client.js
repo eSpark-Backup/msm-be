@@ -47,9 +47,9 @@ socket.on("connect", () => {
 
 
 
-  socket.on("device_info:ESP90000005", (data) => {
-    console.log("device_info from server:", data);
-  });
+  // socket.on("device_info:ESP90000005", (data) => {
+  //   console.log("device_info from server:", data);
+  // });
 
   // socket.on("ntp_info:ESP90000005", (data) => {
   //   console.log("ntp_info from server:", data);
