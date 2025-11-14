@@ -19,7 +19,7 @@ class FleetConnect {
         this.device = null;
 
         // this.clientId = 'msm-backend-1233434244';
-        this.clientId = 'msm-backend-123434541';
+        this.clientId = `msm-backend-${Date.now()}`;
 
         // this.clientId = 'ESP90000005';
 
