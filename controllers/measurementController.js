@@ -2,8 +2,11 @@ const Measurements = require('../models/Measurements');
 
 const getMeasurement = async (req, res) => {
     try {
-        const measurement = await Measurements.findOne();
 
+        const device_uuid = req.params.device_uuid;
+
+        const measurement = await Measurements.findOne({device_uuid});
+        
         if (!measurement) {
             return res.status(404).json({
                 success: false,

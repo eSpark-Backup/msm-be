@@ -82,6 +82,14 @@ socket.on("connect", () => {
   //   console.log("mqtts_info from server:", data);
   // });
 
+  socket.on("about:ESP90000005", (data) => {
+    console.log("about from server:", data);
+  });
+
+  socket.on("measurements:ESP90000005", (data) => {
+    console.log("measurements from server:", data);
+  });
+
 
 
   // socket.emit("mqtt_protocol_stop" , { thing_name : "ESP90000005" });

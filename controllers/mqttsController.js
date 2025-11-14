@@ -1,6 +1,6 @@
 const Mqtts = require('../models/Mqtts');
 const verifyToken = require('../middleware/verifyToken');
-
+const fleetConnect = require('../fleetConnect');
 
 const getSingleMqttsByDeviceUuid = async (req, res) => {
     try {
@@ -36,6 +36,9 @@ const updateMqttsByDeviceUuid = async (req, res) => {
                 message: 'Mqtts not found'
             });
         }
+
+        fleetConnect.sendMqttsConfig(deviceUuid , req.body);
+
         res.status(200).json({
             status: true,
             message: 'Mqtts Updated successfully',

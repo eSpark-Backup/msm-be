@@ -12,6 +12,7 @@ const Protocol = require('./models/Protocol');
 const OTA = require('./models/Ota');
 const Mqtts = require('./models/Mqtts');
 const About = require('./models/About');
+const Measurements = require('./models/Measurements');
 
 class FleetConnect {
     constructor() {
@@ -34,7 +35,7 @@ class FleetConnect {
             'msm/+/pub/ota_info',          // Cloud ↔ Device: OTA info
             'msm/+/pub/mqtts',        // Cloud ↔ Device: MQTTs broker credentials
             'msm/+/pub/about',        // Cloud ↔ Device: About info
-            'msm/pub/measurements',
+            'msm/+/pub/measurements',
 
             // Shadow topics
             '$aws/things/+/shadow/update',
@@ -102,9 +103,6 @@ class FleetConnect {
             this.device.on('message', async (topic, payload) => {
                 try {
 
-                    console.log(topic)
-
-
                     let deviceUuid = this.extractDeviceUuid(topic);
                     const topicType = this.getTopicType(topic);
 
@@ -150,6 +148,10 @@ class FleetConnect {
                             break;
                         case 'about':
                             await this.handleAboutMessage(message, deviceUuid);
+                            this.updateShadow(deviceUuid, message, topicType);
+                            break;
+                        case 'measurements':
+                            await this.handleMeasurementsMessage(message, deviceUuid);
                             this.updateShadow(deviceUuid, message, topicType);
                             break;
                         case 'presence':
@@ -241,14 +243,34 @@ class FleetConnect {
     async handleAboutMessage(message , deviceUuid){
         try{
 
-            console.log('about message : ' ,  message);
-            
+            const about_info = message.data[0];
+
+            await About.findOneAndUpdate({device_uuid : deviceUuid} , about_info , {upsert : true})
+
+            socketService.emitToClients('about:' + deviceUuid , about_info)
+
+            console.log('About info updated for ' , deviceUuid)
+
         }catch(error){
             console.error(`Error handling About message for ${deviceUuid}  :`, error)
         }
-        const about_info = message.data[0];
+    }
 
-        
+    async handleMeasurementsMessage(message , deviceUuid){
+        try{
+            const measurements = message.data[0];
+
+            console.log(measurements);
+
+            await Measurements.findOneAndUpdate({device_uuid : deviceUuid} , measurements , {upsert : true})
+
+            socketService.emitToClients('measurements:' + deviceUuid , measurements)
+            
+            console.log('Measurements updated for ' , deviceUuid)
+
+        }catch(error){
+            console.error(`Error handling Measurements message for ${deviceUuid}  :`, error)
+        }
     }
 
     async handlePresenceMessage(message, deviceUuid) {
@@ -681,8 +703,6 @@ class FleetConnect {
         }
     }
 
-
-
     // ===== SFTP HANDLER =====
     async handleSftpMessage(message, deviceUuid) {
         try {
@@ -795,6 +815,42 @@ class FleetConnect {
         this.publishMessage(topic, message);
         socketService.emitToClients('sftp_info', sftpConfig);
         console.log(`📁 SFTP config sent to ${deviceUuid}`);
+    }
+
+    // Send About configuration to device
+    sendAboutConfig(deviceUuid, aboutConfig) {
+        const topic = `msm/${deviceUuid}/sub/about`;
+        const message = {
+            device_uuid: deviceUuid,
+            data: [aboutConfig]
+        };
+
+        this.publishMessage(topic, message);
+        console.log(`ℹ️ About config sent to ${deviceUuid}`);
+    }
+
+    // Send OTA configuration to device
+    sendOtaConfig(deviceUuid, otaConfig) {
+        const topic = `msm/${deviceUuid}/sub/ota`;
+        const message = {
+            device_uuid: deviceUuid,
+            data: [otaConfig]
+        };
+
+        this.publishMessage(topic, message);
+        console.log(`ℹ️ OTA config sent to ${deviceUuid}`);
+    }
+
+    // Send Mqtts configuration to device
+    sendMqttsConfig(deviceUuid, mqttsConfig) {
+        const topic = `msm/${deviceUuid}/sub/mqtts`;
+        const message = {
+            device_uuid: deviceUuid,
+            data: [mqttsConfig]
+        };
+
+        this.publishMessage(topic, message);
+        console.log(`ℹ️ Mqtts config sent to ${deviceUuid}`);
     }
 
     // ===== HELPER METHODS =====

@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
 const measurementsSchema = new mongoose.Schema({
+    device_uuid: {
+
+    },
     command: {
         type: String,
         required: true

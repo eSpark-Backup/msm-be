@@ -1,4 +1,5 @@
 const About = require('../models/About');
+const fleetConnect = require('../fleetConnect');
 
 const getAbout = async (req, res) => {
     try {
@@ -39,6 +40,8 @@ const updateAbout = async (req , res) => {
         }
           
         const updatedAbout = await About.findOneAndUpdate({ device_uuid }, req.body, { new: true });
+
+        fleetConnect.sendAboutConfig(device_uuid , req.body);
 
         res.status(200).json({
             success: true,

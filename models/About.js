@@ -13,7 +13,7 @@ const aboutSchema = new mongoose.Schema({
         type:String,
         required: true
     },
-    software_version : {
+    firmware_version : {
         type:String,
         required: true
     },
