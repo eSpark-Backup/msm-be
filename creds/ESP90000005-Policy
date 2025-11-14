@@ -8,12 +8,12 @@
         "iot:Receive",
         "iot:PublishRetain"
       ],
-      "Resource": "arn:aws:iot:eu-north-1:117371013245:topic/msm/*"
+      "Resource": "arn:aws:iot:eu-north-1:117371013245:topic/msm/#"
     },
     {
       "Effect": "Allow",
       "Action": "iot:Subscribe",
-      "Resource": "arn:aws:iot:eu-north-1:117371013245:topicfilter/msm/*"
+      "Resource": "arn:aws:iot:eu-north-1:117371013245:topicfilter/msm/#"
     },
     {
       "Effect": "Allow",
