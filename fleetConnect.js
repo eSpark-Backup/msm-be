@@ -743,7 +743,7 @@ class FleetConnect {
 
         };
 
-        this.publishMessage(topic, message);
+        // this.publishMessage(topic, message);
         // console.log(`🔄 Device telemetry command sent to ${deviceUuid}`);
     }
 
