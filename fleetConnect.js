@@ -863,14 +863,20 @@ class FleetConnect {
     // ===== HELPER METHODS =====
 
     publishMessage(topic, message) {
-        if (this.device) {
+        return new Promise((resolve, reject) => {
+            if (!this.device) return reject('❌ MQTT device not connected');
 
-        const data = JSON.stringify(message);
+            const data = JSON.stringify(message);
 
-        this.device.publish(topic, data);
-        } else {
-            console.error('❌ MQTT device not connected');
-        }
+            this.device.publish(topic, data, (err) => {
+                if (err) {
+                    console.error(`Publish error on ${topic}:`, err);
+                    return reject(err);
+                }
+                console.log(`✅ Message published to ${topic}`);
+                resolve();
+            });
+        });
     }
 
     async updateNtpConfig(deviceUuid, ntpData) {
