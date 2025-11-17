@@ -338,7 +338,7 @@ const getUserDevicesByUserId = async (req, res) => {
             }, {
                 path: 'device_data',
             }]
-        }).populate('ota');
+        });
 
         if (device && device.length > 0) {
             res.status(200).json({
