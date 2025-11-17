@@ -761,8 +761,11 @@ class FleetConnect {
         console.log(`🔄 Reboot command sent to ${deviceUuid}`);
     }
 
-    sendVersionCommand(deviceUuid , version){
+    async sendVersionCommand(deviceUuid , version){
         const topic = `msm/${deviceUuid}/sub/ota_trigger`;
+
+        const ota = await OTA.findOneAndUpdate({ device_uuid: deviceUuid } , {ota_status: 'started'});
+
         const message = {
             device_uuid: deviceUuid,
             data: [
@@ -771,6 +774,8 @@ class FleetConnect {
                 }
             ]
         };
+
+        socketService.emitToClients('ota_info:' + deviceUuid, ota);
 
         this.publishMessage(topic, message);
         console.log(`🔄 Version list command sent to ${deviceUuid}`);
@@ -971,6 +976,17 @@ class FleetConnect {
         try {
             console.log(`OTA info updated for ${deviceUuid}:`, info);
 
+            const existingRecord = await OTA.findOne({ device_uuid: deviceUuid });
+
+            if (!existingRecord) {
+                info.ota_status = '';
+            } else {
+
+                const isVersionSame = existingRecord.current_version === info.current_version;
+
+                info.ota_status = isVersionSame ? 'failed' : 'success';
+            }
+
             await OTA.findOneAndUpdate(
                 { device_uuid: deviceUuid },
                 info,
@@ -984,6 +1000,7 @@ class FleetConnect {
             console.error(`❌ Error saving OTA info for ${deviceUuid}:`, error);
         }
     }
+
 
     async updateMqttsInfo(deviceUuid, info) {
         try {

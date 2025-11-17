@@ -17,6 +17,11 @@ const OTA = new mongoose.Schema({
     last_update_time:{
         type: String,
         default: ''
+    },
+    ota_status:{
+        type: String,
+        default: '',
+        enum: ['success', 'failed', 'started', '']
     }
 },{
     timestamps:true

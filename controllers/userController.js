@@ -2,46 +2,49 @@ const User = require('../models/User');
 const UserDevices = require('../models/UserDevices');
 const crypto = require('crypto');
 const { sendWelcomeEmail } = require('../emailService');
-
+const Role = require('../models/Role');
 
 const getAllUsers = async (req, res) => {
   try {
     const { search, page, limit } = req.query;
 
     const pageNum = Number(page) || 1;
-    const limitNum = Number(limit) || 0;
-    const skip = limitNum ? (pageNum - 1) * limitNum : 0;
+    const limitNum = Number(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    const super_admin_role = await Role.findOne({ name: "super_admin" });
 
     const query = {
-      _id: { $ne: req.user._id }, 
+        role_id: { $ne: super_admin_role._id },
+        _id: { $ne: req.user._id },
     };
 
     if (search) {
       query.name = { $regex: search, $options: "i" };
     }
 
-    let users = await User.find(query)
+    const count = await User.countDocuments(query);
+
+    const users = await User.find(query)
       .populate("role")
       .populate("groupsData")
       .populate("devicesData")
       .populate({
-        path: 'userDevicesData',
+        path: "userDevicesData",
         populate: {
-            path: 'device_data',
-            populate: [{
-                path: 'groups_data',
-            }, {
-                path: 'device_data',
-            }]
+          path: "device_data",
+          populate: [
+            { path: "groups_data" },
+            { path: "device_data" }
+          ]
         }
-    })
+      })
       .skip(skip)
-      .limit(limitNum) 
-
-    users = users.filter(user => user.role?.name !== "super_admin");
+      .limit(limitNum);
 
     res.status(200).json({
       success: true,
+      count,              
       data: users,
     });
   } catch (error) {
@@ -53,6 +56,7 @@ const getAllUsers = async (req, res) => {
     });
   }
 };
+
 
 // Get single user by ID
 const getUserById = async (req, res) => {

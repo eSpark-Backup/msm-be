@@ -44,12 +44,9 @@ const updateVersionList = async (req, res) => {
     try {
         const devices = req.body.devices;
 
-        // Send version command for each device
         for (const device of devices) {
-            fleetConnect.sendVersionCommand(device.device_uuid, device.version);
+            await fleetConnect.sendVersionCommand(device.device_uuid, device.version);
         }
-
-        console.log(devices);
 
         res.status(200).json({
             status: true,

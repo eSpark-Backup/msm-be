@@ -84,9 +84,12 @@ const getAllDevices = async (req, res) => {
 
         const devices = await Device.find(query).skip(skip).limit(limitNum).populate('ota');
 
+        const count = await Device.countDocuments(query);
+
         res.status(200).json({
             success: true,
             message: "Devices found",
+            count,
             data: devices,
         });
     } catch (error) {
