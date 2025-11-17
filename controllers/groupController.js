@@ -39,9 +39,12 @@ const getAllGroups = async (req, res) => {
 
     const groups = await Group.find(query).skip(skip).limit(limitNum);
 
+    const count = await Group.countDocuments(query);
+
     res.status(200).json({
       success: true,
       data: groups,
+      count
     });
   } catch (error) {
     console.error("Error Getting Groups:", error);
