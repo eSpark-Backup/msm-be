@@ -123,6 +123,8 @@ const getAllUserDevices = async (req, res) => {
 
         const devices = await AddDevice.find(query).skip(skip).limit(limitNum).populate({ path: "device_data", populate: { path: "ota" }}).populate("groups_data");
 
+        const count = await AddDevice.countDocuments(query);
+
         if (devices.length == 0) {
             return res.status(404).json({
                 success: false,
@@ -133,6 +135,7 @@ const getAllUserDevices = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Devices found",
+            count,
             data: devices,
         });
     } catch (error) {
