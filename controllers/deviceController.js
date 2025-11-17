@@ -172,6 +172,8 @@ const getAllAssignDevices = async (req, res) => {
             }]
         });
 
+        const count = await UserDevices.countDocuments(query);
+
         if (devices.length == 0) {
             return res.status(404).json({
                 success: false,
@@ -182,6 +184,7 @@ const getAllAssignDevices = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Devices found",
+            count,
             data: devices,
         });
     } catch (error) {
