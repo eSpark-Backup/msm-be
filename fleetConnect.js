@@ -781,21 +781,6 @@ class FleetConnect {
         console.log(`🔄 Version list command sent to ${deviceUuid}`);
     }
 
-    // Send NTP configuration to device
-    sendNtpConfig(deviceUuid, ntpServers) {
-        const topic = `msm/${deviceUuid}/sub/ntp`;
-        const message = {
-            device_uuid: deviceUuid,
-            data: [ntpServers]
-        };
-
-        console.log(topic)
-
-        this.publishMessage(topic, message);
-        socketService.emitToClients('ntp_info', ntpServers);
-        console.log(`🕐 NTP config sent to ${deviceUuid}`);
-    }
-
     // Send MQTT configuration to device
     sendMqttConfig(deviceUuid, mqttConfig) {
         const topic = `msm/${deviceUuid}/sub/mqtt`;

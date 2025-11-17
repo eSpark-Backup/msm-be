@@ -1,5 +1,6 @@
 const Ntp = require('../models/Ntp');
 const fleetConnect = require('../fleetConnect');
+const socketService = require('../sockets/socket')
 
 // Get all NTP configurations
 const getAllNtp = async (req, res) => {
@@ -82,7 +83,14 @@ const updateNtp = async (req, res) => {
             });
         }
 
-        fleetConnect.sendNtpConfig(ntpConfig.device_uuid , req.body.data);
+        const topic = `msm/${ntpConfig.device_uuid}/sub/ntp`;
+        const message = {
+            device_uuid: ntpConfig.device_uuid,
+            data: [ntpConfig.data]
+        };
+
+        fleetConnect.publishMessage(topic, message);
+        socketService.emitToClients('ntp_info', ntpConfig);
 
         res.status(200).json({
             success: true,
