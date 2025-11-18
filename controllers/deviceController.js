@@ -121,9 +121,11 @@ const getAllUserDevices = async (req, res) => {
         const limitNum = Number(limit) || 0;
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
+        console.log(limitNum);
+
         // const devices = await AddDevice.find(query).skip(skip).limit(limitNum).populate({ path: "device_data", populate: { path: "ota" }}).populate("groups_data");
 
-        const devices = await AddDevice.aggregate([
+        const pipeline = [
             { $match: query },
 
             // Lookup device_data
@@ -159,11 +161,13 @@ const getAllUserDevices = async (req, res) => {
 
             // Sort by device_data.device_status
             { $sort: { "device_data.device_status": -1, "device_data.createdAt": -1 } },
+        ];
 
-            // Pagination
-            { $skip: skip },
-            { $limit: limitNum }
-        ]);
+        if(limitNum != 0){
+            pipeline.push({ $skip: skip }, { $limit: limitNum });
+        }
+
+        const devices = await AddDevice.aggregate(pipeline);
 
 
         const count = await AddDevice.countDocuments(query);
