@@ -121,7 +121,50 @@ const getAllUserDevices = async (req, res) => {
         const limitNum = Number(limit) || 0;
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
-        const devices = await AddDevice.find(query).skip(skip).limit(limitNum).populate({ path: "device_data", populate: { path: "ota" }}).populate("groups_data");
+        // const devices = await AddDevice.find(query).skip(skip).limit(limitNum).populate({ path: "device_data", populate: { path: "ota" }}).populate("groups_data");
+
+        const devices = await AddDevice.aggregate([
+            { $match: query },
+
+            // Lookup device_data
+            {
+                $lookup: {
+                    from: "devices",
+                    localField: "device_id",
+                    foreignField: "_id",
+                    as: "device_data"
+                }
+            },
+            { $unwind: { path: "$device_data", preserveNullAndEmptyArrays: true } },
+
+            // Lookup groups_data
+            {
+                $lookup: {
+                    from: "groups",
+                    localField: "group_id",
+                    foreignField: "_id",
+                    as: "groups_data"
+                }
+            },
+
+            // Lookup OTA (NOW device_data fields are available)
+            {
+                $lookup: {
+                    from: "otas",
+                    localField: "device_data.device_uuid",
+                    foreignField: "device_uuid",
+                    as: "device_data.ota"
+                }
+            },
+
+            // Sort by device_data.device_status
+            { $sort: { "device_data.device_status": -1 } },
+
+            // Pagination
+            { $skip: skip },
+            { $limit: limitNum }
+        ]);
+
 
         const count = await AddDevice.countDocuments(query);
 
