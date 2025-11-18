@@ -26,6 +26,7 @@ class DeviceIntervals {
         if (device1) {
             this.interval(device1);
             console.log('interval runs')
+            
         }
 
         // if (device2) {
