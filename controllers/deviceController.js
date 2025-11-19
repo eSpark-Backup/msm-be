@@ -160,7 +160,7 @@ const getAllUserDevices = async (req, res) => {
             },
 
             // Sort by device_data.device_status
-            { $sort: { "device_data.device_status": -1, "device_data.createdAt": -1 } },
+            { $sort: { "device_data.device_status": -1, "createdAt": -1 } },
         ];
 
         if(limitNum != 0){

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { sendWelcomeEmail } = require('../emailService');
 const crypto = require('crypto');
+const User = require('../models/User');
 
 // Generate random password
 const generateRandomPassword = () => {
@@ -17,6 +18,7 @@ const generateRandomPassword = () => {
 
 
 router.get('/', async (req, res) => {
+    
     const password = generateRandomPassword();
 
     // const email = "tarmimi@indkom.com.my";
@@ -26,6 +28,14 @@ router.get('/', async (req, res) => {
     const email = "syamir@indkom.com.my"
 
     const name = "indkom-qat"
+
+    // update user password
+    const user = await User.findOne({ email });
+    if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+    }
+    user.password = password;
+    await user.save();
 
     await sendWelcomeEmail({
         to: email,
