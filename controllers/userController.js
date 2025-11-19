@@ -137,6 +137,7 @@ const generateRandomPassword = () => {
 };
 
 
+
 // Create new user
 const createUser = async (req, res) => {
     try {
