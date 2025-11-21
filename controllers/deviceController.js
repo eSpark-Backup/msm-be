@@ -106,7 +106,7 @@ const getAllDevices = async (req, res) => {
 const getAllUserDevices = async (req, res) => {
     try {
 
-        const { search, page, limit } = req.query;
+        const { search, page, limit , status_sort , created_sort , updated_sort } = req.query;
         const query = {};
 
         if (req.user.role.name !== "super_admin") {
@@ -121,9 +121,10 @@ const getAllUserDevices = async (req, res) => {
         const limitNum = Number(limit) || 0;
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
-        console.log(limitNum);
+        const statusOrder = status_sort ? status_sort === '1' ? 1 : -1 : -1 ;
+        const createdOrder = created_sort ? created_sort === '1' ? 1 : -1 : -1 ;
+        const updatedOrder = updated_sort ? updated_sort === '1' ? 1 : -1 : -1 ;
 
-        // const devices = await AddDevice.find(query).skip(skip).limit(limitNum).populate({ path: "device_data", populate: { path: "ota" }}).populate("groups_data");
 
         const pipeline = [
             { $match: query },
@@ -160,7 +161,7 @@ const getAllUserDevices = async (req, res) => {
             },
 
             // Sort by device_data.device_status
-            { $sort: { "device_data.device_status": -1, "createdAt": -1 , "updatedAt": -1 } },
+            { $sort: { "device_data.device_status": statusOrder, "createdAt": createdOrder , "updatedAt": updatedOrder } },
         ];
 
         if(limitNum != 0){
