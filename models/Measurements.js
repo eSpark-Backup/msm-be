@@ -1,26 +1,35 @@
 const mongoose = require('mongoose');
 
-const measurementsSchema = new mongoose.Schema({
-    device_uuid: {
+// Schema for each command in the data array
+const dataSchema = new mongoose.Schema({
+  command: {
+    type: String,
+    required: true
+  },
+  ct_ratio: {
+    type: Map,
+    of: Number
+  },
+  i_offset: {
+    type: Map,
+    of: Number
+  },
+  v_offset: {
+    type: Map,
+    of: Number
+  }
+}, { _id: false });
 
-    },
-    command: {
-        type: String,
-        required: true
-    },
-    ct_ratio:{
-        type: Object,
-        required: true
-    },
-    v_offset:{
-        type: Object,
-        required: true
-    },
-    i_offset: {
-        type: Object,
-        required: true
-    },
-    
-})
+// Main schema for device measurements
+const measurementsSchema = new mongoose.Schema({
+  device_uuid: {
+    type: String,
+    required: true
+  },
+  data: {
+    type: [dataSchema],
+    required: true
+  }
+});
 
 module.exports = mongoose.model('Measurements', measurementsSchema);

@@ -258,13 +258,13 @@ class FleetConnect {
 
     async handleMeasurementsMessage(message , deviceUuid){
         try{
-            const measurements = message.data[0];
+            const measurements = message;
 
             console.log(measurements);
 
             await Measurements.findOneAndUpdate({device_uuid : deviceUuid} , measurements , {upsert : true})
 
-            socketService.emitToClients('measurements:' + deviceUuid , measurements)
+            socketService.emitToClients('measurements:' + deviceUuid , {data: measurements})
             
             console.log('Measurements updated for ' , deviceUuid)
 

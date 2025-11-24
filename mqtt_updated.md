@@ -319,6 +319,40 @@
         "channel-11": 200,
         "channel-12": 300
       }
+    },
+    {
+      "command": "set-i-offset",
+      "ct_ratio": {
+        "channel-1": 200,
+        "channel-2": 200,
+        "channel-3": 200,
+        "channel-4": 70,
+        "channel-5": 200,
+        "channel-6": 80,
+        "channel-7": 100,
+        "channel-8": 200,
+        "channel-9": 500,
+        "channel-10": 200,
+        "channel-11": 200,
+        "channel-12": 300
+      }
+    },
+    {
+      "command": "set-v-offset",
+      "ct_ratio": {
+        "channel-1": 200,
+        "channel-2": 200,
+        "channel-3": 200,
+        "channel-4": 70,
+        "channel-5": 200,
+        "channel-6": 80,
+        "channel-7": 100,
+        "channel-8": 200,
+        "channel-9": 500,
+        "channel-10": 200,
+        "channel-11": 200,
+        "channel-12": 300
+      }
     }
   ]
 }
