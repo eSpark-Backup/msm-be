@@ -764,7 +764,7 @@ class FleetConnect {
     async sendVersionCommand(deviceUuid , version){
         const topic = `msm/${deviceUuid}/sub/ota_trigger`;
 
-        const ota = await OTA.findOneAndUpdate({ device_uuid: deviceUuid } , {ota_status: 'started'});
+        const ota = await OTA.findOneAndUpdate({ device_uuid: deviceUuid } , {ota_status: 'started'} , {upsert : true , new : true} );
 
         const message = {
             device_uuid: deviceUuid,
