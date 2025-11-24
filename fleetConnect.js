@@ -138,7 +138,7 @@ class FleetConnect {
                             await this.handleProtocolsMessage(message, deviceUuid);
                             this.updateShadow(deviceUuid, message, topicType);
                             break;
-                        case 'ota':
+                        case 'ota_info':
                             await this.handleOtaMessage(message, deviceUuid);
                             this.updateShadow(deviceUuid, message, topicType);
                             break;

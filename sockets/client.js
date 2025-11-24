@@ -74,13 +74,13 @@ socket.on("connect", () => {
   //   console.log("mqtt_protocol from server:", data);
   // });
 
-  // socket.on("ota_info:ESP90000005", (data) => {
-  //   console.log("ota_info from server:", data);
-  // });
-
-  socket.on("mqtts_info:ESP90000005", (data) => {
-    console.log("mqtts_info from server:", data);
+  socket.on("ota_info:ESP90000005", (data) => {
+    console.log("ota_info from server:", data);
   });
+
+  // socket.on("mqtts_info:ESP90000005", (data) => {
+  //   console.log("mqtts_info from server:", data);
+  // });
 
   // socket.on("about:ESP90000005", (data) => {
   //   console.log("about from server:", data);
