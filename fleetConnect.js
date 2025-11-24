@@ -264,7 +264,7 @@ class FleetConnect {
 
             await Measurements.findOneAndUpdate({device_uuid : deviceUuid} , measurements , {upsert : true})
 
-            socketService.emitToClients('measurements:' + deviceUuid , {data: measurements})
+            socketService.emitToClients('measurements:' + deviceUuid ,  measurements.data)
             
             console.log('Measurements updated for ' , deviceUuid)
 
