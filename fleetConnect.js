@@ -766,7 +766,7 @@ class FleetConnect {
 
         const ota = await OTA.findOneAndUpdate(
             { device_uuid: deviceUuid }, 
-            {ota_status: 'started' , current_version : version , last_update_date : new Date().toDateString() , last_update_time : new Date().toTimeString() }, 
+            {ota_status: 'started'}, 
             {upsert : true , new : true} );
 
         const message = {
