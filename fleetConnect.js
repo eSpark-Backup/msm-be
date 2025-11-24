@@ -258,9 +258,7 @@ class FleetConnect {
 
     async handleMeasurementsMessage(message , deviceUuid){
         try{
-            const measurements = message.data[0];
-
-            console.log(measurements);
+            const measurements = message;
 
             await Measurements.findOneAndUpdate({device_uuid : deviceUuid} , measurements , {upsert : true})
 

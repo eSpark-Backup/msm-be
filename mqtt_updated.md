@@ -1,8 +1,13 @@
 # MQTT Info
-## Telemetry Data 
+
+## Telemetry Data
+
 ### Method
+
 - Publish
+
 ### Structure
+
 ```
 {
   "timestamp": "2025-07-24T00:33:00+05:00",
@@ -14,7 +19,7 @@
       "temperature": 27.5,
       "data": {
         "phase_a": {
-          "general": {	
+          "general": {
             "line_voltage": 0,
             "rms_voltage": 0,
             "frequency": 0,
@@ -90,11 +95,16 @@
   ]
 }
 ```
+
 ## Reboot
+
 ### Method
+
 - Publish
 - Subscribe
+
 ### Structure
+
 ```
 {
     "device_uuid": "ESP90000005",
@@ -105,10 +115,15 @@
     ]
 }
 ```
+
 ## Device Info
+
 ### Method
+
 - Publish
+
 ### Structure
+
 ```
 {
     "device_uuid": "ESP90000005",
@@ -127,10 +142,14 @@
 ```
 
 ## NTP Info
+
 ### Method
+
 - Publish
 - Subscribe
+
 ### Structure
+
 ```
 {
     "device_uuid": "ESP90000005",
@@ -143,11 +162,16 @@
     ]
 }
 ```
+
 ## MQTT Info
+
 ### Method
+
 - Publish
 - Subscribe
+
 ### Structure
+
 ```
 {
   "device_uuid": "ESP90000005",
@@ -163,11 +187,16 @@
   ]
 }
 ```
+
 ## SFTP Info
+
 ### Method
+
 - Publish
 - Subscribe
+
 ### Structure
+
 ```
 {
     "device_uuid": "ESP90000005",
@@ -182,11 +211,16 @@
     ]
 }
 ```
+
 ## MQTTs Info
+
 ### Method
+
 - Publish
 - Subscribe
+
 ### Structure
+
 ```
 {
     "device_uuid": "ESP90000005",
@@ -204,14 +238,19 @@
     ]
 }
 ```
+
 ## OTA Info
+
 ### Method
+
 - Publish
+
 ### Structure
+
 ```
 {
     "device_uuid": "ESP90000005",
-    "data": [  
+    "data": [
       {
         "current_version": "2.0.7",
         "last_update": {
@@ -222,12 +261,15 @@
     ]
 }
 ```
+
 - Subscribe
+
 ### Structure
+
 ```
 {
     "device_uuid": "ESP90000005",
-    "data": [  
+    "data": [
       {
         "ota_version": "2.0.8",
       }
@@ -236,13 +278,17 @@
 ```
 
 ## About Info
+
 ### Method
+
 - Publish
+
 ### Structure
+
 ```
 {
     "device_uuid": "ESP90000005",
-    "data": [  
+    "data": [
       {
         "manufacturer": "string",
         "hardware_version":  "string",
@@ -253,3 +299,55 @@
 }
 
 ```
+
+{
+  "device_uuid": "ESP90000005",
+  "data" : [
+    {
+      "command": "set-ct-ratio",
+      "ct_ratio": {
+        "channel-1": 200,
+        "channel-2": 200,
+        "channel-3": 200,
+        "channel-4": 70,
+        "channel-5": 200,
+        "channel-6": 80,
+        "channel-7": 100,
+        "channel-8": 200,
+        "channel-9": 500,
+        "channel-10": 200,
+        "channel-11": 200,
+        "channel-12": 300
+      }
+    }
+  ]
+}
+
+  "i_offset": {
+  "channel-1": 200,
+  "channel-2": 200,
+  "channel-3": 200,
+  "channel-4": 70,
+  "channel-5": 200,
+  "channel-6": 80,
+  "channel-7": 100,
+  "channel-8": 200,
+  "channel-9": 500,
+  "channel-10": 200,
+  "channel-11": 200,
+  "channel-12": 300
+  },
+  "v_offset": {
+  "channel-1": 200,
+  "channel-2": 200,
+  "channel-3": 200,
+  "channel-4": 70,
+  "channel-5": 200,
+  "channel-6": 80,
+  "channel-7": 100,
+  "channel-8": 200,
+  "channel-9": 500,
+  "channel-10": 200,
+  "channel-11": 200,
+  "channel-12": 300
+  }
