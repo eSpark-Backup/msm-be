@@ -385,6 +385,7 @@ const getUserDevicesByUserId = async (req, res) => {
                 path: 'groups_data',
             }, {
                 path: 'device_data',
+                populate: { path: "ota" }
             }]
         });
 
