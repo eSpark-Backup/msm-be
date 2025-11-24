@@ -116,10 +116,10 @@
         {
             "device_imei": "865788062388016",
             "device_ip": "10.99.72.185",
-            "mqtt_status": "boolean",
-            "sftp_status": "boolean",
-            "ntp_status": "boolean",
-            "gsm_status": "boolean",
+            "mqtt_status": true,
+            "sftp_status": false,
+            "ntp_status": "true",
+            "gsm_status": "true",
             "device_pass": "abc123"
         }
     ]
@@ -196,9 +196,9 @@
         "broker_port": 8883,
         "data_interval": 10,
         "credentials": {
-            "root_ca": "boolean",
-            "claim_cert": "boolean",
-            "claim_key": "boolean"
+            "root_ca": true,
+            "claim_cert":  true,
+            "claim_key": false
         }
       }
     ]

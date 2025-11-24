@@ -19,16 +19,19 @@ const MqttS = new mongoose.Schema({
         required: true 
     },
     root_ca: { 
-        type: String, 
-        required: true 
+        type: Boolean, 
+        required: true,
+        default: false 
     },
     claim_cert: { 
-        type: String, 
-        required: true 
+        type: Boolean, 
+        required: true,
+        default: false 
     },
     claim_key: { 
-        type: String, 
-        required: true 
+        type: Boolean, 
+        required: true,
+        default:false 
     }
 }, {
     timestamps: true,
