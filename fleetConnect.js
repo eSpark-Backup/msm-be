@@ -36,6 +36,7 @@ class FleetConnect {
             'msm/+/pub/mqtts',        // Cloud ↔ Device: MQTTs broker credentials
             'msm/+/pub/about',        // Cloud ↔ Device: About info
             'msm/+/pub/measurements',
+            
 
             // Shadow topics
             '$aws/things/+/shadow/update',

@@ -322,7 +322,7 @@
     },
     {
       "command": "set-i-offset",
-      "ct_ratio": {
+      "i_offset": {
         "channel-1": 200,
         "channel-2": 200,
         "channel-3": 200,
@@ -339,7 +339,7 @@
     },
     {
       "command": "set-v-offset",
-      "ct_ratio": {
+      "v_offset": {
         "channel-1": 200,
         "channel-2": 200,
         "channel-3": 200,

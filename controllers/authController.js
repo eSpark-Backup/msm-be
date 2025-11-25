@@ -26,7 +26,7 @@ const login = async (req, res) => {
             });
         }
 
-        if(user.status !== 'active'){
+        if (user.status !== 'active') {
             return res.status(401).json({
                 success: false,
                 message: 'User is not active'
@@ -35,7 +35,7 @@ const login = async (req, res) => {
 
         // Check password
         const isPasswordValid = await bcrypt.compare(password, user.password);
-        
+
 
         if (!isPasswordValid) {
             return res.status(401).json({
@@ -84,9 +84,9 @@ const logout = async (req, res) => {
     }
 };
 
-const changePassword = async (req , res) => {
+const changePassword = async (req, res) => {
     try {
-        const { newPassword , oldPassword } = req.body;
+        const { newPassword, oldPassword } = req.body;
 
         const user = await User.findById(req.user.id).populate('role');
 
@@ -98,7 +98,7 @@ const changePassword = async (req , res) => {
         }
 
         const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
-        
+
         if (!isPasswordValid) {
             return res.status(401).json({
                 success: false,
@@ -111,7 +111,7 @@ const changePassword = async (req , res) => {
                 success: false,
                 message: 'New password cannot be same as old password'
             });
-        }        
+        }
 
         user.password = newPassword;
         user.isPasswordChanged = true;
@@ -122,7 +122,7 @@ const changePassword = async (req , res) => {
             message: 'Password changed successfully',
             user
         });
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.status(500).json({
             success: false,
@@ -132,7 +132,7 @@ const changePassword = async (req , res) => {
     }
 }
 
-const forgetPassword = async  (req , res) => {
+const forgetPassword = async (req, res) => {
     try {
         const { email } = req.body;
 
@@ -149,23 +149,23 @@ const forgetPassword = async  (req , res) => {
         const expiryTime = Date.now() + 30 * 60 * 1000;
         user.resetToken = resetToken;
         user.resetTokenExpiry = expiryTime;
-        
+
         await user.save();
 
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-        
+
         await sendForgetPasswordEmail({
             to: user.email,
             name: user.name,
             resetLink,
             expiryTime: 30,
         });
-        
+
         res.status(200).json({
             success: true,
             message: 'Password reset email sent successfully'
         });
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.status(500).json({
             success: false,
@@ -211,8 +211,8 @@ const resetPassword = async (req, res) => {
     }
 };
 
-const verifyPassword = async (req , res) => {
-    try{
+const verifyPassword = async (req, res) => {
+    try {
         const { password } = req.body;
 
         const user = await User.findById(req.user.id);
@@ -237,7 +237,7 @@ const verifyPassword = async (req , res) => {
             success: true,
             message: 'Password verified successfully'
         });
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.status(500).json({
             success: false,
@@ -247,12 +247,12 @@ const verifyPassword = async (req , res) => {
     }
 }
 
-const changeDevicePassword = async (req , res) => {
-    try{
-        const { old_password , new_password } = req.body;
+const changeDevicePassword = async (req, res) => {
+    try {
+        const { old_password, new_password } = req.body;
         const device_uuid = req.params.device_uuid;
 
-        const device = await Device.findOne({device_uuid});
+        const device = await Device.findOne({ device_uuid });
 
         if (!device) {
             return res.status(404).json({
@@ -279,7 +279,7 @@ const changeDevicePassword = async (req , res) => {
             success: true,
             message: 'Password changed successfully'
         });
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.status(500).json({
             success: false,
@@ -289,11 +289,11 @@ const changeDevicePassword = async (req , res) => {
     }
 }
 
-const getDevice = async (req , res) => {
-    try{
+const getDevice = async (req, res) => {
+    try {
         const device_uuid = req.params.device_uuid;
 
-        const device = await Device.findOne({device_uuid});
+        const device = await Device.findOne({ device_uuid });
 
         device.device_pass = decrypt(device.device_pass);
 
@@ -309,7 +309,7 @@ const getDevice = async (req , res) => {
             message: 'Device found successfully',
             device
         });
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.status(500).json({
             success: false,

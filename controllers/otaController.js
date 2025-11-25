@@ -4,6 +4,14 @@ const fleetConnect = require('../fleetConnect');
 const getSingleOtaByDeviceUuid = async (req, res) => {
     try {
         const ota = await OTA.findOne({ device_uuid: req.params.device_uuid });
+
+        if(!ota){
+            res.status(200).json({
+                status: false,
+                message: "Ota Not Found",
+            })
+        }
+
         res.status(200).json({
             status: true,
             message: 'Ota found successfully',
