@@ -75,7 +75,7 @@ app.use('/api/testing', testingRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  res.status(200).json({ status: 'ok phase 2 test' });
 });
 
 // Start the server
