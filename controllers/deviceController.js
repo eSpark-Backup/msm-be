@@ -389,10 +389,13 @@ const getUserDevicesByUserId = async (req, res) => {
             }]
         });
 
+        const count = await UserDevices.countDocuments(query);
+
         if (device && device.length > 0) {
             res.status(200).json({
                 success: true,
                 message: "Devices found",
+                count,
                 data: device
             });
         } else {
