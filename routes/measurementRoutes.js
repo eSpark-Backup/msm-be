@@ -5,4 +5,6 @@ const measurementController = require('../controllers/measurementController');
 
 router.get('/:device_uuid/:command', verifyToken , measurementController.getMeasurement);
 
+router.put('/:device_uuid/:command', verifyToken , measurementController.updateMeasurement);
+
 module.exports = router;

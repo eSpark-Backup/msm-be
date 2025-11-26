@@ -787,6 +787,20 @@ class FleetConnect {
         console.log(`🔄 Version list command sent to ${deviceUuid}`);
     }
 
+    sendMeasurementConfig(deviceUuid , measurement){
+        const command =  measurement.command.replace(/^set-/ , '').replace(/-/g , '_');
+        console.log(command)
+        const topic = `msm/${deviceUuid}/sub/measurements/${command}`;
+        const message = {
+            device_uuid: deviceUuid,
+            data: [measurement]
+        };
+
+        this.publishMessage(topic, message);
+        socketService.emitToClients('measurement_info', measurement);
+        console.log(`🔄 Measurement config sent to ${deviceUuid}`);
+    }
+
     // Send NTP configuration to device
     sendNtpConfig(deviceUuid, ntpServers) {
         const topic = `msm/${deviceUuid}/sub/ntp`;
