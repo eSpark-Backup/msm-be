@@ -46,6 +46,8 @@ app.use(express.json());
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+console.log(process.env.MONGODB_URI)
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/msm', {
   useNewUrlParser: true,
@@ -75,7 +77,7 @@ app.use('/api/testing', testingRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok phase 2 test' });
+  res.status(200).json({ status: 'ok' });
 });
 
 // Start the server

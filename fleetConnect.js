@@ -35,7 +35,7 @@ class FleetConnect {
             'msm/+/pub/ota_info',          // Cloud ↔ Device: OTA info
             'msm/+/pub/mqtts',        // Cloud ↔ Device: MQTTs broker credentials
             'msm/+/pub/about',        // Cloud ↔ Device: About info
-            'msm/+/pub/measurements',
+            'msm/+/pub/measurements/#',
             
 
             // Shadow topics
@@ -259,13 +259,15 @@ class FleetConnect {
 
     async handleMeasurementsMessage(message , deviceUuid){
         try{
-            const measurements = message;
+            const measurements = message.data[0];
 
             console.log(measurements);
 
-            await Measurements.findOneAndUpdate({device_uuid : deviceUuid} , measurements , {upsert : true})
+            await Measurements.findOneAndUpdate({device_uuid : deviceUuid , command : measurements.command} , {
+                measurements : measurements.ct_ratio ?? measurements.i_offset ?? measurements.v_offset
+            } , {upsert : true})
 
-            socketService.emitToClients('measurements:' + deviceUuid ,  measurements.data)
+            socketService.emitToClients('measurements:' + deviceUuid ,  measurements)
             
             console.log('Measurements updated for ' , deviceUuid)
 

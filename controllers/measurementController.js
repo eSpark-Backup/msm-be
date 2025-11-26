@@ -4,8 +4,9 @@ const getMeasurement = async (req, res) => {
     try {
 
         const device_uuid = req.params.device_uuid;
+        const command = req.params.command;
 
-        const measurement = await Measurements.findOne({device_uuid});
+        const measurement = await Measurements.findOne({device_uuid , command});
         
         if (!measurement) {
             return res.status(404).json({
