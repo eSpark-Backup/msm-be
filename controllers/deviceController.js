@@ -198,8 +198,8 @@ const getAllUserDevices = async (req, res) => {
 
 const getAllAssignDevices = async (req, res) => {
     try {
+        const { search, page, limit, status_sort, created_sort, updated_sort } = req.query;
 
-        const { search, page, limit } = req.query;
         const query = { user_id: req.user._id };
 
         if (search) {
@@ -210,40 +210,76 @@ const getAllAssignDevices = async (req, res) => {
         const limitNum = Number(limit) || 0;
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
-        const devices = await UserDevices.find(query).skip(skip).limit(limitNum).populate("user_data").populate({
-            path: 'device_data',
-            populate: [{
-                path: 'groups_data',
-            }, {
-                path: 'device_data',
-                populate: { path: "ota" }
-            }]
-        });
+        // Build sort object for aggregation
+        let sortObj = {};
+        if (status_sort) sortObj['device_data.device_status'] = status_sort === "1" ? 1 : -1;
+        if (created_sort) sortObj['createdAt'] = created_sort === "1" ? 1 : -1;
+        if (updated_sort) sortObj['updatedAt'] = updated_sort === "1" ? 1 : -1;
+        if (Object.keys(sortObj).length === 0) sortObj['createdAt'] = -1;
+
+        // Aggregation pipeline
+        const devicesPipeline = [
+            { $match: query },
+            { $lookup: {
+                from: "devicedatas",        // Name of the device_data collection
+                localField: "device_data",
+                foreignField: "_id",
+                as: "device_data"
+            }},
+            { $unwind: { path: "$device_data", preserveNullAndEmptyArrays: true } },
+            { $lookup: {
+                from: "groupsdatas",        // Name of groups_data collection
+                localField: "device_data.groups_data",
+                foreignField: "_id",
+                as: "device_data.groups_data"
+            }},
+            { $lookup: {
+                from: "devicedatas",       // Nested device_data inside device_data
+                localField: "device_data.device_data",
+                foreignField: "_id",
+                as: "device_data.device_data"
+            }},
+            { $unwind: { path: "$device_data.device_data", preserveNullAndEmptyArrays: true } },
+            { $lookup: {
+                from: "otas",              // OTA collection
+                localField: "device_data.device_data.ota",
+                foreignField: "_id",
+                as: "device_data.device_data.ota"
+            }},
+            { $sort: sortObj },
+            { $skip: skip },
+        ];
+
+        if (limitNum) devicesPipeline.push({ $limit: limitNum });
+
+        const devices = await UserDevices.aggregate(devicesPipeline);
 
         const count = await UserDevices.countDocuments(query);
 
-        if (devices.length == 0) {
+        if (!devices.length) {
             return res.status(404).json({
                 success: false,
-                message: 'Devices Not Found'
-            })
+                message: "Devices Not Found"
+            });
         }
 
         res.status(200).json({
             success: true,
             message: "Devices found",
             count,
-            data: devices,
+            data: devices
         });
+
     } catch (error) {
         console.error("Error in Device Get All endpoint:", error);
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: error.message,
+            error: error.message
         });
     }
-}
+};
+
 
 const getSingleUserDevice = async (req, res) => {
     try {

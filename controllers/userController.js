@@ -6,7 +6,7 @@ const Role = require('../models/Role');
 
 const getAllUsers = async (req, res) => {
   try {
-    const { search, page, limit } = req.query;
+    const { search, page, limit, name_sort, created_sort, updated_sort } = req.query;
 
     const pageNum = Number(page) || 1;
     const limitNum = Number(limit) || 10;
@@ -15,13 +15,22 @@ const getAllUsers = async (req, res) => {
     const super_admin_role = await Role.findOne({ name: "super_admin" });
 
     const query = {
-        role_id: { $ne: super_admin_role._id },
-        _id: { $ne: req.user._id },
+      role_id: { $ne: super_admin_role._id },
+      _id: { $ne: req.user._id },
     };
 
     if (search) {
       query.name = { $regex: search, $options: "i" };
     }
+
+    // Build sort object
+    let sortObj = {};
+    if (name_sort) sortObj.name = name_sort === "1" ? 1 : -1;
+    if (created_sort) sortObj.createdAt = created_sort === "1" ? 1 : -1;
+    if (updated_sort) sortObj.updatedAt = updated_sort === "1" ? 1 : -1;
+
+    // Default sorting if no sort params
+    if (Object.keys(sortObj).length === 0) sortObj.createdAt = -1;
 
     const count = await User.countDocuments(query);
 
@@ -39,6 +48,7 @@ const getAllUsers = async (req, res) => {
           ]
         }
       })
+      .sort(sortObj)
       .skip(skip)
       .limit(limitNum);
 
@@ -47,6 +57,7 @@ const getAllUsers = async (req, res) => {
       count,              
       data: users,
     });
+
   } catch (error) {
     console.error("Error fetching users:", error);
     res.status(500).json({
