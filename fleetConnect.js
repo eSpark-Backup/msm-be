@@ -35,9 +35,10 @@ class FleetConnect {
             'msm/+/pub/ota_info',          // Cloud ↔ Device: OTA info
             'msm/+/pub/mqtts',        // Cloud ↔ Device: MQTTs broker credentials
             'msm/+/pub/about',        // Cloud ↔ Device: About info
-            'msm/+/pub/measurements/#',
+            'msm/+/pub/ct_ratio',
+            'msm/+/pub/i_offset',
+            'msm/+/pub/v_offset',
             
-
             // Shadow topics
             '$aws/things/+/shadow/update',
 
@@ -151,7 +152,15 @@ class FleetConnect {
                             await this.handleAboutMessage(message, deviceUuid);
                             this.updateShadow(deviceUuid, message, topicType);
                             break;
-                        case 'measurements':
+                        case 'ct_ratio':
+                            await this.handleMeasurementsMessage(message, deviceUuid);
+                            this.updateShadow(deviceUuid, message, topicType);
+                            break;
+                        case 'i_offset':
+                            await this.handleMeasurementsMessage(message, deviceUuid);
+                            this.updateShadow(deviceUuid, message, topicType);
+                            break;
+                        case 'v_offset':
                             await this.handleMeasurementsMessage(message, deviceUuid);
                             this.updateShadow(deviceUuid, message, topicType);
                             break;
@@ -260,8 +269,6 @@ class FleetConnect {
     async handleMeasurementsMessage(message , deviceUuid){
         try{
             const measurements = message.data[0];
-
-            console.log(measurements);
 
             await Measurements.findOneAndUpdate({device_uuid : deviceUuid , command : measurements.command} , {
                 measurements : measurements.ct_ratio ?? measurements.i_offset ?? measurements.v_offset

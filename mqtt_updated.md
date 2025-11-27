@@ -300,13 +300,14 @@
 
 ```
 
-msm/ESP90000005/pub/measurements/ct_ratio
-msm/ESP90000005/pub/measurements/i_offset
-msm/ESP90000005/pub/measurements/v_offset
+msm/ESP90000005/pub/ct_ratio
+msm/ESP90000005/pub/i_offset
+msm/ESP90000005/pub/v_offset
 
-msm/ESP90000005/sub/measurements/ct_ratio
-msm/ESP90000005/sub/measurements/i_offset
-msm/ESP90000005/sub/measurements/v_offset
+msm/ESP90000005/sub/ct_ratio
+msm/ESP90000005/sub/i_offset
+msm/ESP90000005/sub/v_offset
+
 
 {
   "device_uuid": "ESP90000005",
