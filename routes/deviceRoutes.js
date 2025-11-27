@@ -33,7 +33,7 @@ router.post('/:deviceId/reboot', deviceController.rebootDevice);
 router.get('/:deviceId', deviceController.getDeviceById);
 
 
-router.get('/public/:device_uuid', deviceController.getPublicDeviceByDeviceUuid);
+router.post('/verify/:device_uuid', deviceController.verifyDeviceByDeviceUuid);
 
 
 module.exports = router;

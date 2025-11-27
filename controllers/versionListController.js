@@ -7,7 +7,10 @@ const fleetConnect = require('../fleetConnect');
 const getVersionList = async (req, res) => {
     const client = new SftpClient();
     try {
-        const sftp = await Sftp.findOne({});
+        const device_uuid = req.params.device_uuid;
+
+        const sftp = await Sftp.findOne({device_uuid});
+        
         if (!sftp) {
             return res.status(404).json({
                 status: false,
@@ -21,7 +24,19 @@ const getVersionList = async (req, res) => {
 
         const list = await client.list('/ota-test');
 
-        const fileNames = list.map(file =>  path.parse(file.name).name);
+        const fileNames = list
+            .map(file => path.parse(file.name).name)
+            .sort((a, b) => {
+                const getParts = (str) => str.replace("MSM_", "").split('.').map(Number);
+                const A = getParts(a);
+                const B = getParts(b);
+                for (let i = 0; i < Math.max(A.length, B.length); i++) {
+                    if ((A[i] || 0) !== (B[i] || 0)) {
+                        return (A[i] || 0) - (B[i] || 0);
+                    }
+                }
+                return 0;
+            });
 
         await client.end();
 

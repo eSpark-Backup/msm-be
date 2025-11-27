@@ -611,7 +611,7 @@ const deleteDeviceByUserId = async (req, res) => {
     }
 }
 
-const getPublicDeviceByDeviceUuid = async (req, res) => {
+const verifyDeviceByDeviceUuid = async (req, res) => {
     try {
         const { device_uuid } = req.params;
         const device_data = await Device.findOne({ device_uuid: device_uuid }).populate('mqtt').populate('sftp').populate('ntp').populate('mqtts').populate('ota');
@@ -652,5 +652,5 @@ module.exports = {
     getUserDevicesByUserId,
     getAllAssignDevices,
     getSingleAssignDevice,
-    getPublicDeviceByDeviceUuid
+    verifyDeviceByDeviceUuid
 };

@@ -1,13 +1,13 @@
 // test-socket.js
 const { io } = require("socket.io-client");
 
-const socket = io("https://api.eincloud.ai/", {
-  transports: ["websocket"], 
-});
-
-// const socket = io("http://localhost:5000", {
+// const socket = io("https://stg.api.eincloud.ai/", {
 //   transports: ["websocket"], 
 // });
+
+const socket = io("http://localhost:5001", {
+  transports: ["websocket"], 
+});
 
 socket.on("connect", () => {
   console.log("Connected:", socket.id);
@@ -86,11 +86,17 @@ socket.on("connect", () => {
   //   console.log("about from server:", data);
   // });
 
-  socket.on("measurements:ESP90000005", (data) => {
+  socket.on("ct_ratio:ESP90000005", (data) => {
     console.log("measurements from server:", data);
   });
 
+  socket.on("v_offset:ESP90000005", (data) => {
+    console.log("measurements from server:", data);
+  });
 
+  socket.on("i_offset:ESP90000005", (data) => {
+    console.log("measurements from server:", data);
+  });
 
   // socket.emit("mqtt_protocol_stop" , { thing_name : "ESP90000005" });
 });

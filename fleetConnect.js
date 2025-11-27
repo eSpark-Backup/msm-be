@@ -274,7 +274,10 @@ class FleetConnect {
                 measurements : measurements.ct_ratio ?? measurements.i_offset ?? measurements.v_offset
             } , {upsert : true})
 
-            socketService.emitToClients('measurements:' + deviceUuid ,  measurements)
+
+            const command = this.getMeasurementCommand(measurements.command);
+
+            socketService.emitToClients(command + ':' + deviceUuid ,  measurements)
             
             console.log('Measurements updated for ' , deviceUuid)
 
@@ -794,17 +797,20 @@ class FleetConnect {
         console.log(`🔄 Version list command sent to ${deviceUuid}`);
     }
 
+    getMeasurementCommand(command){
+        return command.replace(/^set-/ , '').replace(/-/g , '_');
+    }
+
     sendMeasurementConfig(deviceUuid , measurement){
-        const command =  measurement.command.replace(/^set-/ , '').replace(/-/g , '_');
+        const command =  this.getMeasurementCommand(measurement.command);
         console.log(command)
-        const topic = `msm/${deviceUuid}/sub/measurements/${command}`;
+        const topic = `msm/${deviceUuid}/sub/${command}`;
         const message = {
             device_uuid: deviceUuid,
             data: [measurement]
         };
 
         this.publishMessage(topic, message);
-        socketService.emitToClients('measurement_info', measurement);
         console.log(`🔄 Measurement config sent to ${deviceUuid}`);
     }
 
