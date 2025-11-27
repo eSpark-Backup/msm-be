@@ -613,18 +613,57 @@ const deleteDeviceByUserId = async (req, res) => {
 
 const verifyDeviceByDeviceUuid = async (req, res) => {
     try {
-        const { device_uuid , device_imei } = req.body;
+        const { type ,  device_uuid , device_imei  } = req.body;
 
-        const device_available = await Device.findOne({ device_uuid , device_imei });
+        switch (type) {
+            case 'is_exists':
+                const device_available = await Device.findOne({ device_uuid });
+                if (device_available) {
 
-        if (device_available) {
-            return res.status(200).json({
-                success: true,
-                message: 'Device Found',
-                data: device_available
-            })
+                    const device_imei_available = await Device.findOne({ device_imei });
+
+                    if(device_imei_available){
+                        return res.status(200).json({
+                            success: true,
+                            message: 'Device Exists',
+                        })
+                    }
+
+                    return res.status(200).json({
+                        success: true,
+                        message: 'Device Exists',
+                    })
+                }else{
+                    return res.status(200).json({
+                        success: false,
+                        message: 'Device Not Exists'
+                    })
+                }
+            case 'register':
+                const is_exists = await Device.findOne({ device_uuid , device_imei });
+                if (is_exists) {
+                    return res.status(200).json({
+                        success: false,
+                        message: 'Device Already Registered',
+                        data: is_exists
+                    })
+                }
+
+                const device = await Device.create({ device_uuid , device_imei });
+
+                if(device){
+                    return res.status(200).json({
+                        success: true,
+                        message: 'Device Registered Successfully',
+                        data: device
+                    })
+                }
+            default:
+                return res.status(200).json({
+                    success: false,
+                    message: 'Invalid Type'
+                })
         }
-
     } catch (error) {
         console.error('Error in Device Get endpoint:', error);
         res.status(500).json({

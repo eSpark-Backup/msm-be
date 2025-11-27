@@ -6,7 +6,7 @@ const Role = require('../models/Role');
 
 const getAllUsers = async (req, res) => {
   try {
-    const { search, page, limit, name_sort, created_sort, updated_sort } = req.query;
+    const { search, page, limit, created_sort, devices_no } = req.query;
 
     const pageNum = Number(page) || 1;
     const limitNum = Number(limit) || 10;
@@ -23,18 +23,10 @@ const getAllUsers = async (req, res) => {
       query.name = { $regex: search, $options: "i" };
     }
 
-    // Build sort object
-    let sortObj = {};
-    if (name_sort) sortObj.name = name_sort === "1" ? 1 : -1;
-    if (created_sort) sortObj.createdAt = created_sort === "1" ? 1 : -1;
-    if (updated_sort) sortObj.updatedAt = updated_sort === "1" ? 1 : -1;
+    const createdSortValue = Number(created_sort) || -1;
 
-    // Default sorting if no sort params
-    if (Object.keys(sortObj).length === 0) sortObj.createdAt = -1;
-
-    const count = await User.countDocuments(query);
-
-    const users = await User.find(query)
+    // FETCH USERS
+    let users = await User.find(query)
       .populate("role")
       .populate("groupsData")
       .populate("devicesData")
@@ -44,17 +36,26 @@ const getAllUsers = async (req, res) => {
           path: "device_data",
           populate: [
             { path: "groups_data" },
-            { path: "device_data" }
-          ]
-        }
+            { path: "device_data" },
+          ],
+        },
       })
-      .sort(sortObj)
+      .sort({ createdAt: createdSortValue })
       .skip(skip)
-      .limit(limitNum);
+      .limit(limitNum)
+
+    // SORT BY TOTAL DEVICES COUNT (virtual field)
+    if (devices_no === "1") {
+      users.sort((a, b) => a.total_devices_count - b.total_devices_count);
+    } else if (devices_no === "-1") {
+      users.sort((a, b) => b.total_devices_count - a.total_devices_count);
+    }
+
+    const count = await User.countDocuments(query);
 
     res.status(200).json({
       success: true,
-      count,              
+      count,
       data: users,
     });
 
@@ -67,6 +68,7 @@ const getAllUsers = async (req, res) => {
     });
   }
 };
+
 
 
 // Get single user by ID

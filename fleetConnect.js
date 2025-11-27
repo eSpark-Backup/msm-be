@@ -985,7 +985,7 @@ class FleetConnect {
                 };
             }
 
-            await Device.findOneAndUpdate(
+            const device = await Device.findOneAndUpdate(
                 { device_uuid: deviceUuid },
                 updateData,
                 { upsert: true, new: true }
