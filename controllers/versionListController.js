@@ -7,9 +7,9 @@ const fleetConnect = require('../fleetConnect');
 const getVersionList = async (req, res) => {
     const client = new SftpClient();
     try {
-        const device_uuid = req.params.device_uuid;
+        // const device_uuid = req.params.device_uuid;
 
-        const sftp = await Sftp.findOne({device_uuid});
+        const sftp = await Sftp.findOne({});
         
         if (!sftp) {
             return res.status(404).json({

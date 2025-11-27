@@ -3,11 +3,11 @@ const router = express.Router();
 const versionListController = require('../controllers/versionListController');
 const verifyToken = require('../middleware/verifyToken')
 
-router.get('/:device_uuid', verifyToken, (req, res) => {
+router.get('/', verifyToken, (req, res) => {
     versionListController.getVersionList(req, res);
 });
 
-router.put('/device_uuid', verifyToken, (req, res) => {
+router.put('/', verifyToken, (req, res) => {
     versionListController.updateVersionList(req, res);
 });
 

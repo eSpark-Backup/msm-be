@@ -613,20 +613,18 @@ const deleteDeviceByUserId = async (req, res) => {
 
 const verifyDeviceByDeviceUuid = async (req, res) => {
     try {
-        const { device_uuid } = req.params;
-        const device_data = await Device.findOne({ device_uuid: device_uuid }).populate('mqtt').populate('sftp').populate('ntp').populate('mqtts').populate('ota');
-        if (!device_data) {
-            return res.status(404).json({
-                success: false,
-                message: 'Device Not Found'
+        const { device_uuid , device_imei } = req.body;
+
+        const device_available = await Device.findOne({ device_uuid , device_imei });
+
+        if (device_available) {
+            return res.status(200).json({
+                success: true,
+                message: 'Device Found',
+                data: device_available
             })
         }
 
-        res.status(200).json({
-            success: true,
-            message: 'Device found',
-            data: device_data
-        })
     } catch (error) {
         console.error('Error in Device Get endpoint:', error);
         res.status(500).json({
