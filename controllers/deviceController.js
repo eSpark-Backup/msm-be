@@ -106,7 +106,7 @@ const getAllDevices = async (req, res) => {
 const getAllUserDevices = async (req, res) => {
     try {
 
-        const { search, page, limit , status_sort , created_sort , updated_sort } = req.query;
+        const { search, page, limit, status_sort, created_sort, updated_sort } = req.query;
         const query = {};
 
         if (req.user.role.name !== "super_admin") {
@@ -121,9 +121,9 @@ const getAllUserDevices = async (req, res) => {
         const limitNum = Number(limit) || 0;
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
-        const statusOrder = status_sort ? status_sort === '1' ? 1 : -1 : -1 ;
-        const createdOrder = created_sort ? created_sort === '1' ? 1 : -1 : -1 ;
-        const updatedOrder = updated_sort ? updated_sort === '1' ? 1 : -1 : -1 ;
+        const statusOrder = status_sort ? status_sort === '1' ? 1 : -1 : -1;
+        const createdOrder = created_sort ? created_sort === '1' ? 1 : -1 : -1;
+        const updatedOrder = updated_sort ? updated_sort === '1' ? 1 : -1 : -1;
 
 
         const pipeline = [
@@ -161,10 +161,10 @@ const getAllUserDevices = async (req, res) => {
             },
 
             // Sort by device_data.device_status
-            { $sort: { "device_data.device_status": statusOrder, "createdAt": createdOrder , "updatedAt": updatedOrder } },
+            { $sort: { "device_data.device_status": statusOrder, "createdAt": createdOrder, "updatedAt": updatedOrder } },
         ];
 
-        if(limitNum != 0){
+        if (limitNum != 0) {
             pipeline.push({ $skip: skip }, { $limit: limitNum });
         }
 
@@ -220,32 +220,40 @@ const getAllAssignDevices = async (req, res) => {
         // Aggregation pipeline
         const devicesPipeline = [
             { $match: query },
-            { $lookup: {
-                from: "devicedatas",        // Name of the device_data collection
-                localField: "device_data",
-                foreignField: "_id",
-                as: "device_data"
-            }},
+            {
+                $lookup: {
+                    from: "devicedatas",        // Name of the device_data collection
+                    localField: "device_data",
+                    foreignField: "_id",
+                    as: "device_data"
+                }
+            },
             { $unwind: { path: "$device_data", preserveNullAndEmptyArrays: true } },
-            { $lookup: {
-                from: "groupsdatas",        // Name of groups_data collection
-                localField: "device_data.groups_data",
-                foreignField: "_id",
-                as: "device_data.groups_data"
-            }},
-            { $lookup: {
-                from: "devicedatas",       // Nested device_data inside device_data
-                localField: "device_data.device_data",
-                foreignField: "_id",
-                as: "device_data.device_data"
-            }},
+            {
+                $lookup: {
+                    from: "groupsdatas",        // Name of groups_data collection
+                    localField: "device_data.groups_data",
+                    foreignField: "_id",
+                    as: "device_data.groups_data"
+                }
+            },
+            {
+                $lookup: {
+                    from: "devicedatas",       // Nested device_data inside device_data
+                    localField: "device_data.device_data",
+                    foreignField: "_id",
+                    as: "device_data.device_data"
+                }
+            },
             { $unwind: { path: "$device_data.device_data", preserveNullAndEmptyArrays: true } },
-            { $lookup: {
-                from: "otas",              // OTA collection
-                localField: "device_data.device_data.ota",
-                foreignField: "_id",
-                as: "device_data.device_data.ota"
-            }},
+            {
+                $lookup: {
+                    from: "otas",              // OTA collection
+                    localField: "device_data.device_data.ota",
+                    foreignField: "_id",
+                    as: "device_data.device_data.ota"
+                }
+            },
             { $sort: sortObj },
             { $skip: skip },
         ];
@@ -301,7 +309,7 @@ const getSingleUserDevice = async (req, res) => {
             query.user_id = req.user._id;
         }
 
-        const userDevice = await AddDevice.findOne(query).populate({path:"device_data", populate: { path: "ota" }}).populate("groups_data");
+        const userDevice = await AddDevice.findOne(query).populate({ path: "device_data", populate: { path: "ota" } }).populate("groups_data");
 
         if (userDevice) {
             res.status(200).json({
@@ -613,66 +621,110 @@ const deleteDeviceByUserId = async (req, res) => {
 
 const verifyDeviceByDeviceUuid = async (req, res) => {
     try {
-        const { type ,  device_uuid , device_imei  } = req.body;
+        const { device_uuid, device_imei, device_pass } = req.body;
 
-        switch (type) {
-            case 'is_exists':
-                const device_available = await Device.findOne({ device_uuid });
-                if (device_available) {
-
-                    const device_imei_available = await Device.findOne({ device_imei });
-
-                    if(device_imei_available){
-                        return res.status(200).json({
-                            success: true,
-                            message: 'Device Exists',
-                        })
-                    }
-
-                    return res.status(200).json({
-                        success: true,
-                        message: 'Device Exists',
-                    })
-                }else{
-                    return res.status(200).json({
-                        success: false,
-                        message: 'Device Not Exists'
-                    })
-                }
-            case 'register':
-                const is_exists = await Device.findOne({ device_uuid , device_imei });
-                if (is_exists) {
-                    return res.status(200).json({
-                        success: false,
-                        message: 'Device Already Registered',
-                        data: is_exists
-                    })
-                }
-
-                const device = await Device.create({ device_uuid , device_imei });
-
-                if(device){
-                    return res.status(200).json({
-                        success: true,
-                        message: 'Device Registered Successfully',
-                        data: device
-                    })
-                }
-            default:
-                return res.status(200).json({
-                    success: false,
-                    message: 'Invalid Type'
-                })
+        if (!device_uuid || !device_imei || !device_pass) {
+            return res.status(400).json({
+                success: false,
+                error_code: 400,
+                message: "Missing required fields"
+            });
         }
+
+        const device = await Device.findOne({ device_uuid })
+            .populate('ota')
+            .populate('measurements')
+            .populate('ntp')
+            .populate('sftp')
+            .populate('mqtt')
+            .populate('mqtts');
+
+        if (!device) {
+            return res.status(404).json({
+                success: false,
+                error_code: 404,
+                message: "Device Not Exists"
+            });
+        }
+
+        if (decrypt(device.device_pass) !== device_pass) {
+            return res.status(401).json({
+                success: false,
+                error_code: 401,
+                message: "Unauthorized"
+            });
+        }
+
+        if (device.device_imei) {
+            return res.status(409).json({
+                success: false,
+                error_code: 409,
+                message: "Device Already Registered"
+            });
+        }
+
+        device.device_imei = device_imei;
+        await device.save();
+
+        return res.status(200).json({
+            success: true,
+            error_code: 200,
+            message: "Registered",
+            data: device
+        });
+
     } catch (error) {
-        console.error('Error in Device Get endpoint:', error);
-        res.status(500).json({
+        console.error("Error in Device Get endpoint:", error);
+        return res.status(500).json({
             success: false,
-            message: 'Internal Server Error',
+            error_code: 500,
+            message: "Internal Server Error",
             error: error.message,
+        });
+    }
+};
+
+const unasignDevice = async (req, res) => {
+    try {
+
+        const device_uuid = req.params.device_uuid;
+
+        const device = await Device.findOne({ device_uuid });
+
+        console.log(device_uuid);
+
+        if (!device) {
+            return res.status(404).json({
+                success: false,
+                message: "Device Not Found",
+            })
+        }
+
+        if(!device.device_imei){
+            return res.status(409).json({
+                success:false,
+                message: "Already Unattached"
+            })
+        }
+
+        device.device_imei = null;
+
+        await device.save();
+
+        return res.status(200).json({
+            success:true,
+            message:"Imei Unattached"
+        })
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: err.message
         })
     }
 }
+
 
 
 module.exports = {
@@ -689,5 +741,6 @@ module.exports = {
     getUserDevicesByUserId,
     getAllAssignDevices,
     getSingleAssignDevice,
-    verifyDeviceByDeviceUuid
+    verifyDeviceByDeviceUuid,
+    unasignDevice
 };

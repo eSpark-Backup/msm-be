@@ -135,7 +135,9 @@
             "sftp_status": false,
             "ntp_status": "true",
             "gsm_status": "true",
-            "device_pass": "abc123"
+            "device_pass": "abc123",
+            "hardware_version":  "string",
+            "firmware_version": "string",
         }
     ]
 }

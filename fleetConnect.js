@@ -497,6 +497,8 @@ class FleetConnect {
                 sftp_status: deviceInfo.sftp_status,
                 ntp_status: deviceInfo.ntp_status,
                 gsm_status: deviceInfo.gsm_status,
+                hardware_version: deviceInfo.hardware_version,
+                firmware_version: deviceInfo.firmware_version
             });
 
         } catch (error) {

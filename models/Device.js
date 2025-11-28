@@ -10,11 +10,11 @@ const deviceSchema = new mongoose.Schema({
   },
   device_pass: {
     type: String,
-    required:true
+    required: true
   },
   device_imei: {
     type: String,
-    required: true
+    required: false
   },
   device_ip: {
     type: String,
@@ -43,24 +43,32 @@ const deviceSchema = new mongoose.Schema({
   device_status_updated_at: {
     type: Date,
     default: Date.now
-  }
+  },
+  hardware_version: {
+    type: String,
+    required: false
+  },
+  firmware_version: {
+    type: String,
+    required: false
+  },
 },
   {
     timestamps: true,
-    toJSON: {virtuals: true},
-    toObject: {virtuals: true}
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
   }
 );
 
 
-deviceSchema.pre('save' , async function(next){
-    if(this.isModified('device_pass')){
-        this.device_pass = encrypt(this.device_pass);
-    }
-    next();
+deviceSchema.pre('save', async function (next) {
+  if (this.isModified('device_pass')) {
+    this.device_pass = encrypt(this.device_pass);
+  }
+  next();
 })
 
-deviceSchema.pre('findOneAndUpdate', async function(next) {
+deviceSchema.pre('findOneAndUpdate', async function (next) {
   const update = this.getUpdate();
 
   if (update.device_pass) {
@@ -71,32 +79,38 @@ deviceSchema.pre('findOneAndUpdate', async function(next) {
   next();
 });
 
-deviceSchema.virtual('sftp' , {
-    ref: 'SFTP',
-    localField: 'device_uuid',
-    foreignField: 'device_uuid'
-})
-
-deviceSchema.virtual('mqtt' , {
-    ref: 'MQTT',
-    localField: 'device_uuid',
-    foreignField: 'device_uuid'
-})
-
-deviceSchema.virtual('ntp' , {
-  ref : 'NTP',
+deviceSchema.virtual('sftp', {
+  ref: 'SFTP',
   localField: 'device_uuid',
   foreignField: 'device_uuid'
 })
 
-deviceSchema.virtual('mqtts' , {
-  ref : 'MqttS',
+deviceSchema.virtual('mqtt', {
+  ref: 'MQTT',
   localField: 'device_uuid',
   foreignField: 'device_uuid'
 })
 
-deviceSchema.virtual('ota' , {
-  ref : 'OTA',
+deviceSchema.virtual('ntp', {
+  ref: 'NTP',
+  localField: 'device_uuid',
+  foreignField: 'device_uuid'
+})
+
+deviceSchema.virtual('mqtts', {
+  ref: 'MqttS',
+  localField: 'device_uuid',
+  foreignField: 'device_uuid'
+})
+
+deviceSchema.virtual('ota', {
+  ref: 'OTA',
+  localField: 'device_uuid',
+  foreignField: 'device_uuid'
+})
+
+deviceSchema.virtual('measurements', {
+  ref: 'Measurements',
   localField: 'device_uuid',
   foreignField: 'device_uuid'
 })

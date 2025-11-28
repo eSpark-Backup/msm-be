@@ -12,6 +12,8 @@ router.put("/user", verifyToken, deviceController.updateDevice);
 
 router.delete("/user/:device_uuid", verifyToken, deviceController.deleteDevice);
 
+router.delete("/unassign_imei/:device_uuid", verifyToken, deviceController.unasignDevice);
+
 router.put("/user/:device_uuid", verifyToken, deviceController.updateDevice);
 
 router.get("/user", verifyToken, deviceController.getAllUserDevices);

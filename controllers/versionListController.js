@@ -76,8 +76,32 @@ const updateVersionList = async (req, res) => {
     }
 };
 
+const exportAllVersionList = async (req , res) => {
+    try{
+
+    }catch(error){
+        res.status(500).json({
+            ststus:false,
+            message: "Internal Server Error"
+        })
+    }
+}
+
+const uploadFileToSftp = async (req , res) => {
+    try{
+
+    }catch(error){
+        res.status(500).json({
+            ststus:false,
+            message: "Internal Server Error"
+        })
+    }
+}
+
 
 module.exports = {
     getVersionList,
-    updateVersionList
+    updateVersionList,
+    exportAllVersionList,
+    uploadFileToSftp
 };
