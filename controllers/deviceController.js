@@ -151,6 +151,14 @@ const getAllUserDevices = async (req, res) => {
                 }
             },
 
+            {
+                $addFields: {
+                    imei_empty_flag: {
+                        $cond: [{ $in: ["$device_data.device_imei", ["", null]] }, 1, 0]
+                    }
+                }
+            },
+
             // Lookup OTA
             {
                 $lookup: {
@@ -162,16 +170,12 @@ const getAllUserDevices = async (req, res) => {
             }
         ];
 
+
         // Handle status filter
         if (status_sort === '0') {
             // Only devices with empty IMEI
             pipeline.push({
                 $match: { "device_data.device_imei": "" }
-            });
-        } else if (status_sort === '1' || status_sort === '-1') {
-            // Exclude devices with empty IMEI
-            pipeline.push({
-                $match: { "device_data.device_imei": { $ne: "" } }
             });
         }
 
@@ -187,6 +191,12 @@ const getAllUserDevices = async (req, res) => {
         if (updatedOrder === 1 || updatedOrder === -1) {
             sortObj["updatedAt"] = updatedOrder;
         }
+
+        if (updatedOrder === 1 || updatedOrder === -1) {
+            sortObj["imei_empty_flag"] = 1;
+        }
+
+        console.log(sortObj)
 
         if (Object.keys(sortObj).length > 0) {
             pipeline.push({ $sort: sortObj });
