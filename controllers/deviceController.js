@@ -151,14 +151,6 @@ const getAllUserDevices = async (req, res) => {
                 }
             },
 
-            {
-                $addFields: {
-                    imei_empty_flag: {
-                        $cond: [{ $in: ["$device_data.device_imei", ["", null]] }, 1, 0]
-                    }
-                }
-            },
-
             // Lookup OTA
             {
                 $lookup: {
@@ -167,42 +159,29 @@ const getAllUserDevices = async (req, res) => {
                     foreignField: "device_uuid",
                     as: "device_data.ota"
                 }
-            }
+            },
+
+            {$sort : {'createdAt' : createdOrder , 'updatedAt' : updatedOrder }}
         ];
 
-        if (status_sort === '0') {
-            pipeline.push({
-                $match: { "device_data.device_imei": "" }
-            });
-        }else if(status_sort === '-1' || status_sort === '1'){
-            pipeline.push({
-                $match: { "device_data.device_imei": { $ne: "" } }
-            });
+        switch (statusOrder){
+            case '0':
+                pipeline.push({
+                    $match: { "device_data.device_imei": "" }
+                });
+                break;
+            case '-1':
+                pipeline.push({
+                    $match: { "device_data.device_status": true }
+                });
+                break;
+            case '1':
+                pipeline.push({
+                    $match: { "device_data.device_status": false }
+                });
+                break;
         }
 
-        // Build sort object safely
-        const sortObj = {};
-        if (statusOrder === 1 || statusOrder === -1) {
-            sortObj["device_data.device_status"] = statusOrder;
-        }
-        if (createdOrder === 1 || createdOrder === -1) {
-            sortObj["createdAt"] = createdOrder;
-        }
-        if (updatedOrder === 1 || updatedOrder === -1) {
-            sortObj["updatedAt"] = updatedOrder;
-        }
-
-        if (updatedOrder === 1 || updatedOrder === -1) {
-            sortObj["imei_empty_flag"] = 1;
-        }
-
-        console.log(sortObj)
-
-        if (Object.keys(sortObj).length > 0) {
-            pipeline.push({ $sort: sortObj });
-        }
-
-        // Pagination
         if (limitNum !== 0) {
             pipeline.push({ $skip: skip }, { $limit: limitNum });
         }
