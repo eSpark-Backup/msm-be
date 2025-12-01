@@ -105,14 +105,15 @@ const getAllDevices = async (req, res) => {
 
 const getAllUserDevices = async (req, res) => {
     try {
-
         const { search, page, limit, status_sort, created_sort, updated_sort } = req.query;
         const query = {};
 
+        // Restrict to user devices if not super_admin
         if (req.user.role.name !== "super_admin") {
             query.user_id = req.user._id;
         }
 
+        // Search by name
         if (search) {
             query.name = { $regex: search, $options: "i" };
         }
@@ -121,10 +122,10 @@ const getAllUserDevices = async (req, res) => {
         const limitNum = Number(limit) || 0;
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
-        const statusOrder = status_sort ? status_sort === '1' ? 1 : -1 : -1;
-        const createdOrder = created_sort ? created_sort === '1' ? 1 : -1 : -1;
-        const updatedOrder = updated_sort ? updated_sort === '1' ? 1 : -1 : -1;
-
+        // Determine sort orders (1 or -1)
+        const statusOrder = status_sort === '1' ? 1 : status_sort === '0' ? 0 : -1;
+        const createdOrder = created_sort === '1' ? 1 : -1;
+        const updatedOrder = updated_sort === '1' ? 1 : -1;
 
         const pipeline = [
             { $match: query },
@@ -150,7 +151,7 @@ const getAllUserDevices = async (req, res) => {
                 }
             },
 
-            // Lookup OTA (NOW device_data fields are available)
+            // Lookup OTA
             {
                 $lookup: {
                     from: "otas",
@@ -158,26 +159,59 @@ const getAllUserDevices = async (req, res) => {
                     foreignField: "device_uuid",
                     as: "device_data.ota"
                 }
-            },
-
-            // Sort by device_data.device_status
-            { $sort: { "device_data.device_status": statusOrder, "createdAt": createdOrder, "updatedAt": updatedOrder } },
+            }
         ];
 
-        if (limitNum != 0) {
+        // If status_sort is '0', filter devices with empty IMEI
+        if (status_sort === '0') {
+            pipeline.push({
+                $match: { "device_data.device_imei": "" }
+            });
+        }
+
+        // Build sort object safely
+        const sortObj = {};
+        if (statusOrder === 1 || statusOrder === -1) {
+            sortObj["device_data.device_status"] = statusOrder;
+        }
+        if (createdOrder === 1 || createdOrder === -1) {
+            sortObj["createdAt"] = createdOrder;
+        }
+        if (updatedOrder === 1 || updatedOrder === -1) {
+            sortObj["updatedAt"] = updatedOrder;
+        }
+
+        if (Object.keys(sortObj).length > 0) {
+            pipeline.push({ $sort: sortObj });
+        }
+
+        // Pagination
+        if (limitNum !== 0) {
             pipeline.push({ $skip: skip }, { $limit: limitNum });
         }
 
         const devices = await AddDevice.aggregate(pipeline);
 
+        const countPipeline = [...pipeline];
 
-        const count = await AddDevice.countDocuments(query);
+        // Remove pagination
+        countPipeline.forEach((stage, index) => {
+            if (stage.$skip || stage.$limit) {
+                countPipeline.splice(index, 1);
+            }
+        });
 
-        if (devices.length == 0) {
+        // Add $count stage
+        countPipeline.push({ $count: "total" });
+
+        const countResult = await AddDevice.aggregate(countPipeline);
+        const count = countResult[0] ? countResult[0].total : 0;
+
+        if (devices.length === 0) {
             return res.status(404).json({
                 success: false,
                 message: 'Devices Not Found'
-            })
+            });
         }
 
         res.status(200).json({
@@ -186,6 +220,7 @@ const getAllUserDevices = async (req, res) => {
             count,
             data: devices,
         });
+
     } catch (error) {
         console.error("Error in Device Get All endpoint:", error);
         res.status(500).json({
@@ -194,7 +229,8 @@ const getAllUserDevices = async (req, res) => {
             error: error.message,
         });
     }
-}
+};
+
 
 const getAllAssignDevices = async (req, res) => {
     try {
@@ -222,8 +258,8 @@ const getAllAssignDevices = async (req, res) => {
             { $match: query },
             {
                 $lookup: {
-                    from: "devicedatas",        // Name of the device_data collection
-                    localField: "device_data",
+                    from: "adddevices",        // Name of the device_data collection
+                    localField: "device_id",
                     foreignField: "_id",
                     as: "device_data"
                 }
@@ -231,16 +267,16 @@ const getAllAssignDevices = async (req, res) => {
             { $unwind: { path: "$device_data", preserveNullAndEmptyArrays: true } },
             {
                 $lookup: {
-                    from: "groupsdatas",        // Name of groups_data collection
-                    localField: "device_data.groups_data",
+                    from: "groups",        // Name of groups_data collection
+                    localField: "device_data.group_id",
                     foreignField: "_id",
                     as: "device_data.groups_data"
                 }
             },
             {
                 $lookup: {
-                    from: "devicedatas",       // Nested device_data inside device_data
-                    localField: "device_data.device_data",
+                    from: "devices",       // Nested device_data inside device_data
+                    localField: "device_data.device_id",
                     foreignField: "_id",
                     as: "device_data.device_data"
                 }
@@ -249,8 +285,8 @@ const getAllAssignDevices = async (req, res) => {
             {
                 $lookup: {
                     from: "otas",              // OTA collection
-                    localField: "device_data.device_data.ota",
-                    foreignField: "_id",
+                    localField: "device_data.device_data.device_uuid",
+                    foreignField: "device_uuid",
                     as: "device_data.device_data.ota"
                 }
             },

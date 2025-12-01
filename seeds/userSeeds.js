@@ -23,7 +23,7 @@ const seedUsers = async () => {
         const superAdminUser = {
             name: 'Super Admin',
             email: 'eintechnologylabs@gmail.com',
-            password: 'SuperAdmin123!', // This will be hashed by the pre-save hook
+            password: 'SuperAdmin007!', // This will be hashed by the pre-save hook
             role_id: superAdminRole._id,
             description: 'System Super Administrator',
         };
