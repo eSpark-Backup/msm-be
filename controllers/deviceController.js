@@ -165,19 +165,19 @@ const getAllUserDevices = async (req, res) => {
         ];
 
         switch (statusOrder){
-            case '0':
+            case 0:
                 pipeline.push({
                     $match: { "device_data.device_imei": "" }
                 });
                 break;
-            case '-1':
+            case -1:
                 pipeline.push({
-                    $match: { "device_data.device_status": true }
+                    $match: { "device_data.device_status": true , "device_data.device_imei": { $ne: "" } }
                 });
                 break;
-            case '1':
+            case 1:
                 pipeline.push({
-                    $match: { "device_data.device_status": false }
+                    $match: { "device_data.device_status": false , "device_data.device_imei": { $ne: "" } }
                 });
                 break;
         }
