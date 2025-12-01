@@ -1062,6 +1062,8 @@ class FleetConnect {
                 sftp_status: info.sftp_status,
                 ntp_status: info.ntp_status,
                 gsm_status: info.gsm_status,
+                hardware_version: info.hardware_version,
+                firmware_version: info.firmware_version
             };
 
             const device = await Device.findOneAndUpdate(
