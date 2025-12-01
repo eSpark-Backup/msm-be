@@ -174,7 +174,7 @@ const getAllUserDevices = async (req, res) => {
             pipeline.push({
                 $match: { "device_data.device_imei": "" }
             });
-        }else if(status_sort === '-1' || status_sort === '0'){
+        }else if(status_sort === '-1' || status_sort === '1'){
             pipeline.push({
                 $match: { "device_data.device_imei": { $ne: "" } }
             });
