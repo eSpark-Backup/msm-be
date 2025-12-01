@@ -123,7 +123,18 @@ const getAllUserDevices = async (req, res) => {
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
         // Determine sort orders (1 or -1)
-        const statusOrder = status_sort === '1' ? 1 : status_sort === '0' ? 0 : -1;
+       let statusOrder;
+
+        if (!status_sort) {
+            // Status parameter missing → get ALL
+            statusOrder = -2;
+        } else if (status_sort === '1') {
+            statusOrder = 1;
+        } else if (status_sort === '0') {
+            statusOrder = 0;
+        } else {
+            statusOrder = -1; 
+        }
         const createdOrder = created_sort === '1' ? 1 : -1;
         const updatedOrder = updated_sort === '1' ? 1 : -1;
 
