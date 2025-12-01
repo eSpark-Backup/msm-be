@@ -707,7 +707,7 @@ const unasignDevice = async (req, res) => {
             })
         }
 
-        device.device_imei = null;
+        device.device_imei = "";
 
         await device.save();
 
