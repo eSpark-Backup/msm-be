@@ -289,6 +289,11 @@ const getAllAssignDevices = async (req, res) => {
                 }
             },
             { $unwind: { path: "$device_data.device_data", preserveNullAndEmptyArrays: true } },
+                {
+                $match: {
+                    "device_data.device_data.device_imei": { $nin: ["", null] }
+                }
+            },
             {
                 $lookup: {
                     from: "otas",              // OTA collection
