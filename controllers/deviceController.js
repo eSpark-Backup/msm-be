@@ -162,12 +162,19 @@ const getAllUserDevices = async (req, res) => {
             }
         ];
 
-        // If status_sort is '0', filter devices with empty IMEI
+        // Handle status filter
         if (status_sort === '0') {
+            // Only devices with empty IMEI
             pipeline.push({
                 $match: { "device_data.device_imei": "" }
             });
+        } else if (status_sort === '1' || status_sort === '-1') {
+            // Exclude devices with empty IMEI
+            pipeline.push({
+                $match: { "device_data.device_imei": { $ne: "" } }
+            });
         }
+
 
         // Build sort object safely
         const sortObj = {};
