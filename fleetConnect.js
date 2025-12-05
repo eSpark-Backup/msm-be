@@ -401,7 +401,7 @@ class FleetConnect {
                             line_voltage: phaseData.general?.line_voltage,
                             rms_voltage: phaseData.general?.rms_voltage,
                             frequency: phaseData.general?.frequency,
-                            current: phaseData.general?.current,
+                            current: 3,
     
                             // Power measurements
                             power_factor: phaseData.power?.factor,
