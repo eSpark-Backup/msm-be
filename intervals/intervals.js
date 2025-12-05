@@ -140,7 +140,7 @@ class DeviceIntervals {
                 line_voltage: value,
                 rms_voltage: value,
                 frequency: value,
-                current: value
+                current: new Date().getTime()
             },
             power: {
                 factor: value,
