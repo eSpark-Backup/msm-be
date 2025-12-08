@@ -214,7 +214,7 @@ const getAllUserDevices = async (req, res) => {
         pipeline.push({
             $sort: {
                 "device_data.device_status": -1,
-                "device_data.device_imei": 1, 
+                "device_data.device_imei": -1, 
                 createdAt: createdOrder,
                 updatedAt: updatedOrder
             }
