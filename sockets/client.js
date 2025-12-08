@@ -1,13 +1,13 @@
 // test-socket.js
 const { io } = require("socket.io-client");
 
-// const socket = io("https://stg.api.eincloud.ai/", {
-//   transports: ["websocket"], 
-// });
-
-const socket = io("http://localhost:5001", {
+const socket = io("https://stg.api.eincloud.ai/", {
   transports: ["websocket"], 
 });
+
+// const socket = io("http://localhost:5001", {
+//   transports: ["websocket"], 
+// });
 
 socket.on("connect", () => {
   console.log("Connected:", socket.id);
@@ -29,10 +29,10 @@ socket.on("connect", () => {
   });
 
   // common telemetry
-  // socket.on("telemetry:ESP90000005:channels:1to6", (data) => {
-  //   console.log("channels data 1 to 6:");
-  //   console.log(data)
-  // });
+  socket.on("telemetry:ESP90000005:channels:1to6", (data) => {
+    console.log("channels data 1 to 6:");
+    console.log(data)
+  });
 
   // socket.on("telemetry:ESP90000005:channels:7to12", (data) => {
   //   console.log("channels data 7 to 12:");
@@ -86,17 +86,17 @@ socket.on("connect", () => {
   //   console.log("about from server:", data);
   // });
 
-  socket.on("ct_ratio:ESP90000005", (data) => {
-    console.log("measurements from server:", data);
-  });
+  // socket.on("ct_ratio:ESP90000005", (data) => {
+  //   console.log("measurements from server:", data);
+  // });
 
-  socket.on("v_offset:ESP90000005", (data) => {
-    console.log("measurements from server:", data);
-  });
+  // socket.on("v_offset:ESP90000005", (data) => {
+  //   console.log("measurements from server:", data);
+  // });
 
-  socket.on("i_offset:ESP90000005", (data) => {
-    console.log("measurements from server:", data);
-  });
+  // socket.on("i_offset:ESP90000005", (data) => {
+  //   console.log("measurements from server:", data);
+  // });
 
   // socket.emit("mqtt_protocol_stop" , { thing_name : "ESP90000005" });
 });

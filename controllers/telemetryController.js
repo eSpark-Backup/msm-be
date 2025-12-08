@@ -132,14 +132,14 @@ const getTelemetryByDeviceAndChannel = async (req, res) => {
       {
         $project: {
           latest: 1,
-          avg_power_factor: { $round: ["$avg_power_factor", 0] },
-          avg_active_power: { $round: ["$avg_active_power", 0] },
-          avg_reactive_power: { $round: ["$avg_reactive_power", 0] },
-          avg_apparent_power: { $round: ["$avg_apparent_power", 0] },
-          avg_active_energy_positive: { $round: ["$avg_active_energy_positive", 0] },
-          avg_active_energy_negative: { $round: ["$avg_active_energy_negative", 0] },
-          avg_reactive_energy_positive: { $round: ["$avg_reactive_energy_positive", 0] },
-          avg_reactive_energy_negative: { $round: ["$avg_reactive_energy_negative", 0] },
+          avg_power_factor: "$avg_power_factor",
+          avg_active_power: "$avg_active_power",
+          avg_reactive_power: "$avg_reactive_power",
+          avg_apparent_power: "$avg_apparent_power",
+          avg_active_energy_positive: "$avg_active_energy_positive",
+          avg_active_energy_negative: "$avg_active_energy_negative",
+          avg_reactive_energy_positive: "$avg_reactive_energy_positive",
+          avg_reactive_energy_negative: "$avg_reactive_energy_negative",
         },
       },
       {
