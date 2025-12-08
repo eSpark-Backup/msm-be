@@ -226,17 +226,9 @@ const getAllUserDevices = async (req, res) => {
 
         const devices = await AddDevice.aggregate(pipeline);
 
-        const countPipeline = [...pipeline];
-
-        // Remove pagination
-        countPipeline.forEach((stage, index) => {
-            if (stage.$skip || stage.$limit) {
-                countPipeline.splice(index, 1);
-            }
-        });
-
-        // Add $count stage
+        const countPipeline = pipeline.filter(stage => !stage.$skip && !stage.$limit);
         countPipeline.push({ $count: "total" });
+
 
         const countResult = await AddDevice.aggregate(countPipeline);
         const count = countResult[0] ? countResult[0].total : 0;
