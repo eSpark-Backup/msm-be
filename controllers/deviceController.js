@@ -123,7 +123,7 @@ const getAllUserDevices = async (req, res) => {
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
         // Determine sort orders (1 or -1)
-       let statusOrder;
+        let statusOrder;
 
         if (!status_sort) {
             // Status parameter missing → get ALL
@@ -133,7 +133,7 @@ const getAllUserDevices = async (req, res) => {
         } else if (status_sort === '0') {
             statusOrder = 0;
         } else {
-            statusOrder = -1; 
+            statusOrder = -1;
         }
         const createdOrder = created_sort === '1' ? 1 : -1;
         const updatedOrder = updated_sort === '1' ? 1 : -1;
@@ -170,28 +170,54 @@ const getAllUserDevices = async (req, res) => {
                     foreignField: "device_uuid",
                     as: "device_data.ota"
                 }
-            },
-
-            {$sort : {'createdAt' : createdOrder , 'updatedAt' : updatedOrder }}
+            }
         ];
 
-        switch (statusOrder){
+        switch (statusOrder) {
             case 0:
                 pipeline.push({
                     $match: { "device_data.device_imei": "" }
                 });
                 break;
+
             case -1:
                 pipeline.push({
-                    $match: { "device_data.device_status": true , "device_data.device_imei": { $ne: "" } }
+                    $match: {
+                        "device_data.device_status": true,
+                        "device_data.device_imei": { $ne: "" }
+                    }
                 });
                 break;
+
             case 1:
                 pipeline.push({
-                    $match: { "device_data.device_status": false , "device_data.device_imei": { $ne: "" } }
+                    $match: {
+                        "device_data.device_status": false,
+                        "device_data.device_imei": { $ne: "" }
+                    }
                 });
                 break;
         }
+
+        if (req.user.role.name === "super_admin") {
+            pipeline.push({
+                $group: {
+                    _id: "$device_id",
+                    doc: { $first: "$$ROOT" }
+                }
+            });
+            pipeline.push({
+                $replaceRoot: { newRoot: "$doc" }
+            });
+        }
+
+        pipeline.push({
+            $sort: {
+                "device_data.device_status": -1,
+                createdAt: createdOrder,
+                updatedAt: updatedOrder
+            }
+        });
 
         if (limitNum !== 0) {
             pipeline.push({ $skip: skip }, { $limit: limitNum });
@@ -289,7 +315,7 @@ const getAllAssignDevices = async (req, res) => {
                 }
             },
             { $unwind: { path: "$device_data.device_data", preserveNullAndEmptyArrays: true } },
-                {
+            {
                 $match: {
                     "device_data.device_data.device_imei": { $nin: ["", null] }
                 }
@@ -748,9 +774,9 @@ const unasignDevice = async (req, res) => {
             })
         }
 
-        if(!device.device_imei){
+        if (!device.device_imei) {
             return res.status(409).json({
-                success:false,
+                success: false,
                 message: "Already Unattached"
             })
         }
@@ -760,8 +786,8 @@ const unasignDevice = async (req, res) => {
         await device.save();
 
         return res.status(200).json({
-            success:true,
-            message:"Imei Unattached"
+            success: true,
+            message: "Imei Unattached"
         })
 
     } catch (err) {
