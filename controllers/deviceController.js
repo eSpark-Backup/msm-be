@@ -264,10 +264,6 @@ const getAllAssignDevices = async (req, res) => {
 
         const query = { user_id: req.user._id };
 
-        if (search) {
-            query.name = { $regex: search, $options: "i" };
-        }
-
         const pageNum = Number(page) || 1;
         const limitNum = Number(limit) || 0;
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
@@ -284,7 +280,7 @@ const getAllAssignDevices = async (req, res) => {
             { $match: query },
             {
                 $lookup: {
-                    from: "adddevices",        // Name of the device_data collection
+                    from: "adddevices",
                     localField: "device_id",
                     foreignField: "_id",
                     as: "device_data"
@@ -293,7 +289,7 @@ const getAllAssignDevices = async (req, res) => {
             { $unwind: { path: "$device_data", preserveNullAndEmptyArrays: true } },
             {
                 $lookup: {
-                    from: "groups",        // Name of groups_data collection
+                    from: "groups",
                     localField: "device_data.group_id",
                     foreignField: "_id",
                     as: "device_data.groups_data"
@@ -301,7 +297,7 @@ const getAllAssignDevices = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "devices",       // Nested device_data inside device_data
+                    from: "devices",
                     localField: "device_data.device_id",
                     foreignField: "_id",
                     as: "device_data.device_data"
@@ -312,24 +308,49 @@ const getAllAssignDevices = async (req, res) => {
                 $match: {
                     "device_data.device_data.device_imei": { $nin: ["", null] }
                 }
-            },
-            {
-                $lookup: {
-                    from: "otas",              // OTA collection
-                    localField: "device_data.device_data.device_uuid",
-                    foreignField: "device_uuid",
-                    as: "device_data.device_data.ota"
-                }
-            },
-            { $sort: sortObj },
-            { $skip: skip },
+            }
         ];
 
+        // Add search filter on device_data.name if provided
+        if (search) {
+            devicesPipeline.push({
+                $match: {
+                    "device_data.name": { $regex: search, $options: "i" }
+                }
+            });
+        }
+
+        // OTA lookup
+        devicesPipeline.push({
+            $lookup: {
+                from: "otas",
+                localField: "device_data.device_data.device_uuid",
+                foreignField: "device_uuid",
+                as: "device_data.device_data.ota"
+            }
+        });
+
+        devicesPipeline.push({ $sort: sortObj });
+        devicesPipeline.push({ $skip: skip });
         if (limitNum) devicesPipeline.push({ $limit: limitNum });
 
         const devices = await UserDevices.aggregate(devicesPipeline);
 
-        const count = await UserDevices.countDocuments(query);
+        // Clone the devicesPipeline without skip & limit for count
+        const countPipeline = [...devicesPipeline];
+
+        // Remove pagination stages
+        countPipeline.forEach((stage, index) => {
+            if ('$skip' in stage || '$limit' in stage) {
+                countPipeline.splice(index, 1);
+            }
+        });
+
+        // Add a $count stage at the end
+        countPipeline.push({ $count: "total" });
+
+        const countResult = await UserDevices.aggregate(countPipeline);
+        const count = countResult[0] ? countResult[0].total : 0;
 
         if (!devices.length) {
             return res.status(404).json({
