@@ -3,11 +3,11 @@ const fleetConnect = require('../fleetConnect');
 
 const getMeasurement = async (req, res) => {
     try {
-
         const device_uuid = req.params.device_uuid;
         const command = req.params.command;
 
-        const measurement = await Measurements.findOne({device_uuid , command});
+        // Use lean() to get plain JS object without Mongoose metadata
+        const measurement = await Measurements.findOne({ device_uuid, command }).lean();
         
         if (!measurement) {
             return res.status(404).json({
@@ -16,11 +16,25 @@ const getMeasurement = async (req, res) => {
             });
         }
 
+        // Sort measurements by channel number
+        const sortedMeasurements = Object.fromEntries(
+            Object.entries(measurement.measurements)
+                .sort(([keyA], [keyB]) => {
+                    const numA = parseInt(keyA.split('-')[1]);
+                    const numB = parseInt(keyB.split('-')[1]);
+                    return numA - numB;
+                })
+        );
+
+        // Replace the measurements with sorted object
+        measurement.measurements = sortedMeasurements;
+
         res.status(200).json({
             success: true,
             message: 'Measurement fetched successfully',
             data: measurement
         });
+
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -29,6 +43,7 @@ const getMeasurement = async (req, res) => {
         });
     }
 };
+
 
 const updateMeasurement = async(req , res) => {
     try{
