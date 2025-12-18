@@ -60,15 +60,26 @@ const deviceSchema = new mongoose.Schema({
   }
 );
 
+const ENCRYPTED_FIELDS = [
+  'device_imei',
+  'device_ip',
+  'hardware_version',
+  'firmware_version',
+  'gsm_status',
+  'ntp_status',
+  'device_pass'
+];
 
-deviceSchema.pre('save', async function (next) {
-  if (this.isModified('device_pass')) {
-    this.device_pass = encrypt(this.device_pass);
-  }
-  next();
+
+
+deviceSchema.pre('save' , async function(next){
+    if(this.isModified('device_pass')){
+        this.device_pass = encrypt(this.device_pass);
+    }
+    next();
 })
 
-deviceSchema.pre('findOneAndUpdate', async function (next) {
+deviceSchema.pre('findOneAndUpdate', async function(next) {
   const update = this.getUpdate();
 
   if (update.device_pass) {
@@ -78,6 +89,7 @@ deviceSchema.pre('findOneAndUpdate', async function (next) {
 
   next();
 });
+
 
 deviceSchema.virtual('sftp', {
   ref: 'SFTP',
