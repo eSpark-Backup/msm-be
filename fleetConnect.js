@@ -105,6 +105,9 @@ class FleetConnect {
             this.device.on('message', async (topic, payload) => {
                 try {
 
+                    console.log(topic)
+                    console.log(payload)
+
                     let deviceUuid = this.extractDeviceUuid(topic);
                     const topicType = this.getTopicType(topic);
 
@@ -382,6 +385,8 @@ class FleetConnect {
                 }
             }, 1500);
 
+            const telemetryBulkData = [];
+
             for (const channel of message.channels) {
                 for (const [phaseKey, phaseData] of Object.entries(channel.data || {})) {
                     if (!phaseKey.startsWith('phase_')) continue;
@@ -431,21 +436,21 @@ class FleetConnect {
                             avg_reactive_energy_positive: phaseData.avg_energy?.reactive?.positive,
                             avg_reactive_energy_negative: phaseData.avg_energy?.reactive?.negative,
                         };
-
-                        // console.log(telemetryData)
     
-                        // Save to database
-                        const telemetry = new Telemetry(telemetryData);
-                        await telemetry.save();
+                        telemetryBulkData.push(telemetryData);
 
                         this.sendDeviceTelemetryCommand(deviceUuid , telemetryData);
 
                         const eventName = `telemetry:${deviceUuid}:channel:${channel.ID}`;
                         socketService.emitToClients(eventName, { data: telemetryData });
-                        // console.log(`✅ Telemetry saved: ${deviceUuid}, channel ${channel.ID}, phase ${phase}`);
                     }
                 }
             }
+
+            if (telemetryBulkData.length > 0) {
+                await Telemetry.insertMany(telemetryBulkData, { ordered: false });
+            }
+
 
             const channels1to6 = message.channels.filter(channel => channel.ID >= 1 && channel.ID <= 6);
             const channels7to12 = message.channels.filter(channel => channel.ID >= 7 && channel.ID <= 12);
