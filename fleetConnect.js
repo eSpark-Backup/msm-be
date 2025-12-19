@@ -803,18 +803,56 @@ class FleetConnect {
         return command.replace(/^set-/ , '').replace(/-/g , '_');
     }
 
-    sendMeasurementConfig(deviceUuid , measurement){
-        const command =  this.getMeasurementCommand(measurement.command);
-        console.log(command)
+    sendMeasurementConfig(deviceUuid, measurement) {
+        const command = this.getMeasurementCommand(measurement.command);
         const topic = `msm/${deviceUuid}/sub/${command}`;
-        const message = {
-            device_uuid: deviceUuid,
-            data: [measurement]
-        };
 
-        this.publishMessage(topic, message);
+        let publish_message;
+
+        switch (measurement.command) {
+
+            case 'set-ct-ratio':
+                publish_message = {
+                    device_uuid: deviceUuid,
+                    data: [
+                    {
+                        command: measurement.command,
+                        ct_ratio: measurement.measurements
+                    }]
+                };
+                break;
+
+            case 'set-v-offset':
+                publish_message = {
+                    device_uuid: deviceUuid,
+                    data: [
+                    {
+                        command: measurement.command,
+                        v_offset: measurement.measurements
+                    }]
+                };
+                break;
+
+            case 'set-i-offset':
+                publish_message = {
+                    device_uuid: deviceUuid,
+                    data: [
+                        {
+                        command: measurement.command,
+                        i_offset: measurement.measurements
+                    }]
+                };
+                break;
+
+            default:
+                console.warn(`⚠️ Unknown measurement command: ${measurement.command}`);
+                return;
+        }
+
+        this.publishMessage(topic, publish_message);
         console.log(`🔄 Measurement config sent to ${deviceUuid}`);
     }
+
 
     // Send NTP configuration to device
     sendNtpConfig(deviceUuid, ntpServers) {
