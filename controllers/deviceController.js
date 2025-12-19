@@ -214,7 +214,7 @@ const getAllUserDevices = async (req, res) => {
         pipeline.push({
             $sort: {
                 "device_data.device_status": -1,
-                "device_data.device_imei": -1, 
+                "device_data.device_imei": -1,
                 createdAt: createdOrder,
                 updatedAt: updatedOrder
             }
@@ -480,15 +480,21 @@ const getSingleAssignDevice = async (req, res) => {
 const getSingleUserDeviceById = async (req, res) => {
     try {
         const { id } = req.params;
-        const query = { user_id: id };
 
-        const device = await AddDevice.find(query).populate("device_data").populate("groups_data").populate('ota');
+        const devices = await AddDevice.find({ user_id: id })
+            .populate({
+                path: "device_data",
+                populate: {
+                    path: "ota"
+                }
+            })
+            .populate("groups_data");
 
-        if (device && device.length > 0) {
+        if (devices.length > 0) {
             res.status(200).json({
                 success: true,
                 message: "Devices found",
-                data: device
+                data: devices
             });
         } else {
             res.status(404).json({
@@ -504,22 +510,31 @@ const getSingleUserDeviceById = async (req, res) => {
             error: error.message,
         });
     }
-}
+};
+
 
 const getUserDevicesByUserId = async (req, res) => {
     try {
         const { user_id } = req.params;
         const query = { user_id: user_id };
 
-        const device = await UserDevices.find(query).populate("user_data").populate({
-            path: 'device_data',
-            populate: [{
-                path: 'groups_data',
-            }, {
-                path: 'device_data',
-                populate: { path: "ota" }
-            }]
-        });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        const device = await UserDevices.find(query)
+            .skip(skip)
+            .limit(limit)
+            .populate("user_data")
+            .populate({
+                path: 'device_data', populate:
+                    [
+                        { path: 'groups_data' },
+                        {
+                            path: 'device_data', populate:
+                                { path: "ota" }
+                        }]
+            });
 
         const count = await UserDevices.countDocuments(query);
 
