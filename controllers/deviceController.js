@@ -482,7 +482,13 @@ const getSingleUserDeviceById = async (req, res) => {
         const { id } = req.params;
         const { search, page, limit } = req.query;
 
-        const query = {user_id :id , name : search}
+        let query = {}
+
+        query.user_id = id;
+
+        if (search) {
+            query.name = { $regex: search, $options: "i" };
+        }
 
         const pageNum = Number(page) || 1;
         const limitNum = Number(limit) || 0;
