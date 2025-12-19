@@ -480,8 +480,17 @@ const getSingleAssignDevice = async (req, res) => {
 const getSingleUserDeviceById = async (req, res) => {
     try {
         const { id } = req.params;
+        const { search, page, limit } = req.query;
 
-        const devices = await AddDevice.find({ user_id: id })
+        const query = {user_id :id , name : search}
+
+        const pageNum = Number(page) || 1;
+        const limitNum = Number(limit) || 0;
+        const skip = limitNum ? (pageNum - 1) * limitNum : 0;
+
+        const devices = await AddDevice.find(query)
+             .skip(skip)
+             .limit(limit)
             .populate({
                 path: "device_data",
                 populate: {
@@ -490,9 +499,12 @@ const getSingleUserDeviceById = async (req, res) => {
             })
             .populate("groups_data");
 
+            const count = await AddDevice.countDocuments(query);
+
         if (devices.length > 0) {
             res.status(200).json({
                 success: true,
+                count : count,
                 message: "Devices found",
                 data: devices
             });
