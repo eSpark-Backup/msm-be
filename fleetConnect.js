@@ -105,9 +105,6 @@ class FleetConnect {
             this.device.on('message', async (topic, payload) => {
                 try {
 
-                    console.log(topic)
-                    console.log(payload)
-
                     let deviceUuid = this.extractDeviceUuid(topic);
                     const topicType = this.getTopicType(topic);
 
@@ -502,8 +499,8 @@ class FleetConnect {
                 sftp_status: deviceInfo.sftp_status,
                 ntp_status: deviceInfo.ntp_status,
                 gsm_status: deviceInfo.gsm_status,
-                hardware_version: deviceInfo.hardware_version,
-                firmware_version: deviceInfo.firmware_version
+                hardware_version: deviceInfo["Hardware Version"],
+                firmware_version: deviceInfo["Firmware Version"]
             });
 
         } catch (error) {

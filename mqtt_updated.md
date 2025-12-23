@@ -136,8 +136,8 @@
             "ntp_status": "true",
             "gsm_status": "true",
             "device_pass": "abc123",
-            "hardware_version":  "string",
-            "firmware_version": "string",
+            "Hardware Version":  "string",
+            "Firmware Version": "string"
         }
     ]
 }
@@ -379,3 +379,12 @@ msm/ESP90000005/sub/v_offset
     }
   ]
 }
+
+
+measurements sorted
+ota update version list api , sockets , backend
+dashboard 1  api optimize
+database secure
+hardware verison and firmware version keys update
+average check manually
+ota offline trigger 
