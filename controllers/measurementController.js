@@ -50,17 +50,9 @@ const updateMeasurement = async(req , res) => {
         const device_uuid = req.params.device_uuid;
         const command = req.params.command;
 
-        const measurement = await Measurements.findOne({device_uuid , command});
-        
-        if (!measurement) {
-            return res.status(404).json({
-                success: false,
-                message: 'Measurement not found'
-            });
-        }
-
-        measurement.measurements = req.body;
-        await measurement.save();
+        const measurement = await Measurements.findOneAndUpdate({device_uuid , command} , {
+            measurements : req.body
+        } , {upsert : true , new : true})
 
         fleetConnect.sendMeasurementConfig(device_uuid , measurement);
 
