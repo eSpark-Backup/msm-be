@@ -180,7 +180,7 @@
   "data":[
     {
         "broker_ip": "thingsboard.cloud",
-        "broker_port": 1883
+        "broker_port": 1883,
         "broker_user": "OFP-INDKOM",
         "broker_pass": "IND10",
         "data_interval" : 900,
@@ -316,9 +316,9 @@ msm/ESP90000005/sub/v_offset
     {
       "command": "set-ct-ratio",
       "ct_ratio": {
-        "channel-1": 200,
         "channel-2": 200,
         "channel-3": 200,
+        "channel-1": 200,
         "channel-4": 70,
         "channel-5": 200,
         "channel-6": 80,

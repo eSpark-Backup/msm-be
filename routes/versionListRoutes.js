@@ -11,4 +11,12 @@ router.put('/', verifyToken, (req, res) => {
     versionListController.updateVersionList(req, res);
 });
 
+router.get('/check-updates', verifyToken, (req, res) => {
+    versionListController.checkUpdates(req, res);
+});
+
+router.delete('/:version', verifyToken, (req, res) => {
+    versionListController.deleteVersion(req, res);
+});
+
 module.exports = router;

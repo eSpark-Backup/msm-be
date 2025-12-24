@@ -270,14 +270,24 @@ class FleetConnect {
         try{
             const measurements = message.data[0];
 
-            await Measurements.findOneAndUpdate({device_uuid : deviceUuid , command : measurements.command} , {
+            const newMeasurements = await Measurements.findOneAndUpdate({device_uuid : deviceUuid , command : measurements.command} , {
                 measurements : measurements.ct_ratio ?? measurements.i_offset ?? measurements.v_offset
-            } , {upsert : true})
+            } , {upsert : true , new : true})
 
+            const sortedMeasurements = Object.fromEntries(
+            Array.from(newMeasurements.measurements.entries())
+                .sort(([keyA], [keyB]) => {
+                const numA = parseInt(keyA.split('-')[1]);
+                const numB = parseInt(keyB.split('-')[1]);
+                return numA - numB;
+                })
+            );
+
+            newMeasurements.measurements = sortedMeasurements;
 
             const command = this.getMeasurementCommand(measurements.command);
 
-            socketService.emitToClients(command + ':' + deviceUuid ,  measurements)
+            socketService.emitToClients(command + ':' + deviceUuid ,  newMeasurements)
             
             console.log('Measurements updated for ' , deviceUuid)
 
@@ -799,6 +809,12 @@ class FleetConnect {
 
         this.publishMessage(topic, message);
         console.log(`🔄 Version list command sent to ${deviceUuid}`);
+    }
+
+    async sendNewVersionsCommand(new_versions){
+
+        socketService.emitToClients('new_versions', new_versions);
+
     }
 
     getMeasurementCommand(command){
