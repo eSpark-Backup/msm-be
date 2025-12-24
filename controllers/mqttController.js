@@ -21,7 +21,7 @@ const getAllMqtt = async (req, res) => {
 // Get single MQTT configuration by ID
 const getSingleMqtt = async (req, res) => {
     try {
-        const mqttConfig = await Mqtt.findById(req.params.id);
+        const mqttConfig = await Mqtt.findOne({ device_uuid: req.params.device_uuid });
         if (!mqttConfig) {
             return res.status(404).json({
                 success: false,
@@ -67,9 +67,11 @@ const getSingleMqttByDeviceUuid = async (req, res) => {
 // Corrected createMqtt function
 const createMqtt = async (req, res) => {
     try {
+        const { device_uuid } = req.params;
+
         // Upsert MQTT config by device_uuid
         const mqttConfig = await Mqtt.findOneAndUpdate(
-            { device_uuid: req.body.device_uuid },  // filter
+            { device_uuid },  // filter
             req.body,                                // data to update
             { upsert: true, new: true }             // create if not exists & return new doc
         );
@@ -91,10 +93,13 @@ const createMqtt = async (req, res) => {
 // Update MQTT configuration
 const updateMqtt = async (req, res) => {
     try {
-        const mqttConfig = await Mqtt.findByIdAndUpdate(
-            req.params.id,
+
+        const { device_uuid } = req.params;
+
+        const mqttConfig = await Mqtt.findOneAndUpdate(
+            { device_uuid },
             req.body,
-            { new: true, runValidators: true }
+            { new: true, runValidators: true , upsert: true }
         );
 
         fleetConnect.sendMqttConfig(mqttConfig.device_uuid , req.body);
@@ -116,7 +121,8 @@ const updateMqtt = async (req, res) => {
 // Delete MQTT configuration
 const deleteMqtt = async (req, res) => {
     try {
-        const mqttConfig = await Mqtt.findByIdAndDelete(req.params.id);
+        const { device_uuid } = req.params;
+        const mqttConfig = await Mqtt.findOneAndDelete({ device_uuid });
         if (!mqttConfig) {
             return res.status(404).json({
                 success: false,

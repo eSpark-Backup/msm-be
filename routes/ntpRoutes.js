@@ -6,7 +6,7 @@ router.get('/', (req, res) => {
     ntpController.getAllNtp(req, res);
 });
 
-router.get('/device/:device_uuid', (req, res) => {
+router.get('/device/:', (req, res) => {
     ntpController.getSingleNtpByDeviceUuid(req, res);
 });
 

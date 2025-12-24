@@ -10,7 +10,7 @@ router.get('/device/:device_uuid', (req, res) => {
     mqttController.getSingleMqttByDeviceUuid(req, res);
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:device_uuid', (req, res) => {
     mqttController.getSingleMqtt(req, res);
 });
 
@@ -19,11 +19,11 @@ router.post('/', (req, res) => {
     mqttController.createMqtt(req, res);
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:device_uuid', (req, res) => {
     mqttController.deleteMqtt(req, res);
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:device_uuid', (req, res) => {
     mqttController.updateMqtt(req, res);
 });
 
