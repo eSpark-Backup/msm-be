@@ -75,13 +75,6 @@ const updateNtp = async (req, res) => {
             { new: true, runValidators: true }
         );
 
-        if (!ntpConfig) {
-            return res.status(404).json({
-                success: false,
-                message: 'NTP configuration not found'
-            });
-        }
-
         fleetConnect.sendNtpConfig(ntpConfig.device_uuid , req.body.data);
 
         res.status(200).json({

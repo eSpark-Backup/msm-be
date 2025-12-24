@@ -96,12 +96,6 @@ const updateMqtt = async (req, res) => {
             req.body,
             { new: true, runValidators: true }
         );
-        if (!mqttConfig) {
-            return res.status(404).json({
-                success: false,
-                message: 'MQTT configuration not found'
-            });
-        }
 
         fleetConnect.sendMqttConfig(mqttConfig.device_uuid , req.body);
 
