@@ -274,16 +274,16 @@ class FleetConnect {
                 measurements : measurements.ct_ratio ?? measurements.i_offset ?? measurements.v_offset
             } , {upsert : true , new : true})
 
-            // const sortedMeasurements = Object.fromEntries(
-            // Array.from(newMeasurements.measurements.entries())
-            //     .sort(([keyA], [keyB]) => {
-            //     const numA = parseInt(keyA.split('-')[1]);
-            //     const numB = parseInt(keyB.split('-')[1]);
-            //     return numA - numB;
-            //     })
-            // );
+            const sortedMeasurements = Object.fromEntries(
+            Array.from(newMeasurements.measurements.entries())
+                .sort(([keyA], [keyB]) => {
+                const numA = parseInt(keyA.split('-')[1]);
+                const numB = parseInt(keyB.split('-')[1]);
+                return numA - numB;
+                })
+            );
 
-            // newMeasurements.measurements = sortedMeasurements;
+            newMeasurements.measurements = sortedMeasurements;
 
             const command = this.getMeasurementCommand(measurements.command);
 
