@@ -3,7 +3,7 @@ const SftpClient = require('ssh2-sftp-client');
 const path = require('path');
 const fleetConnect = require('../fleetConnect');
 const Versions = require('../models/Versions');
-const socketService = require('./sockets/socket');
+const socketService = require('../sockets/socket');
 
 const getVersionList = async (req, res) => {
     const client = new SftpClient();
