@@ -811,12 +811,6 @@ class FleetConnect {
         console.log(`🔄 Version list command sent to ${deviceUuid}`);
     }
 
-    async sendNewVersionsCommand(new_versions){
-
-        socketService.emitToClients('new_versions', new_versions);
-
-    }
-
     getMeasurementCommand(command){
         return command.replace(/^set-/ , '').replace(/-/g , '_');
     }

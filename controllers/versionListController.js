@@ -69,14 +69,17 @@ const checkUpdates = async (req, res) => {
             const insertData = newVersions.map(v => ({ version: v }));
             await Versions.insertMany(insertData);
 
-            await fleetConnect.sendNewVersionsCommand(newVersions);
-
+            await  socketService.emitToClients('new_versions', newVersions);
+            
             res.status(200).json({
                 status: true,
                 message: 'New versions fetched successfully',
                 data: newVersions
             });
         }else{
+
+            await  socketService.emitToClients('new_versions', 'No New Versions Found');
+
             res.status(200).json({
                 status: false,
                 message: 'No new versions found'
