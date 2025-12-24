@@ -10,7 +10,7 @@ router.get('/device/:device_uuid', (req, res) => {
     ntpController.getSingleNtpByDeviceUuid(req, res);
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:device_uuid', (req, res) => {
     ntpController.getSingleNtp(req, res);
 });
 
@@ -22,7 +22,7 @@ router.delete('/:id', (req, res) => {
     ntpController.deleteNtp(req, res);
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:device_uuid', (req, res) => {
     ntpController.updateNtp(req, res);
 });
 

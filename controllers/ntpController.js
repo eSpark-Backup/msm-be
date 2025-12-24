@@ -21,7 +21,7 @@ const getAllNtp = async (req, res) => {
 // Get single NTP configuration by ID
 const getSingleNtp = async (req, res) => {
     try {
-        const ntpConfig = await Ntp.findById(req.params.id);
+        const ntpConfig = await Ntp.findOne({device_uuid : req.params.device_uuid});
         if (!ntpConfig) {
             return res.status(404).json({
                 success: false,
@@ -45,7 +45,7 @@ const getSingleNtp = async (req, res) => {
 const createNtp = async (req, res) => {
     try {
         const device_uuid = req.body.device_uuid;
-        const ntpConfig = await Ntp.findOneAndUpdate({ device_uuid }, req.body, { new: true, upsert: true });
+        const ntpConfig = await Ntp.findOneAndUpdate({ device_uuid : device_uuid }, req.body, { new: true, upsert: true });
         res.status(201).json({
             success: true,
             message: 'NTP configuration created successfully',
@@ -63,16 +63,22 @@ const createNtp = async (req, res) => {
 // Update NTP configuration
 const updateNtp = async (req, res) => {
     try {
+
+        const { device_uuid } = req.params;
+
         // Build a $set object dynamically
         const updateData = {};
         for (const key in req.body.data) {
             updateData[`data.${key}`] = req.body.data[key];
         }
 
-        const ntpConfig = await Ntp.findByIdAndUpdate(
-            req.params.id,
+        console.log(updateData)
+        console.log(device_uuid)
+
+        const ntpConfig = await Ntp.findOneAndUpdate(
+            {device_uuid},
             { $set: updateData },
-            { new: true, runValidators: true }
+            { new: true, runValidators: true , upsert: true }
         );
 
         fleetConnect.sendNtpConfig(ntpConfig.device_uuid , req.body.data);
@@ -95,7 +101,7 @@ const updateNtp = async (req, res) => {
 // Delete NTP configuration
 const deleteNtp = async (req, res) => {
     try {
-        const ntpConfig = await Ntp.findByIdAndDelete(req.params.id);
+        const ntpConfig = await Ntp.findOneAndDelete({device_uuid : req.params.device_uuid});
         if (!ntpConfig) {
             return res.status(404).json({
                 success: false,
