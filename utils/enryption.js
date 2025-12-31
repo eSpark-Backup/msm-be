@@ -1,5 +1,8 @@
 const crypto = require('crypto');
 
+// ENC_KEY=loremipsumdolorsitamet1234567890
+// IV_LENGTH=16
+
 const ENCRYPTION_KEY = process.env.ENC_KEY;
 const IV_LENGTH = parseInt(process.env.IV_LENGTH, 10);
 

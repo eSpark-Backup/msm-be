@@ -495,8 +495,8 @@ const getSingleUserDeviceById = async (req, res) => {
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
         const devices = await AddDevice.find(query)
-             .skip(skip)
-             .limit(limit)
+            .skip(skip)
+            .limit(limit)
             .populate({
                 path: "device_data",
                 populate: {
@@ -505,12 +505,12 @@ const getSingleUserDeviceById = async (req, res) => {
             })
             .populate("groups_data");
 
-            const count = await AddDevice.countDocuments(query);
+        const count = await AddDevice.countDocuments(query);
 
         if (devices.length > 0) {
             res.status(200).json({
                 success: true,
-                count : count,
+                count: count,
                 message: "Devices found",
                 data: devices
             });
@@ -753,18 +753,87 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
         }
 
         const device = await Device.findOne({ device_uuid })
-            .populate('ota')
             .populate('measurements')
             .populate('ntp')
             .populate('sftp')
             .populate('mqtt')
             .populate('mqtts');
 
+
+        const ct_ratio_measurements = device?.measurements.find(
+            (m) => m.command === 'set-ct-ratio'
+        );
+
+        const v_offset_measurements = device?.measurements.find(
+            (m) => m.command === 'set-v-offset'
+        );
+
+        const i_offset_measurements = device?.measurements.find(
+            (m) => m.command === 'set-i-offset'
+        );
+
+        const data = {
+            device_uuid,
+            mqtt: [
+                {
+                    broker_ip: device?.mqtt[0]?.broker_ip,
+                    broker_port: device?.mqtt[0]?.broker_port,
+                    broker_user: device?.mqtt[0]?.broker_user,
+                    broker_pass: device?.mqtt[0]?.broker_pass,
+                    data_interval: device?.mqtt[0]?.data_interval,
+                    mqtt_topic: device?.mqtt[0]?.mqtt_topic,
+                }
+            ],
+            sftp: [
+                {
+                    server_ip: device?.sftp[0]?.server_ip,
+                    server_port: device?.sftp[0]?.server_port,
+                    username: device?.sftp[0]?.username,
+                    password: device?.sftp[0]?.password,
+                    data_interval: device?.sftp[0]?.data_interval,
+                }
+            ],
+            ntp: [
+                {
+                    server_1: device?.ntp[0]?.data?.get('server_1'),
+                    server_2: device?.ntp[0]?.data?.get('server_2'),
+                    server_3: device?.ntp[0]?.data?.get('server_3'),
+                }
+            ],
+            mqtts: [
+                {
+                    claim_cert: device?.mqtts[0]?.claim_cert,
+                    claim_key: device?.mqtts[0]?.claim_key,
+                    root_ca: device?.mqtts[0]?.root_ca,
+                    data_interval: device?.mqtts[0]?.data_interval,
+                    broker_ip: device?.mqtts[0]?.broker_ip,
+                    broker_port: device?.mqtts[0]?.broker_port,
+                }
+            ],
+            measurements: [
+                {
+                command: ct_ratio_measurements?.command ?? '',
+                measurements: Object.fromEntries(ct_ratio_measurements?.measurements ?? [])
+                },
+                {
+                command: i_offset_measurements?.command ?? '',
+                measurements: Object.fromEntries(i_offset_measurements?.measurements ?? [])
+                },
+                {
+                command: v_offset_measurements?.command ?? '',
+                measurements: Object.fromEntries(v_offset_measurements?.measurements ?? [])
+                }
+            ]
+        }
+
         if (!device) {
-            return res.status(404).json({
-                success: false,
-                error_code: 404,
-                message: "Device Not Exists"
+
+            await Device.create({ device_uuid, device_imei, device_pass });
+
+            return res.status(201).json({
+                success: true,
+                error_code: 201,
+                message: "UUID created Successfully"
             });
         }
 
@@ -772,27 +841,36 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
             return res.status(401).json({
                 success: false,
                 error_code: 401,
-                message: "Unauthorized"
+                message: "Unauthorized - Password Is Not Correct"
             });
         }
 
-        if (device.device_imei) {
-            return res.status(409).json({
-                success: false,
-                error_code: 409,
-                message: "Device Already Registered"
+        if (device.device_imei == device_imei) {
+            return res.status(200).json({
+                success: true,
+                error_code: 200,
+                message: "Login Successfully",
+                data
             });
+        } else {
+            if (device.device_imei !== "") {
+                return res.status(409).json({
+                    success: false,
+                    error_code: 409,
+                    message: "UUID Have Already Another Device",
+                })
+            } else {
+                device.device_imei = device_imei;
+                await device.save();
+
+                return res.status(202).json({
+                    success: true,
+                    error_code: 202,
+                    message: "Device Assigned Successfully",
+                    data
+                });
+            };
         }
-
-        device.device_imei = device_imei;
-        await device.save();
-
-        return res.status(200).json({
-            success: true,
-            error_code: 200,
-            message: "Registered",
-            data: device
-        });
 
     } catch (error) {
         console.error("Error in Device Get endpoint:", error);

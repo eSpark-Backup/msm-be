@@ -18,7 +18,7 @@ const deviceSchema = new mongoose.Schema({
   },
   device_ip: {
     type: String,
-    required: true
+    required: false
   },
   mqtt_status: {
     type: Boolean,
