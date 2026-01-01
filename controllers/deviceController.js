@@ -1,5 +1,8 @@
 const mqttClient = require('../fleetConnect');
 const Device = require('../models/Device');
+const Ntp = require('../models/Ntp');
+const Sftp = require('../models/Sftp');
+const Measurements = require('../models/Measurements');
 const AddDevice = require('../models/AddDevice');
 const UserDevices = require('../models/UserDevices');
 const fleetConnect = require('../fleetConnect');
@@ -812,23 +815,63 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
             ],
             measurements: [
                 {
-                command: ct_ratio_measurements?.command ?? '',
-                measurements: Object.fromEntries(ct_ratio_measurements?.measurements ?? [])
+                    command: ct_ratio_measurements?.command ?? '',
+                    measurements: Object.fromEntries(ct_ratio_measurements?.measurements ?? [])
                 },
                 {
-                command: i_offset_measurements?.command ?? '',
-                measurements: Object.fromEntries(i_offset_measurements?.measurements ?? [])
+                    command: i_offset_measurements?.command ?? '',
+                    measurements: Object.fromEntries(i_offset_measurements?.measurements ?? [])
                 },
                 {
-                command: v_offset_measurements?.command ?? '',
-                measurements: Object.fromEntries(v_offset_measurements?.measurements ?? [])
+                    command: v_offset_measurements?.command ?? '',
+                    measurements: Object.fromEntries(v_offset_measurements?.measurements ?? [])
                 }
             ]
+        }
+
+        const default_ct_ratio_measurements = {
+            device_uuid,
+            command: 'set-ct-ratio',
+            measurements: {
+                'command-1': 80,
+                'command-2': 80,
+                'command-3': 80,
+                'command-4': 80,
+                'command-5': 80,
+                'command-6': 80,
+                'command-7': 80,
+                'command-8': 80,
+                'command-9': 80,
+                'command-10': 80,
+                'command-11': 80,
+                'command-12': 80
+            }
+        }
+
+        const default_sftp = {
+            device_uuid,
+            server_ip: 'ap-southeast-1.sftpcloud.io',
+            server_port: '22',
+            username: 'ofp-msm',
+            password: 'root123456',
+            data_interval: '900'
+        }
+
+        const default_ntp = {
+            device_uuid,
+            data: {
+                'server_1' : "my.pool.ntp.org", 
+                'server_2' : "0.asia.pool.ntp.org", 
+                'server_3' : "1.asia.pool.ntp.org"
+            }
         }
 
         if (!device) {
 
             await Device.create({ device_uuid, device_imei, device_pass });
+            await Ntp.create(default_ntp);
+            await Sftp.create(default_sftp);
+            await Measurements.create(default_ct_ratio_measurements)
 
             return res.status(201).json({
                 success: true,
