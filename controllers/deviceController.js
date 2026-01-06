@@ -7,6 +7,10 @@ const AddDevice = require('../models/AddDevice');
 const UserDevices = require('../models/UserDevices');
 const fleetConnect = require('../fleetConnect');
 const { decrypt } = require('../utils/enryption');
+const MQTT = require('../models/Mqtt');
+const MqttS = require('../models/Mqtts');
+const OTA = require('../models/Ota');
+const Telemetry = require('../models/Telemetry');
 
 // ===== DEVICE REBOOT CONTROLLER =====
 /**
@@ -667,7 +671,7 @@ const updateDevice = async (req, res) => {
     }
 }
 
-const deleteDevice = async (req, res) => {
+const deleteUserDevice = async (req, res) => {
     try {
         const { device_uuid } = req.params;
         const user_id = req.user._id;
@@ -750,7 +754,7 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
         if (!device_uuid || !device_imei || !device_pass) {
             return res.status(400).json({
                 success: false,
-                error_code: 400,
+                http_code: 400,
                 message: "Missing required fields"
             });
         }
@@ -829,6 +833,44 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
             ]
         }
 
+        const default_i_offset_measurements = {
+            device_uuid,
+            command: 'set-i-offset',
+            measurements: {
+                'command-1': 0,
+                'command-2': 0,
+                'command-3': 0,
+                'command-4': 0,
+                'command-5': 0,
+                'command-6': 0,
+                'command-7': 0,
+                'command-8': 0,
+                'command-9': 0,
+                'command-10': 0,
+                'command-11': 0,
+                'command-12': 0
+            }
+        }
+
+        const default_v_offset_measurements = {
+            device_uuid,
+            command: 'set-v-offset',
+            measurements: {
+                'command-1': 0,
+                'command-2': 0,
+                'command-3': 0,
+                'command-4': 0,
+                'command-5': 0,
+                'command-6': 0,
+                'command-7': 0,
+                'command-8': 0,
+                'command-9': 0,
+                'command-10': 0,
+                'command-11': 0,
+                'command-12': 0
+            }
+        }
+
         const default_ct_ratio_measurements = {
             device_uuid,
             command: 'set-ct-ratio',
@@ -851,10 +893,10 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
         const default_sftp = {
             device_uuid,
             server_ip: 'ap-southeast-1.sftpcloud.io',
-            server_port: '22',
+            server_port: 22,
             username: 'ofp-msm',
-            password: 'root123456',
-            data_interval: '900'
+            password: 'R0ot!@3456',
+            data_interval: 900
         }
 
         const default_ntp = {
@@ -866,24 +908,45 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
             }
         }
 
+        const removeDeviceUuidFromObject = (obj) => {
+            const { device_uuid, ...rest } = obj;
+            return rest;
+        }
+
         if (!device) {
 
             await Device.create({ device_uuid, device_imei, device_pass });
             await Ntp.create(default_ntp);
             await Sftp.create(default_sftp);
             await Measurements.create(default_ct_ratio_measurements)
+            await Measurements.create(default_v_offset_measurements)
+            await Measurements.create(default_i_offset_measurements)
 
             return res.status(201).json({
                 success: true,
-                error_code: 201,
-                message: "UUID created Successfully"
+                http_code: 201,
+                message: "UUID created Successfully",
+                data: {
+                    device_uuid,
+                    ntp: [{
+                        "server_1": default_ntp.data.server_1, 
+                        "server_2": default_ntp.data.server_2, 
+                        "server_3": default_ntp.data.server_3
+                    }],
+                    sftp: [removeDeviceUuidFromObject(default_sftp)],
+                    measurements : [
+                        removeDeviceUuidFromObject(default_ct_ratio_measurements),
+                        removeDeviceUuidFromObject(default_v_offset_measurements),
+                        removeDeviceUuidFromObject(default_i_offset_measurements)
+                    ]
+                }
             });
         }
 
         if (decrypt(device.device_pass) !== device_pass) {
             return res.status(401).json({
                 success: false,
-                error_code: 401,
+                http_code: 401,
                 message: "Unauthorized - Password Is Not Correct"
             });
         }
@@ -891,7 +954,7 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
         if (device.device_imei == device_imei) {
             return res.status(200).json({
                 success: true,
-                error_code: 200,
+                http_code: 200,
                 message: "Login Successfully",
                 data
             });
@@ -899,7 +962,7 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
             if (device.device_imei !== "") {
                 return res.status(409).json({
                     success: false,
-                    error_code: 409,
+                    http_code: 409,
                     message: "UUID Have Already Another Device",
                 })
             } else {
@@ -908,7 +971,7 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
 
                 return res.status(202).json({
                     success: true,
-                    error_code: 202,
+                    http_code: 202,
                     message: "Device Assigned Successfully",
                     data
                 });
@@ -919,7 +982,7 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
         console.error("Error in Device Get endpoint:", error);
         return res.status(500).json({
             success: false,
-            error_code: 500,
+            http_code: 500,
             message: "Internal Server Error",
             error: error.message,
         });
@@ -967,6 +1030,48 @@ const unasignDevice = async (req, res) => {
     }
 }
 
+const deleteDevice = async (req, res) => {
+  try {
+    const { device_uuid } = req.params;
+
+    const device = await Device.findOne({ device_uuid });
+    if (!device) {
+      return res.status(404).json({
+        success: false,
+        message: 'Device Not Found'
+      });
+    }
+
+    const deviceId = device._id;
+
+    // Delete related documents first (sequentially)
+    await AddDevice.deleteMany({ device_id: deviceId });
+    await UserDevices.deleteMany({ device_id: deviceId });
+    await Measurements.deleteMany({ device_uuid });
+    await Telemetry.deleteMany({ device_uuid });
+    await Ntp.deleteMany({ device_uuid });
+    await Sftp.deleteMany({ device_uuid });
+    await MQTT.deleteMany({ device_uuid });
+    await MqttS.deleteMany({ device_uuid });
+    await OTA.deleteMany({ device_uuid });
+
+    // Delete the device itself
+    await Device.deleteOne({ _id: deviceId });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Device and related data deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error in full device delete:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal Server Error',
+      error: error.message
+    });
+  }
+};
+
 
 
 module.exports = {
@@ -977,12 +1082,13 @@ module.exports = {
     getSingleUserDevice,
     createDevice,
     updateDevice,
-    deleteDevice,
+    deleteUserDevice,
     getSingleUserDeviceById,
     deleteDeviceByUserId,
     getUserDevicesByUserId,
     getAllAssignDevices,
     getSingleAssignDevice,
     verifyDeviceByDeviceUuid,
-    unasignDevice
+    unasignDevice,
+    deleteDevice
 };

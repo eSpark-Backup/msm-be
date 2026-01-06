@@ -10,7 +10,9 @@ router.post("/user", verifyToken, deviceController.createDevice);
 
 router.put("/user", verifyToken, deviceController.updateDevice);
 
-router.delete("/user/:device_uuid", verifyToken, deviceController.deleteDevice);
+router.delete("/user/:device_uuid", verifyToken, deviceController.deleteUserDevice);    
+
+router.delete("/:device_uuid", verifyToken, authrize(['super_admin']) , deviceController.deleteDevice);
 
 router.delete("/unassign_imei/:device_uuid", verifyToken, deviceController.unasignDevice);
 
