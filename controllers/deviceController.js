@@ -781,56 +781,37 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
 
         const data = {
             device_uuid,
-            mqtt: [
-                {
+            mqtt:{
                     broker_ip: device?.mqtt[0]?.broker_ip,
                     broker_port: device?.mqtt[0]?.broker_port,
                     broker_user: device?.mqtt[0]?.broker_user,
                     broker_pass: device?.mqtt[0]?.broker_pass,
                     data_interval: device?.mqtt[0]?.data_interval,
                     mqtt_topic: device?.mqtt[0]?.mqtt_topic,
-                }
-            ],
-            sftp: [
-                {
+                },
+            sftp:{
                     server_ip: device?.sftp[0]?.server_ip,
                     server_port: device?.sftp[0]?.server_port,
                     username: device?.sftp[0]?.username,
                     password: device?.sftp[0]?.password,
                     data_interval: device?.sftp[0]?.data_interval,
-                }
-            ],
-            ntp: [
-                {
+                },
+            ntp:{
                     server_1: device?.ntp[0]?.data?.get('server_1'),
                     server_2: device?.ntp[0]?.data?.get('server_2'),
                     server_3: device?.ntp[0]?.data?.get('server_3'),
-                }
-            ],
-            mqtts: [
-                {
+                },
+            mqtts:{
                     claim_cert: device?.mqtts[0]?.claim_cert,
                     claim_key: device?.mqtts[0]?.claim_key,
                     root_ca: device?.mqtts[0]?.root_ca,
                     data_interval: device?.mqtts[0]?.data_interval,
                     broker_ip: device?.mqtts[0]?.broker_ip,
                     broker_port: device?.mqtts[0]?.broker_port,
-                }
-            ],
-            measurements: [
-                {
-                    command: ct_ratio_measurements?.command ?? '',
-                    measurements: Object.fromEntries(ct_ratio_measurements?.measurements ?? [])
                 },
-                {
-                    command: i_offset_measurements?.command ?? '',
-                    measurements: Object.fromEntries(i_offset_measurements?.measurements ?? [])
-                },
-                {
-                    command: v_offset_measurements?.command ?? '',
-                    measurements: Object.fromEntries(v_offset_measurements?.measurements ?? [])
-                }
-            ]
+            ct_ratio: Object.fromEntries(ct_ratio_measurements?.measurements ?? []),
+            v_offset: Object.fromEntries(v_offset_measurements?.measurements ?? []),
+            i_offset: Object.fromEntries(i_offset_measurements?.measurements ?? [])
         }
 
         const default_i_offset_measurements = {
@@ -895,7 +876,7 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
             server_ip: 'ap-southeast-1.sftpcloud.io',
             server_port: 22,
             username: 'ofp-msm',
-            password: 'R0ot!@3456',
+            password: 'R0ot1@3456',
             data_interval: 900
         }
 
@@ -908,9 +889,51 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
             }
         }
 
+        const default_mqtt = {
+            device_uuid,
+            broker_ip: "uiot.tnbr.com.my",
+            broker_port: 8884,
+            data_interval: 60,
+            broker_user: "ofp-ein",
+            broker_pass: "Ein@123456",
+            mqtt_topic: "v1/devices/me/telemetry"
+        }
+
+        const default_mqtts = {
+            device_uuid,
+            broker_ip: "a1dxcxg260l7m-ats.iot.eu-north-1.amazonaws.com",
+            data_interval: 10,
+            broker_port: 8883,
+            root_ca: false,
+            claim_cert: false,
+            claim_key: false
+        }
+
         const removeDeviceUuidFromObject = (obj) => {
             const { device_uuid, ...rest } = obj;
             return rest;
+        }
+
+        const structureMeasurements = (data) => {
+            let dynamic_field_name;
+            switch(data.command){
+                case "set-ct-ratio":
+                    dynamic_field_name = "ct_ratio";
+                    break;
+                case "set-v-offset":
+                    dynamic_field_name = "v_offset";
+                    break;
+                case "set-i-offset":
+                    dynamic_field_name = "i_offset";
+                    break;
+                default:
+                    dynamic_field_name = "commandIsNotCorrect";
+                    break;
+            }
+            return {
+                command: data.command,
+                [dynamic_field_name]: data.measurements
+            }
         }
 
         if (!device) {
@@ -921,6 +944,8 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
             await Measurements.create(default_ct_ratio_measurements)
             await Measurements.create(default_v_offset_measurements)
             await Measurements.create(default_i_offset_measurements)
+            await MQTT.create(default_mqtt),
+            await MqttS.create(default_mqtts)
 
             return res.status(201).json({
                 success: true,
@@ -928,17 +953,17 @@ const verifyDeviceByDeviceUuid = async (req, res) => {
                 message: "UUID created Successfully",
                 data: {
                     device_uuid,
-                    ntp: [{
+                    ntp: {
                         "server_1": default_ntp.data.server_1, 
                         "server_2": default_ntp.data.server_2, 
                         "server_3": default_ntp.data.server_3
-                    }],
-                    sftp: [removeDeviceUuidFromObject(default_sftp)],
-                    measurements : [
-                        removeDeviceUuidFromObject(default_ct_ratio_measurements),
-                        removeDeviceUuidFromObject(default_v_offset_measurements),
-                        removeDeviceUuidFromObject(default_i_offset_measurements)
-                    ]
+                    },
+                    sftp: removeDeviceUuidFromObject(default_sftp),
+                    mqtt: removeDeviceUuidFromObject(default_mqtt),
+                    mqtts: removeDeviceUuidFromObject(default_mqtts),
+                    ct_ratio : default_ct_ratio_measurements.measurements,
+                    v_offset : default_v_offset_measurements.measurements,
+                    i_offset : default_i_offset_measurements.measurements,
                 }
             });
         }
