@@ -282,6 +282,8 @@ const getAllAssignDevices = async (req, res) => {
         if (updated_sort) sortObj['updatedAt'] = updated_sort === "1" ? 1 : -1;
         if (Object.keys(sortObj).length === 0) sortObj['createdAt'] = -1;
 
+        
+
         // Aggregation pipeline
         const devicesPipeline = [
             { $match: query },
