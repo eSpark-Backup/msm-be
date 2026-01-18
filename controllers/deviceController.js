@@ -338,26 +338,23 @@ const getAllAssignDevices = async (req, res) => {
         });
 
         devicesPipeline.push({ $sort: sortObj });
+
+        const countPipeline = devicesPipeline.filter(
+            stage => !stage.$skip && !stage.$limit
+        );
+
+        countPipeline.push({ $count: "total" });
+
+
+        const countResult = await UserDevices.aggregate(countPipeline);
+        const count = countResult[0] ? countResult[0].total : 0;
+
         devicesPipeline.push({ $skip: skip });
         if (limitNum) devicesPipeline.push({ $limit: limitNum });
 
         const devices = await UserDevices.aggregate(devicesPipeline);
 
-        // Clone the devicesPipeline without skip & limit for count
-        const countPipeline = [...devicesPipeline];
 
-        // Remove pagination stages
-        countPipeline.forEach((stage, index) => {
-            if ('$skip' in stage || '$limit' in stage) {
-                countPipeline.splice(index, 1);
-            }
-        });
-
-        // Add a $count stage at the end
-        countPipeline.push({ $count: "total" });
-
-        const countResult = await UserDevices.aggregate(countPipeline);
-        const count = countResult[0] ? countResult[0].total : 0;
 
         if (!devices.length) {
             return res.status(404).json({

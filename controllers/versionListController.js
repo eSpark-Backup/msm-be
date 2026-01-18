@@ -4,6 +4,7 @@ const path = require('path');
 const fleetConnect = require('../fleetConnect');
 const Versions = require('../models/Versions');
 const socketService = require('../sockets/socket');
+const archiver = require("archiver");
 
 const getVersionList = async (req, res) => {
     const client = new SftpClient();
@@ -154,34 +155,105 @@ const updateVersionList = async (req, res) => {
     }
 };
 
-const exportAllVersionList = async (req , res) => {
-    try{
+const exportAllVersionList = async (req, res) => {
+  const client = new SftpClient({ debug: () => {} });
 
-    }catch(error){
-        res.status(500).json({
-            ststus:false,
-            message: "Internal Server Error"
-        })
+  try {
+    // Connect using your original SFTP credentials
+    await client.connect({
+      host: 'ap-southeast-1.sftpcloud.io',
+      port: 22,
+      username: "ofp-msm",
+      password: "R0ot1@3456",
+    });
+
+    const remoteDir = "/ota-test";
+
+    // Set headers so browser downloads as ZIP
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="ota-test.zip"`
+    );
+
+    const archive = archiver("zip", { zlib: {  store: true } });
+    archive.pipe(res);
+
+    // Handle archive errors
+    archive.on("error", err => {
+      console.error("Archive Error:", err);
+      try { res.status(500).send({ status: false, message: "Archive failed", error: err.message }); } catch {}
+    });
+
+    // List all files in SFTP folder
+    const files = await client.list(remoteDir);
+
+    // Stream all files into the ZIP
+    for (const file of files) {
+      if (file.type === "-") { // Only regular files
+        const remotePath = `${remoteDir}/${file.name}`;
+        const fileStream = await client.get(remotePath); // Stream file from SFTP
+        archive.append(fileStream, { name: file.name }); // Add to ZIP
+      }
     }
-}
 
-const uploadFileToSftp = async (req , res) => {
-    try{
+    // Finalize archive and close SFTP when done
+    await archive.finalize();
+    await client.end();
+    console.log("All files streamed and SFTP connection closed");
 
-    }catch(error){
-        res.status(500).json({
-            ststus:false,
-            message: "Internal Server Error"
-        })
+  } catch (err) {
+    console.error("Download Error:", err);
+    try { await client.end(); } catch (e) {}
+    if (!res.headersSent) {
+      res.status(500).json({
+        status: false,
+        message: "Internal Server Error",
+        error: err.message
+      });
     }
-}
+  }
+};
+
+const importVersionList = async (req, res) => {
+  const client = new SftpClient();
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({ status: false, message: "No file uploaded" });
+    }
+
+    await client.connect({
+      host: 'ap-southeast-1.sftpcloud.io',
+      port: 22,
+      username: 'ofp-msm',
+      password: 'R0ot1@3456'
+    });
+
+    const remotePath = `/ota-test/${req.file.originalname}`;
+
+    await client.put(req.file.buffer, remotePath);
+
+    res.json({ status: true, message: "File uploaded successfully", remotePath });
+
+  } catch (error) {
+    console.error("SFTP Upload Error:", error);
+    res.status(500).json({
+      status: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  } finally {
+    try { await client.end(); } catch(e) {}
+  }
+};
 
 
 module.exports = {
     getVersionList,
     updateVersionList,
     exportAllVersionList,
-    uploadFileToSftp,
+    importVersionList,
     checkUpdates,
     deleteVersion
 };

@@ -12,6 +12,7 @@
     "seed:users": "node seeds/userSeeds.js"
   },
   "dependencies": {
+    "archiver": "^7.0.1",
     "aws-iot-device-sdk": "^2.2.15",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
