@@ -16,6 +16,46 @@ const generateRandomPassword = () => {
     return password;
 };
 
+router.get('/mailgun', async (req, res) => {
+    try {
+        const { sendWelcomeEmail } = require('../emailService/mailgunEmailService');
+        
+        const password = generateRandomPassword();
+        const email = "taimoor7535@gmail.com";
+        const name = "Mailgun Test User";
+
+        // Test Mailgun welcome email
+        const result = await sendWelcomeEmail({
+            to: email,
+            name,
+            password,
+            loginUrl: process.env.FRONTEND_URL,
+        });
+
+        if (result.success) {
+            res.json({
+                success: true,
+                message: 'Mailgun test email sent successfully!',
+                messageId: result.messageId,
+                email: email,
+                password: password
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'Failed to send Mailgun test email',
+                error: result.error
+            });
+        }
+    } catch (error) {
+        console.error('Mailgun test error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Mailgun test failed',
+            error: error.message
+        });
+    }
+});
 
 router.get('/', async (req, res) => {
     

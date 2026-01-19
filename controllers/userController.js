@@ -137,16 +137,36 @@ const getMe = async (req, res) => {
     }
 };
 
-// Generate random password
 const generateRandomPassword = () => {
     const length = 12;
-    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
-    let password = '';
-    for (let i = 0; i < length; i++) {
-        const randomIndex = crypto.randomInt(0, charset.length);
-        password += charset[randomIndex];
+
+    const lowercase = "abcdefghijklmnopqrstuvwxyz";
+    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const numbers = "0123456789";
+    const special = "!@#$%^&*";
+
+    let password = [];
+
+    // 1 character from each required set
+    password.push(lowercase[crypto.randomInt(0, lowercase.length)]);
+    password.push(uppercase[crypto.randomInt(0, uppercase.length)]);
+    password.push(numbers[crypto.randomInt(0, numbers.length)]);
+    password.push(special[crypto.randomInt(0, special.length)]);
+
+    // Combine all for remaining characters
+    const allChars = lowercase + uppercase + numbers + special;
+
+    for (let i = password.length; i < length; i++) {
+        password.push(allChars[crypto.randomInt(0, allChars.length)]);
     }
-    return password;
+
+    // Shuffle so fixed pattern na rahe
+    for (let i = password.length - 1; i > 0; i--) {
+        const j = crypto.randomInt(0, i + 1);
+        [password[i], password[j]] = [password[j], password[i]];
+    }
+
+    return password.join("");
 };
 
 

@@ -1,5 +1,5 @@
-const emailService = require('./emailService');
-const emailClient = require('./emailClient');
+const emailService = require('./mailgunEmailService');
+const emailClient = require('./mailgunEmailClient');
 
 module.exports = {
   ...emailService,
