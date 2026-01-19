@@ -9,7 +9,8 @@ const archiver = require("archiver");
 const getVersionList = async (req, res) => {
     const client = new SftpClient();
     try {
-        const sftp = await Sftp.findOne({});
+        const sftp = await Sftp.findOne({}).sort({ createdAt: -1 });
+        console.log(sftp)
         if (!sftp) {
             return res.status(404).json({
                 status: false,
@@ -45,7 +46,7 @@ const getVersionList = async (req, res) => {
 const checkUpdates = async (req, res) => {
     const client = new SftpClient();
     try {
-        const sftp = await Sftp.findOne({});
+        const sftp = await Sftp.findOne({}).sort({ createdAt: -1 });
         if (!sftp) {
             return res.status(404).json({
                 status: false,
@@ -64,11 +65,18 @@ const checkUpdates = async (req, res) => {
         const dbVersions = dbVersionsDocs.map(v => v.version);
 
         const newVersions = sftpVersions.filter(v => !dbVersions.includes(v));
+        const toDeleteVersions = dbVersions.filter(v => !sftpVersions.includes(v));
+
 
         await client.end();
 
+        if (toDeleteVersions.length > 0) {
+            await Versions.deleteMany({ version: { $in: toDeleteVersions } });
+        }
+
         if (newVersions.length > 0) {
             const insertData = newVersions.map(v => ({ version: v }));
+
             await Versions.insertMany(insertData);
 
             await  socketService.emitToClients('new_versions', newVersions);
@@ -76,7 +84,7 @@ const checkUpdates = async (req, res) => {
             res.status(200).json({
                 status: true,
                 message: 'New versions fetched successfully',
-                data: newVersions
+                data: newVersions,
             });
         }else{
 
@@ -84,7 +92,7 @@ const checkUpdates = async (req, res) => {
 
             res.status(200).json({
                 status: false,
-                message: 'No new versions found'
+                message: 'No new versions found',
             });
         }
 
@@ -159,12 +167,13 @@ const exportAllVersionList = async (req, res) => {
   const client = new SftpClient({ debug: () => {} });
 
   try {
+    const sftp = await Sftp.findOne({}).sort({ createdAt: -1 });
     // Connect using your original SFTP credentials
     await client.connect({
-      host: 'ap-southeast-1.sftpcloud.io',
-      port: 22,
-      username: "ofp-msm",
-      password: "R0ot1@3456",
+      host: sftp.server_ip,
+      port: sftp.server_port,
+      username: sftp.username,
+      password: sftp.password,
     });
 
     const remoteDir = "/ota-test";
@@ -215,6 +224,75 @@ const exportAllVersionList = async (req, res) => {
   }
 };
 
+const exportSelectedVersionList = async (req, res) => {
+  const client = new SftpClient({ debug: () => {} });
+
+  try {
+    const sftp = await Sftp.findOne({}).sort({ createdAt: -1 });
+    // Connect using your original SFTP credentials
+    await client.connect({
+      host: sftp.server_ip,
+      port: sftp.server_port,
+      username: sftp.username,
+      password: sftp.password,
+    });
+
+    const { names } = req.body;
+
+    const remoteDir = "/ota-test";
+
+    // Set headers so browser downloads as ZIP
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="ota-test.zip"`
+    );
+
+    const archive = archiver("zip", { zlib: {  store: true } });
+    archive.pipe(res);
+
+    // Handle archive errors
+    archive.on("error", err => {
+      console.error("Archive Error:", err);
+      try { res.status(500).send({ status: false, message: "Archive failed", error: err.message }); } catch {}
+    });
+
+    // List all files in SFTP folder
+    // const sftp_files = await client.list(remoteDir);
+    const db_files = await Versions.find({});
+
+    // Stream all files into the ZIP
+    for (const fileName of names) {
+      const file = db_files.find(f => f.version === fileName);
+
+      if (file) { // Only regular files that exist
+        const remotePath = `${remoteDir}/${file.version}.zip`;
+        const fileStream = await client.get(remotePath); // Stream file from SFTP
+        archive.append(fileStream, { name: file.version }); // Add to ZIP
+        console.log(`Added to ZIP: ${file.version}`);
+      } else {
+        console.warn(`File not found or not a regular file: ${fileName}`);
+      }
+    }
+
+    // Finalize archive and close SFTP when done
+    await archive.finalize();
+    await client.end();
+    console.log("All files streamed and SFTP connection closed");
+
+  } catch (err) {
+    console.error("Download Error:", err);
+    try { await client.end(); } catch (e) {}
+    if (!res.headersSent) {
+      res.status(500).json({
+        status: false,
+        message: "Internal Server Error",
+        error: err.message, 
+      });
+    }
+  }
+};
+
 const importVersionList = async (req, res) => {
   const client = new SftpClient();
 
@@ -223,11 +301,13 @@ const importVersionList = async (req, res) => {
       return res.status(400).json({ status: false, message: "No file uploaded" });
     }
 
+    const sftp = await Sftp.findOne({}).sort({ createdAt: -1 });
+
     await client.connect({
-      host: 'ap-southeast-1.sftpcloud.io',
-      port: 22,
-      username: 'ofp-msm',
-      password: 'R0ot1@3456'
+      host: sftp.server_ip,
+      port: sftp.server_port,
+      username: sftp.username,
+      password: sftp.password
     });
 
     const remotePath = `/ota-test/${req.file.originalname}`;
@@ -253,6 +333,7 @@ module.exports = {
     getVersionList,
     updateVersionList,
     exportAllVersionList,
+    exportSelectedVersionList,
     importVersionList,
     checkUpdates,
     deleteVersion
