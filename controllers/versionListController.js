@@ -3,6 +3,7 @@ const SftpClient = require('ssh2-sftp-client');
 const path = require('path');
 const fleetConnect = require('../fleetConnect');
 const Versions = require('../models/Versions');
+const versionQueue = require('../models/VersionQueue');
 const Device = require('../models/Device');
 const socketService = require('../sockets/socket');
 const archiver = require("archiver");
@@ -147,20 +148,29 @@ const updateVersionList = async (req, res) => {
     try {
         const devices = req.body.devices;
 
+        if (!devices || !Array.isArray(devices)) {
+            return res.status(400).json({
+                status: false,
+                message: 'Devices array is required'
+            });
+        }
+
         for (const device of devices) {
-
             const db_device = await Device.findOne({device_uuid : device.device_uuid})
-
             if(db_device){
-
               if(db_device.status){
-                // await fleetConnect.sendVersionCommand(device.device_uuid, device.version);
+                await fleetConnect.sendVersionCommand(device.device_uuid, device.version);
               }else{
-                
+                await versionQueue.findOneAndUpdate({
+                    device_uuid: device.device_uuid,
+                }, {
+                    device_uuid: device.device_uuid,
+                    version: device.version
+                }, {
+                    upsert: true
+                })
               }
-
             }
-
         }
 
         res.status(200).json({

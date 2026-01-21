@@ -13,6 +13,7 @@ const OTA = require('./models/Ota');
 const Mqtts = require('./models/Mqtts');
 const About = require('./models/About');
 const Measurements = require('./models/Measurements');
+const versionQueue = require('./models/VersionQueue');
 
 class FleetConnect {
     constructor() {
@@ -311,6 +312,11 @@ class FleetConnect {
                 console.log(`⚠️ Device ${clientId} not found in DB`);
                 return;
             }
+
+            if(mqttStatus){
+                await this.hanldeVersionQueue(deviceUuid);                
+            }
+            
 
             const updatedDevice = await Device.findOneAndUpdate(
                 { device_uuid: clientId },
@@ -1120,8 +1126,7 @@ class FleetConnect {
                 { device_uuid: deviceUuid },
                 updateData,
                 { upsert: true, new: true }
-            );
-            
+            );            
 
             socketService.emitToClients('device_info:' + deviceUuid, device);
 
@@ -1151,6 +1156,15 @@ class FleetConnect {
         } catch (error) {
             console.error(`❌ Error saving device info for ${deviceUuid}:`, error);
             throw error;
+        }
+    }
+
+    async hanldeVersionQueue(device_uuid){
+        const versionQueueRecord = await versionQueue.findOne({ device_uuid });
+        console.log('versionQueue', versionQueueRecord);
+        if(versionQueueRecord){
+            await this.sendVersionCommand(device_uuid, versionQueueRecord.version);
+            await versionQueue.deleteOne({device_uuid});
         }
     }
 
