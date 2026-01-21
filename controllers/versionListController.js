@@ -3,6 +3,7 @@ const SftpClient = require('ssh2-sftp-client');
 const path = require('path');
 const fleetConnect = require('../fleetConnect');
 const Versions = require('../models/Versions');
+const Device = require('../models/Device');
 const socketService = require('../sockets/socket');
 const archiver = require("archiver");
 
@@ -147,7 +148,19 @@ const updateVersionList = async (req, res) => {
         const devices = req.body.devices;
 
         for (const device of devices) {
-            await fleetConnect.sendVersionCommand(device.device_uuid, device.version);
+
+            const db_device = await Device.findOne({device_uuid : device.device_uuid})
+
+            if(db_device){
+
+              if(db_device.status){
+                // await fleetConnect.sendVersionCommand(device.device_uuid, device.version);
+              }else{
+                
+              }
+
+            }
+
         }
 
         res.status(200).json({
@@ -310,7 +323,7 @@ const importVersionList = async (req, res) => {
       password: sftp.password
     });
 
-    const remotePath = `/ota-test/${req.file.originalname}`;
+    const remotePath = `/ota-test/${req.file.originalname}.zip`;
 
     await client.put(req.file.buffer, remotePath);
 

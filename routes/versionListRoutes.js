@@ -27,7 +27,7 @@ router.post('/export'  , (req , res) => {
     versionListController.exportSelectedVersionList(req, res);
 })
 
-router.post('/import' , verifyToken , memUpload.single('file') ,(req , res) => {
+router.post('/import' , verifyToken , memUpload.single('versionFile') ,(req , res) => {
     versionListController.importVersionList(req, res);
 })
 
