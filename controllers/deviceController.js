@@ -313,11 +313,6 @@ const getAllAssignDevices = async (req, res) => {
                 }
             },
             { $unwind: { path: "$device_data.device_data", preserveNullAndEmptyArrays: true } },
-            {
-                $match: {
-                    "device_data.device_data.device_imei": { $nin: ["", null] }
-                }
-            }
         ];
 
         // Add search filter on device_data.name if provided
