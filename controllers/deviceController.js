@@ -277,10 +277,12 @@ const getAllAssignDevices = async (req, res) => {
 
         // Build sort object for aggregation
         let sortObj = {};
-        if (status_sort) sortObj['device_data.device_status'] = status_sort === "1" ? 1 : -1;
+        if (status_sort) sortObj['device_data.device_data.device_status'] = status_sort === "1" ? 1 : -1;
         if (created_sort) sortObj['createdAt'] = created_sort === "1" ? 1 : -1;
         if (updated_sort) sortObj['updatedAt'] = updated_sort === "1" ? 1 : -1;
         if (Object.keys(sortObj).length === 0) sortObj['createdAt'] = -1;
+
+        console.log(sortObj)
 
         
 
