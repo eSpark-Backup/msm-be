@@ -21,6 +21,8 @@ const versionListRoutes = require('./routes/versionListRoutes');
 const aboutRoutes = require('./routes/aboutRoutes');
 const measurementRoutes = require('./routes/measurementRoutes');
 const testingRoutes = require('./routes/testingRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const configrationRoutes = require('./routes/configrationRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -74,6 +76,8 @@ app.use('/api/version-list', versionListRoutes);
 app.use('/api/about', aboutRoutes);
 app.use('/api/measurement', measurementRoutes);
 app.use('/api/testing', testingRoutes);
+app.use('/api/notification', notificationRoutes);
+app.use('/api/configration', configrationRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
