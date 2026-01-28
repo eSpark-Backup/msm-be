@@ -77,7 +77,7 @@ app.use('/api/about', aboutRoutes);
 app.use('/api/measurement', measurementRoutes);
 app.use('/api/testing', testingRoutes);
 app.use('/api/notification', notificationRoutes);
-app.use('/api/configration', configrationRoutes);
+app.use('/api/configuration', configrationRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
