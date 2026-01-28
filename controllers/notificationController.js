@@ -2,13 +2,15 @@ const Notification = require('../models/Notification');
 
 const getNotifications = async (req, res) => {
     try {
-        const { user_id } = req.user;
+        const { _id } = req.user;
         const { page = 1, limit = 10, unread_only = false } = req.query;
 
-        const query = { user_id };
+        const query = { user_id : _id };
         if (unread_only === 'true') {
             query.is_read = false;
         }
+
+        console.log(req.user)
 
         const notifications = await Notification.find(query)
             .sort({ createdAt: -1 })
@@ -17,12 +19,12 @@ const getNotifications = async (req, res) => {
 
         const total = await Notification.countDocuments(query);
         const unread_count = await Notification.countDocuments({ 
-            user_id, 
+            user_id : _id, 
             is_read: false 
         });
 
         if(total == 0){
-            res.status(404).json({
+            return res.status(404).json({
                 success: false,
                 message: 'No notifications found',
             })
@@ -47,10 +49,10 @@ const getNotifications = async (req, res) => {
 
 const readAllNotifications = async (req, res) => {
     try {
-        const { user_id } = req.params;
+        const { _id } = req.user;
 
         const result = await Notification.updateMany(
-            { user_id, is_read: false },
+            { user_id : _id, is_read: false },
             { is_read: true }
         );
 
