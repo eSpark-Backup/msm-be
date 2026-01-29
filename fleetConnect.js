@@ -14,6 +14,7 @@ const Mqtts = require('./models/Mqtts');
 const About = require('./models/About');
 const Measurements = require('./models/Measurements');
 const versionQueue = require('./models/VersionQueue');
+const { createNotification } = require('./controllers/notificationController');
 
 class FleetConnect {
     constructor() {
@@ -505,6 +506,14 @@ class FleetConnect {
             console.log(`📱 Device info from ${deviceUuid}:`, message.data);
 
             const deviceInfo = message.data[0];
+
+            // Create notifications for GSM and MQTT status changes
+            if (deviceInfo.gsm_status) {
+                await createNotification(deviceUuid, `GSM Status: ${deviceInfo.gsm_status}`);
+            }
+            if (deviceInfo.mqtt_status) {
+                await createNotification(deviceUuid, `MQTT Status: ${deviceInfo.mqtt_status}`);
+            }
 
             // Update device information in database
             this.updateDeviceInfo(deviceUuid, {

@@ -1,27 +1,61 @@
 const Notification = require('../models/Notification');
+const NotificationRead = require('../models/NotificationRead');
+const Device = require('../models/Device');
 
 const getNotifications = async (req, res) => {
     try {
-        const { _id } = req.user;
+        const { _id, role } = req.user;
         const { page = 1, limit = 10, unread_only = false } = req.query;
 
-        const query = { user_id : _id };
-        if (unread_only === 'true') {
-            query.is_read = false;
+        // Get devices based on user role (lean for faster query)
+        let deviceUuids;
+        if (role.name === 'admin' || role.name === 'super_admin') {
+            const allDevices = await Device.find({}).select('device_uuid').lean();
+            deviceUuids = allDevices.map(device => device.device_uuid);
+        } else {
+            const userDevices = await Device.find({ user_id: _id }).select('device_uuid').lean();
+            deviceUuids = userDevices.map(device => device.device_uuid);
         }
 
-        console.log(req.user)
+        // Get read notification IDs for this user (lean for faster query)
+        const readNotifications = await NotificationRead.find({ 
+            user_id: _id 
+        }).select('notification_id').lean();
 
+        const readNotificationIds = readNotifications.map(rn => rn.notification_id.toString());
+
+        // Build query based on unread_only filter
+        let query = { device_id: { $in: deviceUuids } };
+        if (unread_only === 'true') {
+            query._id = { $nin: readNotificationIds };
+        }
+
+        // Get notifications with pagination (lean for faster query)
         const notifications = await Notification.find(query)
             .sort({ createdAt: -1 })
             .limit(limit * 1)
-            .skip((page - 1) * limit);
+            .skip((page - 1) * limit)
+            .lean();
 
-        const total = await Notification.countDocuments(query);
-        const unread_count = await Notification.countDocuments({ 
-            user_id : _id, 
-            is_read: false 
-        });
+        // Mark notifications as read/unread for this user
+        const notificationsWithReadStatus = notifications.map(notification => ({
+            ...notification,
+            is_read: readNotificationIds.includes(notification._id.toString())
+        }));
+
+        // Get total count and unread count efficiently
+        const [total, unread_count] = await Promise.all([
+            Notification.countDocuments({ device_id: { $in: deviceUuids } }),
+            Notification.countDocuments({ 
+                device_id: { $in: deviceUuids }, 
+                _id: { $nin: readNotificationIds } 
+            })
+        ]);
+
+        let filteredNotifications = notificationsWithReadStatus;
+        if (unread_only === 'true') {
+            filteredNotifications = notificationsWithReadStatus.filter(n => !n.is_read);
+        }
 
         if(total == 0){
             return res.status(404).json({
@@ -35,7 +69,7 @@ const getNotifications = async (req, res) => {
             count: total,
             unread_count,
             message: 'Notifications retrieved successfully',
-            data: notifications
+            data: filteredNotifications
         });
     } catch (error) {
         console.error('Error getting notifications:', error);
@@ -47,22 +81,51 @@ const getNotifications = async (req, res) => {
     }
 };
 
-const readAllNotifications = async (req, res) => {
+const markAllNotificationsAsRead = async (req, res) => {
     try {
-        const { _id } = req.user;
+        const { _id, role } = req.user;
 
-        const result = await Notification.updateMany(
-            { user_id : _id, is_read: false },
-            { is_read: true }
-        );
+        // Get devices based on user role
+        let deviceUuids;
+        if (role.name === 'admin' || role.name === 'super_admin') {
+            const allDevices = await Device.find({}).select('device_uuid').lean();
+            deviceUuids = allDevices.map(device => device.device_uuid);
+        } else {
+            const userDevices = await Device.find({ user_id: _id }).select('device_uuid').lean();
+            deviceUuids = userDevices.map(device => device.device_uuid);
+        }
+
+        // Get already read notification IDs for this user (lean for faster query)
+        const existingReads = await NotificationRead.find({ 
+            user_id: _id 
+        }).select('notification_id').lean();
+
+        const readNotificationIds = existingReads.map(rn => rn.notification_id.toString());
+
+        // Get unread notifications for user's devices (lean for faster query)
+        const unreadNotifications = await Notification.find({ 
+            device_id: { $in: deviceUuids },
+            _id: { $nin: readNotificationIds }
+        }).select('_id').lean();
+
+        // Prepare bulk insert operations
+        const readOperations = unreadNotifications.map(notification => ({
+            notification_id: notification._id,
+            user_id: _id
+        }));
+
+        // Bulk insert if there are operations
+        if (readOperations.length > 0) {
+            await NotificationRead.insertMany(readOperations, { ordered: false });
+        }
 
         res.status(200).json({
             success: true,
-            count: result.modifiedCount,
-            message: 'All notifications marked as read',
+            count: readOperations.length,
+            message: `${readOperations.length} notifications marked as read`
         });
     } catch (error) {
-        console.error('Error marking notifications as read:', error);
+        console.error('Error marking all notifications as read:', error);
         res.status(500).json({
             success: false,
             message: 'Internal server error',
@@ -71,10 +134,10 @@ const readAllNotifications = async (req, res) => {
     }
 };
 
-const createNotification = async (user_id, message) => {
+const createNotification = async (device_id, message) => {
     try {
         const notification = await Notification.create({
-            user_id,
+            device_id,
             message,
         });
         return notification;
@@ -86,6 +149,6 @@ const createNotification = async (user_id, message) => {
 
 module.exports = {
     getNotifications,
-    readAllNotifications,
+    markAllNotificationsAsRead,
     createNotification,
 };
