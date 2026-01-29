@@ -92,7 +92,7 @@ const markAllNotificationsAsRead = async (req, res) => {
             const allDevices = await Device.find({}).select('device_uuid').lean();
             deviceUuids = allDevices.map(device => device.device_uuid);
         } else {
-            const userDevices = await Device.find({ user_id: _id }).select('device_uuid').lean();
+            const userDevices = await Device.find().select('device_uuid').lean();
             deviceUuids = userDevices.map(device => device.device_uuid);
         }
 

@@ -21,12 +21,12 @@ const createDummyNotifications = async () => {
         console.log(`Found device: ${device.device_uuid} for seeding notifications`);
 
         // Delete existing notifications
-        const deleteResult = await Notification.deleteMany({});
-        console.log(`Deleted ${deleteResult.deletedCount} existing notifications`);
+        // const deleteResult = await Notification.deleteMany({});
+        // console.log(`Deleted ${deleteResult.deletedCount} existing notifications`);
 
         // Delete existing notification reads
-        const deleteReadsResult = await NotificationRead.deleteMany({});
-        console.log(`Deleted ${deleteReadsResult.deletedCount} existing notification reads`);
+        // const deleteReadsResult = await NotificationRead.deleteMany({});
+        // console.log(`Deleted ${deleteReadsResult.deletedCount} existing notification reads`);
 
         // Create 10 dummy notifications for ESP90000005 (matching FleetConnect format)
         const dummyMessages = [
