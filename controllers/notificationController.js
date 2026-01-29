@@ -1,6 +1,7 @@
 const Notification = require('../models/Notification');
 const NotificationRead = require('../models/NotificationRead');
 const Device = require('../models/Device');
+const socketService = require('../sockets/socket');
 
 const getNotifications = async (req, res) => {
     try {
@@ -116,7 +117,7 @@ const markAllNotificationsAsRead = async (req, res) => {
 
         // Bulk insert if there are operations
         if (readOperations.length > 0) {
-            await NotificationRead.insertMany(readOperations, { ordered: false });
+            await NotificationRead.insertMany(readOperations, { ordered: false });            
         }
 
         res.status(200).json({
@@ -140,6 +141,18 @@ const createNotification = async (device_uuid, message) => {
             device_uuid,
             message,
         });
+
+        // Emit notification to all connected clients
+        socketService.emitToClients('new_notification', {
+            _id: notification._id,
+            device_uuid: notification.device_uuid,
+            message: notification.message,
+            createdAt: notification.createdAt,
+            is_read: false // New notifications are unread by default
+        });
+
+        console.log(`🔔 Notification sent via socket: ${message} for device ${device_uuid}`);
+        
         return notification;
     } catch (error) {
         console.error('Error creating notification:', error);

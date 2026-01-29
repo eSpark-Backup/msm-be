@@ -95,9 +95,15 @@ socket.on("connect", () => {
   //   console.log("measurements from server:", data);
   // });
 
-  socket.on("new_versions", (data) => {
-    console.log("New Versions from server:", data);
-  });
+  // socket.on("new_versions", (data) => {
+  //   console.log("New Versions from server:", data);
+  // });
+
+  socket.on("new_notification" , (data) => {
+    console.log("New notification received:", data);
+  })
+
+
 
   // socket.emit("mqtt_protocol_stop" , { thing_name : "ESP90000005" });
 });
