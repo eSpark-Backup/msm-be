@@ -1,7 +1,8 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const User = require('../models/User');
+const Device = require('../models/Device');
 const Notification = require('../models/Notification');
+const NotificationRead = require('../models/NotificationRead');
 
 const createDummyNotifications = async () => {
     try {
@@ -9,59 +10,54 @@ const createDummyNotifications = async () => {
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('Connected to MongoDB');
 
-        // Get user by email
-        const user = await User.findOne({ email: 'eintechnologylabs@gmail.com' });
+        // Get specific device for seeding
+        const device = await Device.findOne({ device_uuid: 'ESP90000005' });
         
-        if (!user) {
-            console.log('User not found with email: eintechnologylabs@gmail.com');
+        if (!device) {
+            console.log('Device ESP90000005 not found. Please create this device first.');
             return;
         }
 
-        console.log(`Found user: ${user.name} (${user._id})`);
+        console.log(`Found device: ${device.device_uuid} for seeding notifications`);
 
-        // Delete existing notifications for this user
-        const deleteResult = await Notification.deleteMany({ user_id: user._id });
+        // Delete existing notifications
+        const deleteResult = await Notification.deleteMany({});
         console.log(`Deleted ${deleteResult.deletedCount} existing notifications`);
 
-        // Create dummy notifications
+        // Delete existing notification reads
+        const deleteReadsResult = await NotificationRead.deleteMany({});
+        console.log(`Deleted ${deleteReadsResult.deletedCount} existing notification reads`);
+
+        // Create 10 dummy notifications for ESP90000005 (matching FleetConnect format)
         const dummyMessages = [
-            "Welcome to MSM Dashboard! Your account has been successfully created.",
-            "New device added to your network. Please check your devices list.",
-            "System maintenance scheduled for tonight at 2:00 AM.",
-            "Your monthly report is ready for download.",
-            "Security alert: New login detected from your account.",
-            "Device 'Sensor-001' is offline and needs attention.",
-            "New firmware update available for your devices.",
-            "Your subscription will expire in 7 days. Please renew.",
-            "Congratulations! You've reached 100 active devices.",
-            "System backup completed successfully.",
-            "New user invitation sent to your team members.",
-            "Device 'Gateway-002' battery is running low.",
-            "Weekly analytics report is now available.",
-            "Security scan completed - no threats detected.",
-            "New feature released: Real-time monitoring dashboard."
+            "GSM Status: connected",
+            "GSM Status: disconnected",
+            "GSM Status: weak_signal",
+            "MQTT Status: connected",
+            "MQTT Status: disconnected",
+            "GSM Status: no_signal",
+            "MQTT Status: connection_lost",
+            "GSM Status: roaming",
+            "MQTT Status: authentication_successful",
+            "GSM Status: network_timeout"
         ];
 
         const notifications = [];
         
         for (let i = 0; i < dummyMessages.length; i++) {
             const notification = await Notification.create({
-                user_id: user._id,
-                message: dummyMessages[i],
-                is_read: Math.random() > 0.7 // Randomly mark some as read (30% chance)
+                device_uuid: device.device_uuid,
+                message: dummyMessages[i]
             });
             notifications.push(notification);
         }
 
-        console.log(`Created ${notifications.length} dummy notifications for user ${user.email}`);
+        console.log(`Created ${notifications.length} dummy notifications for device ESP90000005`);
         
         // Count created notifications
-        const totalNotifications = await Notification.countDocuments({ user_id: user._id });
-        const unreadNotifications = await Notification.countDocuments({ user_id: user._id, is_read: false });
-        
+        const totalNotifications = await Notification.countDocuments();
         console.log(`Total notifications: ${totalNotifications}`);
-        console.log(`Unread notifications: ${unreadNotifications}`);
-        console.log(`Read notifications: ${totalNotifications - unreadNotifications}`);
+        console.log(`All notifications are unread - ready for testing`);
 
     } catch (error) {
         console.error('Error creating dummy notifications:', error);

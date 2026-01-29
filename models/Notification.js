@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const notificationSchema = new mongoose.Schema({
-    device_id: {
+    device_uuid: {
         type: String,
         required: true
     },

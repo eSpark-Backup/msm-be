@@ -13,7 +13,7 @@ const getNotifications = async (req, res) => {
             const allDevices = await Device.find({}).select('device_uuid').lean();
             deviceUuids = allDevices.map(device => device.device_uuid);
         } else {
-            const userDevices = await Device.find({ user_id: _id }).select('device_uuid').lean();
+            const userDevices = await Device.find({}).select('device_uuid').lean();
             deviceUuids = userDevices.map(device => device.device_uuid);
         }
 
@@ -25,7 +25,7 @@ const getNotifications = async (req, res) => {
         const readNotificationIds = readNotifications.map(rn => rn.notification_id.toString());
 
         // Build query based on unread_only filter
-        let query = { device_id: { $in: deviceUuids } };
+        let query = { device_uuid: { $in: deviceUuids } };
         if (unread_only === 'true') {
             query._id = { $nin: readNotificationIds };
         }
@@ -45,9 +45,9 @@ const getNotifications = async (req, res) => {
 
         // Get total count and unread count efficiently
         const [total, unread_count] = await Promise.all([
-            Notification.countDocuments({ device_id: { $in: deviceUuids } }),
+            Notification.countDocuments({ device_uuid: { $in: deviceUuids } }),
             Notification.countDocuments({ 
-                device_id: { $in: deviceUuids }, 
+                device_uuid: { $in: deviceUuids }, 
                 _id: { $nin: readNotificationIds } 
             })
         ]);
@@ -104,7 +104,7 @@ const markAllNotificationsAsRead = async (req, res) => {
 
         // Get unread notifications for user's devices (lean for faster query)
         const unreadNotifications = await Notification.find({ 
-            device_id: { $in: deviceUuids },
+            device_uuid: { $in: deviceUuids },
             _id: { $nin: readNotificationIds }
         }).select('_id').lean();
 
@@ -134,10 +134,10 @@ const markAllNotificationsAsRead = async (req, res) => {
     }
 };
 
-const createNotification = async (device_id, message) => {
+const createNotification = async (device_uuid, message) => {
     try {
         const notification = await Notification.create({
-            device_id,
+            device_uuid,
             message,
         });
         return notification;
