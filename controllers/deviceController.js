@@ -227,6 +227,7 @@ const getAllUserDevices = async (req, res) => {
         
         // If created or updated sort is present, only use those
         if (createdOrder !== undefined || updatedOrder !== undefined) {
+            sortObj["device_data.device_status"] = -1;
             if (createdOrder !== undefined) {
                 sortObj["device_data.createdAt"] = createdOrder;
             }
