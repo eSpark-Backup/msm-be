@@ -279,12 +279,11 @@ const getAllUserDevices = async (req, res) => {
     }
 };
 
-
 const getAllAssignDevices = async (req, res) => {
     try {
         const { search, page, limit, status_sort, created_sort, updated_sort } = req.query;
 
-        const query = { user_id: req.user._id };
+        let query = { user_id: req.user._id };
 
         const pageNum = Number(page) || 1;
         const limitNum = Number(limit) || 0;
@@ -292,14 +291,19 @@ const getAllAssignDevices = async (req, res) => {
 
         // Build sort object for aggregation
         let sortObj = {};
-        if (status_sort) sortObj['device_data.device_data.device_status'] = status_sort === "1" ? 1 : -1;
-        if (created_sort) sortObj['createdAt'] = created_sort === "1" ? 1 : -1;
-        if (updated_sort) sortObj['updatedAt'] = updated_sort === "1" ? 1 : -1;
-        if (Object.keys(sortObj).length === 0) sortObj['createdAt'] = -1;
+        if (created_sort || updated_sort){
 
-        console.log(sortObj)
+            if(created_sort){
+                sortObj['device_data.device_data.createdAt'] = created_sort === "1" ? 1 : -1;
+            }
 
-        
+            if(updated_sort){
+                sortObj['device_data.device_data.updatedAt'] = updated_sort === "1" ? 1 : -1;
+            }
+
+        }else{
+            sortObj['device_data.device_data.device_status'] = -1;
+        } 
 
         // Aggregation pipeline
         const devicesPipeline = [
@@ -331,6 +335,27 @@ const getAllAssignDevices = async (req, res) => {
             },
             { $unwind: { path: "$device_data.device_data", preserveNullAndEmptyArrays: true } },
         ];
+
+        // Add status filter after lookups
+        if(status_sort){
+            switch(status_sort){
+                case "1":
+                    devicesPipeline.push({
+                        $match: { "device_data.device_data.device_status": false }
+                    });
+                    break;
+                case "-1":
+                    devicesPipeline.push({
+                        $match: { "device_data.device_data.device_status": true }
+                    });
+                    break;
+                default:
+                    devicesPipeline.push({
+                        $match: { "device_data.device_data.device_status": true }
+                    });
+                    break;
+            }
+        } 
 
         // Add search filter on device_data.name if provided
         if (search) {
