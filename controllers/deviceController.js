@@ -129,11 +129,10 @@ const getAllUserDevices = async (req, res) => {
         const limitNum = Number(limit) || 0;
         const skip = limitNum ? (pageNum - 1) * limitNum : 0;
 
-        // Determine sort orders (1 or -1)
+        // Determine sort orders (1 or -1) only if parameter is present
         let statusOrder;
 
         if (!status_sort) {
-            // Status parameter missing → get ALL
             statusOrder = -2;
         } else if (status_sort === '1') {
             statusOrder = 1;
@@ -142,8 +141,15 @@ const getAllUserDevices = async (req, res) => {
         } else {
             statusOrder = -1;
         }
-        const createdOrder = created_sort === '1' ? 1 : -1;
-        const updatedOrder = updated_sort === '1' ? 1 : -1;
+        
+        // Only set created and updated sort if parameters are present
+        let createdOrder, updatedOrder;
+        if (created_sort !== undefined) {
+            createdOrder = created_sort === '1' ? 1 : -1;
+        }
+        if (updated_sort !== undefined) {
+            updatedOrder = updated_sort === '1' ? 1 : -1;
+        }
 
         const pipeline = [
             { $match: query },
@@ -195,7 +201,6 @@ const getAllUserDevices = async (req, res) => {
                     }
                 });
                 break;
-
             case 1:
                 pipeline.push({
                     $match: {
@@ -218,14 +223,23 @@ const getAllUserDevices = async (req, res) => {
             });
         }
 
-        pipeline.push({
-            $sort: {
-                "device_data.device_status": -1,
-                "device_data.device_imei": -1,
-                createdAt: createdOrder,
-                updatedAt: updatedOrder
+        const sortObj = {};
+        
+        // If created or updated sort is present, only use those
+        if (createdOrder !== undefined || updatedOrder !== undefined) {
+            if (createdOrder !== undefined) {
+                sortObj["device_data.createdAt"] = createdOrder;
             }
-        });
+            if (updatedOrder !== undefined) {
+                sortObj["device_data.updatedAt"] = updatedOrder;
+            }
+        } else {
+            // Default sorting when no date sort is present
+            sortObj["device_data.device_status"] = -1;
+            sortObj["device_data.device_imei"] = -1;
+        }
+
+        pipeline.push({ $sort: sortObj });
 
         if (limitNum !== 0) {
             pipeline.push({ $skip: skip }, { $limit: limitNum });

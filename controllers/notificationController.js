@@ -137,9 +137,12 @@ const markAllNotificationsAsRead = async (req, res) => {
 
 const createNotification = async (device_uuid, message) => {
     try {
+        // Include device UUID in the message
+        const messageWithUuid = `[Device: ${device_uuid}] ${message}`;
+        
         const notification = await Notification.create({
             device_uuid,
-            message,
+            message: messageWithUuid,
         });
 
         // Emit notification to all connected clients
@@ -151,7 +154,7 @@ const createNotification = async (device_uuid, message) => {
             is_read: false // New notifications are unread by default
         });
 
-        console.log(`🔔 Notification sent via socket: ${message} for device ${device_uuid}`);
+        console.log(`🔔 Notification sent via socket: ${messageWithUuid}`);
         
         return notification;
     } catch (error) {
