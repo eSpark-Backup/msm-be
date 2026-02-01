@@ -2,6 +2,7 @@ const awsIot = require('aws-iot-device-sdk');
 const path = require('path');
 const Telemetry = require('./models/Telemetry');
 const Device = require('./models/Device');
+const Configration = require('./models/Configration');
 const Mqtt = require('./models/Mqtt');
 const Ntp = require('./models/Ntp');
 const Sftp = require('./models/Sftp');
@@ -15,6 +16,7 @@ const About = require('./models/About');
 const Measurements = require('./models/Measurements');
 const versionQueue = require('./models/VersionQueue');
 const { createNotification } = require('./controllers/notificationController');
+const { checkVoltageUnbalance } = require('./alerts');
 
 class FleetConnect {
     constructor() {
@@ -463,6 +465,9 @@ class FleetConnect {
 
             if (telemetryBulkData.length > 0) {
                 await Telemetry.insertMany(telemetryBulkData, { ordered: false });
+                
+                // Check voltage unbalance after saving telemetry data
+                await checkVoltageUnbalance(deviceUuid, telemetryBulkData);
             }
 
 
