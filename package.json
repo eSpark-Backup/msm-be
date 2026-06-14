@@ -14,7 +14,7 @@
   "dependencies": {
     "archiver": "^8.0.0",
     "aws-iot-device-sdk": "^2.2.15",
-    "bcryptjs": "^3.0.2",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dayjs": "^1.11.18",
     "dotenv": "^16.0.3",
