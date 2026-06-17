@@ -24,7 +24,7 @@
     "mailgun-js": "^0.22.0",
     "moment-timezone": "^0.6.0",
     "mongoose": "^9.7.0",
-    "mqtt": "^4.3.7",
+    "mqtt": "^5.15.1",
     "multer": "^2.0.2",
     "nodemailer": "^9.0.0",
     "socket.io": "^4.8.1",
